@@ -6,11 +6,6 @@
 
 namespace squarez
 {
-
-typedef enum
-{
-	up, right, down, left
-} direction_t;
 	
 class GameBoard;
 class Selection;
@@ -28,18 +23,21 @@ public:
 	{
 		uint8_t _x; // target position
 		uint8_t _y;
-		bool _doubleMove;
 		uint8_t _symbol;
-		NewCell(uint8_t x, uint8_t y,bool doubleMove, uint8_t symbol):
-		_x(x), _y(y), _doubleMove(doubleMove), _symbol(symbol) {}
+		NewCell(uint8_t x, uint8_t y, uint8_t symbol):
+		_x(x), _y(y), _symbol(symbol) {}
 	};
 	Transition(GameBoard const& board);
 	Transition(GameBoard const& board, Selection const& selection, uint32_t score);
 	
 	CellTransition operator() (uint8_t x, uint8_t y) const { return _cells.at(x * _size + y);}
+	uint8_t getMove(uint8_t x, uint8_t y) const {return this->operator()(x,y)._move;}
+	bool getRemoved(uint8_t x, uint8_t y) const {return this->operator()(x,y)._removed;}
 	
+	std::vector<NewCell> const& getNewCells() const { return _newCells; }
+	
+	bool _doubleMove;
 	uint32_t _score;
-	direction_t _direction;
 	uint8_t _size;
 private:
 	void move(uint8_t x, uint8_t y);

@@ -59,12 +59,8 @@ public:
 	void set(std::pair<uint8_t, uint8_t> point, uint8_t symbol) {set(point.first, point.second, symbol);}
 	
 	uint8_t size() const { return _size;}
-	
-	direction_t direction() const { return _direction;}
 	uint8_t symbol() const { return _symbols; }
 private:
-	// Direction the cells will move when a hole is created
-	direction_t _direction;
 	// Number of possible values for each cell
 	uint8_t _symbols;
 	

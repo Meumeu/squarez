@@ -1,4 +1,3 @@
 [Project]
+Manager=KDevCustomMakeManager
 Name=squarez
-Manager=KDevCMakeManager
-VersionControl=kdevgit

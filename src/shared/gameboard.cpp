@@ -35,12 +35,14 @@ void Selection::addPoint(uint8_t x, uint8_t y)
 }
 
 
-GameBoard::GameBoard(uint8_t size, uint8_t numberOfSymbols): _direction(down), _symbols(numberOfSymbols), _size(size)
+GameBoard::GameBoard(uint8_t size, uint8_t numberOfSymbols): _symbols(numberOfSymbols), _size(size)
 {
 	_cells.resize(size * size);
 	std::srand(std::time(0));
 	for (auto & cell : _cells)
+	{
 		cell = std::rand() % numberOfSymbols;
+	}
 
 }
 
@@ -103,7 +105,7 @@ Transition GameBoard::selectSquare(const Selection& selection) const
 		score *= 2;
 	return Transition(*this, selection, score);
 }
-
+#if 0
 namespace
 {
 	struct Range
@@ -127,45 +129,33 @@ namespace
 		const_iterator _end;
 	};
 }
+#endif
 
 void GameBoard::applyTransition(const Transition& transition)
 {
-	int xinc = 0, yinc = 0;
-	Range xrange(0, _size),
-		yrange(0, _size);
-	switch (_direction)
-	{
-		case up:
-			yinc = 1;
-			yrange = Range(_size, 0);
-			break;
-		case down:
-			yinc = -1;
-			break;
-		case left:
-			xinc = -1;
-			break;
-		case right:
-			xinc = 1;
-			xrange = Range(_size, 0);
-			break;
-	}
+	if (transition._score == 0)
+		return;
 
-	for (uint8_t x: xrange)
-		for(uint8_t y: yrange)
+	for (uint8_t x = 0; x < _size; ++x)
+		for(uint8_t y = _size -1; y > 0 ; --y)
 		{
 			auto cellTransition = transition(x,y);
 			if (cellTransition._move)
-				this->set(x + cellTransition._move * xinc, y + cellTransition._move * yinc, this->get(x, y));
+				this->set(x, y + cellTransition._move, this->get(x, y));
 		}
+		
+	for (auto cell: transition.getNewCells())
+	{
+		this->set(cell._x, cell._y, cell._symbol);
+	}
 
 }
 
 std::ostream& operator<<(std::ostream& out, GameBoard const& board)
 {
-	for (uint8_t x = 0 ; x< board.size() ; ++x)
+	for (uint8_t y = 0 ; y< board.size() ; ++y)
 	{
-		for (uint8_t y = 0 ; y< board.size() ; ++y)
+		for (uint8_t x = 0 ; x< board.size() ; ++x)
 			out << (int)board.get(x,y)<< " ";
 		out << std::endl;
 	}
