@@ -18,10 +18,11 @@
  */
 
 #include "gameboard.h"
-#include <stdlib.h>
 #include <stdexcept>
 #include <algorithm>
-#include <random>
+#include <cstdlib>
+#include <ctime>
+#include <boost/range/irange.hpp>
 
 namespace squarez
 {
@@ -37,13 +38,11 @@ void Selection::addPoint(uint8_t x, uint8_t y)
 
 GameBoard::GameBoard(uint8_t size, uint8_t numberOfSymbols): _direction(down), _symbols(numberOfSymbols), _size(size)
 {
-	_cells.resize(size*size);
-	/*std::random_device rd;
-	std::default_random_engine generator(rd());
-	std::uniform_int_distribution<> distribution(0, numberOfSymbols - 1);
+	_cells.resize(size * size);
+	std::srand(std::time(0));
 	for (auto & cell : _cells)
-		cell = distribution(generator);
-		*/
+		cell = std::rand() % numberOfSymbols;
+
 }
 
 uint8_t GameBoard::get(uint8_t x, uint8_t y) const
@@ -53,6 +52,18 @@ uint8_t GameBoard::get(uint8_t x, uint8_t y) const
 	if (y >= _size)
 		throw std::out_of_range("y out of range");
 	return _cells[x * _size + y];
+}
+
+
+void GameBoard::set(uint8_t x, uint8_t y, uint8_t symbol)
+{
+	if (x >= _size)
+		throw std::out_of_range("x out of range");
+	if (y >= _size)
+		throw std::out_of_range("y out of range");
+	if (symbol >= _symbols)
+		throw std::out_of_range("symbol out of range");
+	_cells[x * _size + y] = symbol;
 }
 
 static uint16_t norm(std::pair<uint8_t, uint8_t> p0, std::pair<uint8_t, uint8_t> p1)
@@ -67,12 +78,12 @@ static bool isSquareAngle(std::pair<uint8_t, uint8_t> p0, std::pair<uint8_t, uin
 }
 
 
-uint32_t GameBoard::selectSquare(const Selection& selection)
+Transition GameBoard::selectSquare(const Selection& selection) const
 {
 	auto points = selection.getPoints();
 	// Check that we are actually selecting 4 points
 	if (points.size() != 4)
-		return 0;
+		return Transition(*this);
 	std::sort(points.begin(), points.end());
 	auto p0 = points[0],
 	p1 = points[1],
@@ -81,17 +92,49 @@ uint32_t GameBoard::selectSquare(const Selection& selection)
 	
 	// Check that symbols are all the same
 	if (this->get(p0) != this->get(p1) or this->get(p2) != this->get(p3) or this->get(p0) != this->get(p2))
-		return 0;
+		return Transition(*this);
 	
-	// Now verify that it is a square: 4 edges with the same lenght and a square angle
-	auto squareSize = norm(p0,p1);
-	if (norm(p0,p2) != squareSize or norm(p2,p3) != squareSize or norm(p1,p3) != squareSize or not isSquareAngle(p0,p1,p3))
-		return 0;
-	
-	// Simple score calculation: surface of the square, with a x2 bonus if it is not parallel to the edge
-	if (p0.first == p1.first or p0.second == p1.second)
-		return squareSize;
-	return squareSize * 2;
+	// Now verify that it is a square: 4 edges with the same length and a square angle
+	auto score = norm(p0,p1);
+	if (norm(p0,p2) != score or norm(p2,p3) != score or norm(p1,p3) != score or not isSquareAngle(p0,p1,p3) or score == 0)
+		return Transition(*this);
+
+	// Simple score calculation: surface of the square, with a x2 bonus if it is not parallel to the edge	
+	if (p0.first != p1.first or p0.second != p1.second)
+		score *= 2;
+	return Transition(*this, selection, score);
+}
+
+void GameBoard::applyTransition(const Transition& transition)
+{
+	int xinc = 0, yinc = 0;
+	boost::strided_integer_range<uint8_t> xrange = boost::irange<uint8_t>(0, _size, 1);
+	boost::strided_integer_range<uint8_t> yrange = xrange;
+	switch (_direction)
+	{
+		case up:
+			yinc = 1;
+			yrange = boost::irange<uint8_t, int>(_size, 0, -1);
+			break;
+		case down:
+			yinc = -1;
+			break;
+		case left:
+			xinc = -1;
+			break;
+		case right:
+			xinc = 1;
+			xrange = boost::irange<uint8_t, int>(_size, 0, -1);
+			break;
+	}
+
+	for (uint8_t x: xrange)
+		for(uint8_t y: yrange)
+		{
+			auto cellTransition = transition(x,y);
+			if (cellTransition._move)
+				this->set(x + cellTransition._move * xinc, y + cellTransition._move * yinc, this->get(x, y));
+		}
 
 }
 

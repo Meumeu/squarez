@@ -10,6 +10,6 @@ int main(int argc, char **argv) {
 	s.addPoint(0,1);
 	s.addPoint(1,1);
 	s.addPoint(1,0);
-	std::cout << b.selectSquare(s);
+	squarez::Transition t = b.selectSquare(s);
 	return 0;
 }

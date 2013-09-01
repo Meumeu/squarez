@@ -24,6 +24,8 @@
 #include <vector>
 #include <ostream>
 
+#include "transition.h"
+
 namespace squarez
 {
 	
@@ -38,23 +40,28 @@ private:
 
 class GameBoard
 {
-	typedef enum
-	{
-		up, right, down, left
-	} direction_t;
 	
 public:
 	GameBoard(uint8_t size, uint8_t numberOfSymbols);
 	
 	// Attempt to remove the selected cells from the board, return the score.
-	// Score is 0 only if no element has been removed
-	uint32_t selectSquare(Selection const& selection);
+	// Score is 0 only if selection is invalid
+	Transition selectSquare(Selection const& selection) const;
+	
+	void applyTransition(Transition const& transition);
 	
 	// Get the symbol of the board at coordinates x,y
 	uint8_t get(uint8_t x, uint8_t y) const;
 	uint8_t get(std::pair<uint8_t, uint8_t> point) const {return get(point.first, point.second);}
 	
+	// Set the symbol of the board at coordinates x,y
+	void set(uint8_t x, uint8_t y, uint8_t symbol);
+	void set(std::pair<uint8_t, uint8_t> point, uint8_t symbol) {set(point.first, point.second, symbol);}
+	
 	uint8_t size() const { return _size;}
+	
+	direction_t direction() const { return _direction;}
+	uint8_t symbol() const { return _symbols; }
 private:
 	// Direction the cells will move when a hole is created
 	direction_t _direction;
