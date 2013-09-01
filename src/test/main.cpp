@@ -1,5 +1,5 @@
 #include <iostream>
-#include "gameboard.h"
+#include "shared/gameboard.h"
 
 int main(int argc, char **argv) {
 	squarez::GameBoard b(8,3);
