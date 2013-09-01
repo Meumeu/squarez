@@ -22,7 +22,6 @@
 #include <algorithm>
 #include <cstdlib>
 #include <ctime>
-#include <boost/range/irange.hpp>
 
 namespace squarez
 {
@@ -105,16 +104,40 @@ Transition GameBoard::selectSquare(const Selection& selection) const
 	return Transition(*this, selection, score);
 }
 
+namespace
+{
+	struct Range
+	{
+		struct const_iterator
+		{
+			uint8_t _val;
+			int _increment;
+			uint8_t operator*() const { return _val;}
+			const_iterator operator++() { _val += _increment; return *this;}
+			bool operator!=(const_iterator const& other) const
+			{ return _val != other._val;}
+			const_iterator(uint8_t val, int increment): _val(val), _increment(increment) {}
+		};
+		Range(uint8_t from, uint8_t to):
+			_begin(from, (to > from) ? 1 : -1),
+			_end(to + ((to > from) ? 1 : -1), 1) {}
+		const_iterator begin() const { return _begin; }
+		const_iterator end() const { return _end;}
+		const_iterator _begin;
+		const_iterator _end;
+	};
+}
+
 void GameBoard::applyTransition(const Transition& transition)
 {
 	int xinc = 0, yinc = 0;
-	boost::strided_integer_range<uint8_t> xrange = boost::irange<uint8_t>(0, _size, 1);
-	boost::strided_integer_range<uint8_t> yrange = xrange;
+	Range xrange(0, _size),
+		yrange(0, _size);
 	switch (_direction)
 	{
 		case up:
 			yinc = 1;
-			yrange = boost::irange<uint8_t, int>(_size, 0, -1);
+			yrange = Range(_size, 0);
 			break;
 		case down:
 			yinc = -1;
@@ -124,7 +147,7 @@ void GameBoard::applyTransition(const Transition& transition)
 			break;
 		case right:
 			xinc = 1;
-			xrange = boost::irange<uint8_t, int>(_size, 0, -1);
+			xrange = Range(_size, 0);
 			break;
 	}
 
