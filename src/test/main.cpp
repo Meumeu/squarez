@@ -14,8 +14,10 @@ int main(int argc, char **argv) {
 	
 	squarez::Selection s;
 	s.addPoint(0,5);
+	s.addPoint(2,5);
 	s.addPoint(0,6);
 	s.addPoint(1,6);
+	s.addPoint(2,5);
 	s.addPoint(1,5);
 	squarez::Transition t = b.selectSquare(s);
 	

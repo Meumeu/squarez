@@ -22,6 +22,7 @@
 
 #include <stdint.h>
 #include <vector>
+#include <set>
 #include <ostream>
 
 #include "transition.h"
@@ -33,9 +34,9 @@ class Selection
 {
 public:
 	void addPoint(uint8_t x, uint8_t y);
-	std::vector<std::pair<uint8_t, uint8_t>> const& getPoints() const {return _points;}
+	std::set<std::pair<uint8_t, uint8_t>> const& getPoints() const {return _points;}
 private:
-	std::vector<std::pair<uint8_t, uint8_t>> _points;
+	std::set<std::pair<uint8_t, uint8_t>> _points;
 };
 
 class GameBoard

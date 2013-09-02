@@ -28,10 +28,17 @@ namespace squarez
 
 void Selection::addPoint(uint8_t x, uint8_t y)
 {
+	std::pair<uint8_t, uint8_t> point(x,y);
+	if (_points.find(point) != _points.end())
+	{
+		_points.erase(point);
+		return;
+	}
+
 	if (_points.size() >= 4)
 		return;
-	
-	_points.push_back(std::make_pair(x,y));
+
+	_points.insert(point);
 }
 
 
@@ -85,11 +92,11 @@ Transition GameBoard::selectSquare(const Selection& selection) const
 	// Check that we are actually selecting 4 points
 	if (points.size() != 4)
 		return Transition(*this);
-	std::sort(points.begin(), points.end());
-	auto p0 = points[0],
-	p1 = points[1],
-	p2 = points[2],
-	p3 = points[3];
+	auto it = points.begin();
+	auto p0 = *(it++);
+	auto p1 = *(it++);
+	auto p2 = *(it++);
+	auto p3 = *it;
 	
 	// Check that symbols are all the same
 	if (this->get(p0) != this->get(p1) or this->get(p2) != this->get(p3) or this->get(p0) != this->get(p2))
