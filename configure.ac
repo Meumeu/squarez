@@ -12,7 +12,7 @@ AC_CONFIG_MACRO_DIR([m4])
 AC_MSG_CHECKING([whether to build javascript library])
 AC_ARG_ENABLE([javascript],
 	AS_HELP_STRING([--enable-javascript], [build javascript library]))
-AC_MSG_RESULT($enable_simulator)
+AC_MSG_RESULT($enable_javascript)
 AM_CONDITIONAL([JAVASCRIPT], [test "x$enable_javascript" = "xyes"])
 
 AC_MSG_CHECKING([whether to build with -Werror])
