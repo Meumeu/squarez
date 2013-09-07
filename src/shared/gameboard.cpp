@@ -150,11 +150,11 @@ void GameBoard::applyTransition(const Transition& transition)
 		return;
 
 	for (uint8_t x = 0; x < _size; ++x)
-		for(uint8_t y = _size -1; y > 0 ; --y)
+		for(uint8_t y = _size; y > 0 ; --y)
 		{
-			auto cellTransition = transition(x,y);
+			auto cellTransition = transition(x, y - 1);
 			if (cellTransition._move and not cellTransition._removed)
-				this->set(x, y + cellTransition._move, this->get(x, y));
+				this->set(x, y + cellTransition._move - 1, this->get(x, y - 1));
 		}
 		
 	for (auto cell: transition.getNewCells())
