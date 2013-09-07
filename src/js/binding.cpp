@@ -19,6 +19,7 @@ EMSCRIPTEN_BINDINGS(GameBoard) {
 		.function("applyTransition", &GameBoard::applyTransition)
 		.function("size", &GameBoard::size)
 		.function("get", emscripten::select_overload<uint8_t(uint8_t, uint8_t)const>(&GameBoard::get))
+		.function("print", &GameBoard::print)
 		;
 }
 

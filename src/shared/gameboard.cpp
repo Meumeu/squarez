@@ -22,6 +22,7 @@
 #include <algorithm>
 #include <cstdlib>
 #include <ctime>
+#include <iostream>
 
 namespace squarez
 {
@@ -173,4 +174,9 @@ std::ostream& operator<<(std::ostream& out, GameBoard const& board)
 	}
 	return out;
 }
+
+void GameBoard::print() const {
+	std::cout << *this << std::endl;
+}
+
 }

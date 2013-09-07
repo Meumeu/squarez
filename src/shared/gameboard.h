@@ -62,6 +62,8 @@ public:
 	
 	uint8_t size() const { return _size;}
 	uint8_t symbol() const { return _symbols; }
+
+	void print() const ;
 private:
 	// Number of possible values for each cell
 	uint8_t _symbols;

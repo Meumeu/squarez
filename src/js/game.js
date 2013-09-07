@@ -105,7 +105,6 @@ Squarez.prototype =
 		for (i = 0 ; i < 4 ; i++)
 		{
 			var newCell = transition.getNewCell(i);
-			Module.print("new cell " +newCell.symbol+ " x:"+newCell.x + " y:" + newCell.y); 
 			var classes = "";
 			var cellEl = this.addElement(newCell.x, newCell.y - move[newCell.x], newCell.symbol);
 			if (move[newCell.x] == 2)
@@ -119,6 +118,7 @@ Squarez.prototype =
 				element.classList.add("y"+to);
 			}, 1, cellEl, newCell.y - move[newCell.x], newCell.y);
 		}
+		this.board.print();
 	},
 
 	select: function(el)
