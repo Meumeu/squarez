@@ -26,21 +26,26 @@
 namespace squarez
 {
 
-void Selection::addPoint(uint8_t x, uint8_t y)
+bool Selection::addPoint(uint8_t x, uint8_t y)
 {
 	std::pair<uint8_t, uint8_t> point(x,y);
 	if (_points.find(point) != _points.end())
 	{
 		_points.erase(point);
-		return;
+		return false;
 	}
 
 	if (_points.size() >= 4)
-		return;
+		return false;
 
 	_points.insert(point);
+	return true;
 }
 
+bool Selection::getPoint(uint8_t x, uint8_t y) const
+{
+	return _points.find(std::pair<uint8_t, uint8_t>(x,y)) != _points.end();
+}
 
 GameBoard::GameBoard(uint8_t size, uint8_t numberOfSymbols): _symbols(numberOfSymbols), _size(size)
 {
@@ -147,7 +152,7 @@ void GameBoard::applyTransition(const Transition& transition)
 		for(uint8_t y = _size -1; y > 0 ; --y)
 		{
 			auto cellTransition = transition(x,y);
-			if (cellTransition._move)
+			if (cellTransition._move and not cellTransition._removed)
 				this->set(x, y + cellTransition._move, this->get(x, y));
 		}
 		

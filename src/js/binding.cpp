@@ -8,6 +8,7 @@ EMSCRIPTEN_BINDINGS(Selection) {
 	emscripten::class_<Selection>("Selection")
 		.constructor<>()
 		.function("addPoint", &Selection::addPoint)
+		.function("getPoint", &Selection::getPoint)
 		;
 }
 
@@ -25,6 +26,15 @@ EMSCRIPTEN_BINDINGS(Transition) {
 	emscripten::class_<Transition>("Transition")
 	.function("getMove", &Transition::getMove)
 	.function("getRemoved", &Transition::getRemoved)
+	.function("getNewCell", &Transition::getNewCell)
 	.property("score", &Transition::_score)
+	;
+}
+
+EMSCRIPTEN_BINDINGS(NewCell) {
+	emscripten::class_<Transition::NewCell>("NewCell")
+	.property("x", &Transition::NewCell::_x)
+	.property("y", &Transition::NewCell::_y)
+	.property("symbol", &Transition::NewCell::_symbol)
 	;
 }

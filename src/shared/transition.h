@@ -25,7 +25,7 @@ public:
 		uint8_t _y;
 		uint8_t _symbol;
 		NewCell(uint8_t x, uint8_t y, uint8_t symbol):
-		_x(x), _y(y), _symbol(symbol) {}
+		_x(x), _y(y), _symbol(symbol){}
 	};
 	Transition(GameBoard const& board);
 	Transition(GameBoard const& board, Selection const& selection, uint32_t score);
@@ -34,9 +34,9 @@ public:
 	uint8_t getMove(uint8_t x, uint8_t y) const {return this->operator()(x,y)._move;}
 	bool getRemoved(uint8_t x, uint8_t y) const {return this->operator()(x,y)._removed;}
 	
+	NewCell const& getNewCell(uint8_t num) const { return _newCells.at(num); }
 	std::vector<NewCell> const& getNewCells() const { return _newCells; }
 	
-	bool _doubleMove;
 	uint32_t _score;
 	uint8_t _size;
 private:

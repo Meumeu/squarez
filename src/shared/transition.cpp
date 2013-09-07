@@ -8,7 +8,7 @@
 namespace squarez
 {
 
-Transition::Transition(const GameBoard& board): _doubleMove(false), _score(0), _size(board.size())
+Transition::Transition(const GameBoard& board): _score(0), _size(board.size())
 {
 	_cells.resize(_size * _size);
 }
@@ -17,8 +17,6 @@ Transition::Transition(const GameBoard& board, const Selection& selection, uint3
 {
 	_cells.resize(_size * _size);
 	
-	// Check if square is aligned with grid, in which case new cells will need double move set to true
-	_doubleMove = false;
 	std::set<uint8_t> targets;
 	
 	for (auto point: selection.getPoints())
@@ -35,7 +33,6 @@ Transition::Transition(const GameBoard& board, const Selection& selection, uint3
 		if (targets.find(x) != targets.end())
 		{
 			y = 1;
-			_doubleMove = true;
 		}
 		_newCells.push_back(NewCell(x, y, symbol));
 		targets.insert(x);

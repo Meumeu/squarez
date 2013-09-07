@@ -1,7 +1,7 @@
 #include <iostream>
 #include "shared/gameboard.h"
 
-int main(int argc, char **argv) {
+int main() {
 	squarez::GameBoard b(8,3);
 	std::cout << b<< std::endl;
 	

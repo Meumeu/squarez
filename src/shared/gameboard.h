@@ -33,7 +33,8 @@ namespace squarez
 class Selection
 {
 public:
-	void addPoint(uint8_t x, uint8_t y);
+	bool addPoint(uint8_t x, uint8_t y);
+	bool getPoint(uint8_t x, uint8_t y) const;
 	std::set<std::pair<uint8_t, uint8_t>> const& getPoints() const {return _points;}
 private:
 	std::set<std::pair<uint8_t, uint8_t>> _points;
