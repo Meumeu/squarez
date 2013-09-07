@@ -1,0 +1,91 @@
+.symbol0
+{
+background-color: #FF0000;
+}
+.symbol1
+{
+background-color: #FFFF00;
+}
+.symbol2
+{
+background-color: #0000FF;
+}
+
+.cell:hover::after,
+.cell.selected::after
+{
+content: " ";
+position: absolute;
+top: 0;
+left: 0;
+right: 0;
+bottom: 0;
+}
+.cell:hover::after
+{
+background-color: rgba(255,255,255,0.3);
+border: 0.08em solid rgba(0,0,0,0.2);
+}
+
+.cell.selected::after
+{
+/*background-color: rgba(255,255,255,0.3);*/
+border: 0.08em solid rgba(0,0,0,0.5);
+}
+
+#gameArea
+{
+font-size: 50px;
+position: relative;
+background-color: #E0E0E0;
+overflow: hidden;
+height: 8em;
+width: 8em;
+}
+
+.cell,
+.cell::after
+{
+border-radius: 0.25em;
+}
+.cell
+{
+position: absolute;
+width: 0.8em;
+height: 0.8em;
+margin: 0.1em;
+}
+
+.cell
+{
+transition: top 0.3s ease-in;
+}
+.cell.doubleMove
+{
+transition: top 0.42s ease-in;
+}
+
+.removed
+{
+display:none;
+}
+
+.y-2 {top: -2em;}
+.y-1 {top: -1em;}
+.y0 {top: 0em;}
+.y1 {top: 1em;}
+.y2 {top: 2em;}
+.y3 {top: 3em;}
+.y4 {top: 4em;}
+.y5 {top: 5em;}
+.y6 {top: 6em;}
+.y7 {top: 7em;}
+
+.x0 {left: 0em;}
+.x1 {left: 1em;}
+.x2 {left: 2em;}
+.x3 {left: 3em;}
+.x4 {left: 4em;}
+.x5 {left: 5em;}
+.x6 {left: 6em;}
+.x7 {left: 7em;}

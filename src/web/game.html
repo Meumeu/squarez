@@ -1,0 +1,13 @@
+<head>
+	<script src="squarez.js"></script>
+	<script src="game.js"></script>
+	<link rel="stylesheet" type="text/css" href="game.css">
+</head>
+<body>
+	<div id="gameArea">
+	</div>
+	<script>
+	var board = new Module.GameBoard(8,3);
+	var game = new Squarez(board, document.getElementById("gameArea"));
+	</script>
+</body>
