@@ -46,7 +46,7 @@ Squarez.prototype =
 		var cells = this.root.getElementsByClassName("x"+x+" y"+y);
 		for (var i = 0 ; i < cells.length ; i++)
 		{
-			if (! cells[i].classList.contains("removed"))
+			if (! cells[i].classList.contains("transient"))
 				return cells[i];
 		}
 	},
@@ -55,7 +55,7 @@ Squarez.prototype =
 	{
 		this.board.applyTransition(transition);
 
-		var old = this.root.getElementsByClassName("removed");
+		var old = this.root.getElementsByClassName("transient");
 		for (var i = 0 ; i < old.length ; i++)
 		{
 			old[i].remove();
@@ -88,7 +88,9 @@ Squarez.prototype =
 			var cell = transition.get(i);
 			if (cell.removed)
 			{
-				this.getCell(cell.fromx, cell.fromy).classList.add("removed");
+				var e = this.getCell(cell.fromx, cell.fromy);
+				e.classList.add("removed");
+				e.classList.add("transient");//FIXME: Firefox does not support add with multiple arguments
 			}
 		}
 		for (var i = 0 ; i < transitionSize ; i++)
@@ -98,7 +100,7 @@ Squarez.prototype =
 			{
 				if (cell.isNew())
 				{
-					setTimeout(moveTo, 0, cell.fromx, cell.fromy, cell.tox, cell.toy,
+					setTimeout(moveTo, 100, cell.fromx, cell.fromy, cell.tox, cell.toy,
 						this.addElement(cell.fromx, cell.fromy, cell.symbol));
 				}
 				else
