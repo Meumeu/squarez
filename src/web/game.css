@@ -1,14 +1,29 @@
-.symbol0
+.cell.symbol0
 {
-background-color: #FF0000;
+	background-color: #FF0000;
 }
-.symbol1
+.transition-square.symbol0
 {
-background-color: #FFFF00;
+	background-color: rgba(255,0,0,0.3);
+	border-color: #FF0000;
 }
-.symbol2
+.cell.symbol1
 {
-background-color: #0000FF;
+	background-color: #FFFF00;
+}
+.transition-square.symbol1
+{
+	background-color: rgba(255,255,0,0.3);
+	border-color: #FFFF00;
+}
+.cell.symbol2
+{
+	background-color: #0000FF;
+}
+.transition-square.symbol2
+{
+	background-color: rgba(0,0,255,0.3);
+	border-color: #0000FF;
 }
 
 .cell:hover::after,
@@ -89,3 +104,27 @@ display:none;
 .x5 {left: 5em;}
 .x6 {left: 6em;}
 .x7 {left: 7em;}
+
+.transition-square-container, .transition-square
+{
+	transition: all 0.3s ease-in;
+	opacity:1;
+	pointer-events:none;
+}
+.transition-square
+{
+	border-width: 0.2em;
+	border-style: solid;
+	border-radius: 0.2em;
+	-webkit-transform: scale(1);
+	transform: scale(1);
+}
+.transition-removed
+{
+	opacity:0;
+}
+.transition-removed .transition-square
+{
+	-webkit-transform: scale(5);
+	transform: scale(5);
+}
