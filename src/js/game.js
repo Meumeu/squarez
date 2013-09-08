@@ -3,6 +3,13 @@ function Squarez(board, rootElement)
 	this.root = rootElement;
 	this.board = board;
 	this.selection = new Module.Selection();
+	
+	var fontSize = window.getComputedStyle(rootElement).fontSize.match(/[0-9]*/)[0];
+	while (document.body.clientWidth < rootElement.clientWidth)
+	{
+		fontSize -= 1;
+		rootElement.style.fontSize = ""+fontSize+"px";
+	}
 
 	var size = board.size();
 	for (var y = 0 ; y < size ; y++)
@@ -12,6 +19,9 @@ function Squarez(board, rootElement)
 			this.addElement(x,y,board.get(x,y));
 		}
 	}
+	if (this.root.ontouchstart === undefined)
+		this.root.classList.add("no-touch");
+	
 }
 
 Squarez.prototype =
@@ -24,8 +34,13 @@ Squarez.prototype =
 		n.classList.add("y"+y);
 		n.classList.add("symbol"+symbol);
 		var squarez = this;
-		n.onclick = function() {
-			squarez.select(this);
+		if (n.ontouchstart !== undefined)
+		{
+			n.ontouchstart = function() {squarez.select(this);};
+		}
+		else
+		{
+			n.onclick = function() {squarez.select(this);}
 		}
 		this.root.appendChild(n);
 		return n;
@@ -56,7 +71,7 @@ Squarez.prototype =
 		var old = this.root.getElementsByClassName("transient");
 		for (var i = 0 ; i < old.length ; i++)
 		{
-			old[i].remove();
+			old[i].parentNode.removeChild(old[i]);
 		}
 
 		if (transition.score == 0)
@@ -126,7 +141,6 @@ Squarez.prototype =
 				side = 2;
 			}
 			squareSize = Math.sqrt(squareSize);
-			Module.print("square size: "+squareSize);
 			var n = document.createElement("div");
 			n.style.top = ""+(0.5+center.y)+"em";
 			n.style.left = ""+(0.5+center.x)+"em";

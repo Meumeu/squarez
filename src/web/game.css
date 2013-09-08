@@ -1,3 +1,8 @@
+body
+{
+	margin: 0;
+}
+
 .cell.symbol0
 {
 	background-color: #FF0000;
@@ -29,60 +34,62 @@
 .cell:hover::after,
 .cell.selected::after
 {
-content: " ";
-position: absolute;
-top: 0;
-left: 0;
-right: 0;
-bottom: 0;
+	content: " ";
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
 }
-.cell:hover::after
+.no-touch .cell:hover::after
 {
-background-color: rgba(255,255,255,0.3);
-border: 0.08em solid rgba(0,0,0,0.2);
+	background-color: rgba(255,255,255,0.3);
+	border: 0.08em solid rgba(0,0,0,0.2);
 }
 
 .cell.selected::after
 {
-/*background-color: rgba(255,255,255,0.3);*/
-border: 0.08em solid rgba(0,0,0,0.5);
+	border: 0.16em solid rgba(0,0,0,0.8);
+	box-shadow: 0 0 0.2em black;
 }
 
 #gameArea
 {
-font-size: 50px;
-position: relative;
-background-color: #E0E0E0;
-overflow: hidden;
-height: 8em;
-width: 8em;
+	font-size: 50px;
+	position: relative;
+	background-color: #E0E0E0;
+	overflow: hidden;
+	height: 8em;
+	width: 8em;
 }
 
 .cell,
 .cell::after
 {
-border-radius: 0.25em;
+	border-radius: 0.25em;
 }
 .cell
 {
-position: absolute;
-width: 0.8em;
-height: 0.8em;
-margin: 0.1em;
+	position: absolute;
+	width: 0.8em;
+	height: 0.8em;
+	margin: 0.1em;
 }
 
 .cell
 {
-transition: top 0.3s ease-in;
+	transition: top 0.3s ease-in;
+	-webkit-transition: top 0.3s ease-in;
 }
 .cell.doubleMove
 {
-transition: top 0.42s ease-in;
+	transition: top 0.42s ease-in;
+	-webkit-transition: top 0.42s ease-in;
 }
 
 .removed
 {
-display:none;
+	display:none;
 }
 
 .y-2 {top: -2em;}
@@ -108,6 +115,7 @@ display:none;
 .transition-square-container, .transition-square
 {
 	transition: all 0.3s ease-in;
+	-webkit-transition: all 0.3s ease-in;
 	opacity:1;
 	pointer-events:none;
 }
