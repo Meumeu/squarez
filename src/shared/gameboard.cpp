@@ -97,7 +97,7 @@ Transition GameBoard::selectSquare(const Selection& selection) const
 	auto points = selection.getPoints();
 	// Check that we are actually selecting 4 points
 	if (points.size() != 4)
-		return Transition(*this);
+		return Transition();
 	auto it = points.begin();
 	auto p0 = *(it++);
 	auto p1 = *(it++);
@@ -106,12 +106,12 @@ Transition GameBoard::selectSquare(const Selection& selection) const
 	
 	// Check that symbols are all the same
 	if (this->get(p0) != this->get(p1) or this->get(p2) != this->get(p3) or this->get(p0) != this->get(p2))
-		return Transition(*this);
+		return Transition();
 	
 	// Now verify that it is a square: 4 edges with the same length and a square angle
 	auto score = norm(p0,p1);
 	if (norm(p0,p2) != score or norm(p2,p3) != score or norm(p1,p3) != score or not isSquareAngle(p0,p1,p3) or score == 0)
-		return Transition(*this);
+		return Transition();
 
 	// Simple score calculation: surface of the square, with a x2 bonus if it is not parallel to the edge	
 	if (p0.first != p1.first or p0.second != p1.second)
@@ -148,20 +148,16 @@ void GameBoard::applyTransition(const Transition& transition)
 {
 	if (transition._score == 0)
 		return;
-
-	for (uint8_t x = 0; x < _size; ++x)
-		for(uint8_t y = _size; y > 0 ; --y)
-		{
-			auto cellTransition = transition(x, y - 1);
-			if (cellTransition._move and not cellTransition._removed)
-				this->set(x, y + cellTransition._move - 1, this->get(x, y - 1));
-		}
-		
-	for (auto cell: transition.getNewCells())
+	
+	auto oldCells = _cells;
+	for (auto const& cellTransition: transition.getCellTransition())
 	{
-		this->set(cell._x, cell._y, cell._symbol);
+		if (not cellTransition._removed)
+		{
+			uint8_t symbol = (cellTransition.isNew()) ? cellTransition._symbol : oldCells.at(cellTransition._fromx * _size + cellTransition._fromy);
+			this->set(cellTransition._tox, cellTransition._toy, symbol);
+		}
 	}
-
 }
 
 std::ostream& operator<<(std::ostream& out, GameBoard const& board)

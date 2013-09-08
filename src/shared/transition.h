@@ -15,36 +15,32 @@ class Transition
 public:
 	struct CellTransition
 	{
-		CellTransition(): _move(0), _removed(false) {}
-		uint8_t _move;
-		bool _removed;
-	};
-	struct NewCell
-	{
-		uint8_t _x; // target position
-		uint8_t _y;
+		CellTransition(int16_t fromx, int16_t fromy, uint8_t tox, uint8_t toy, uint8_t symbol = 0xFF):
+			_fromx(fromx), _fromy(fromy), _tox(tox), _toy(toy), _symbol(symbol), _removed(false) {}
+		CellTransition(int16_t deletex, int16_t deletey):
+			_fromx(deletex), _fromy(deletey), _tox(deletex), _toy(deletey), _symbol(0xFF), _removed(true) {}
+		
+		int16_t _fromx;
+		int16_t _fromy;
+		
+		uint8_t _tox;
+		uint8_t _toy;
+		
 		uint8_t _symbol;
-		NewCell(uint8_t x, uint8_t y, uint8_t symbol):
-		_x(x), _y(y), _symbol(symbol){}
+		bool _removed;
+		
+		bool isNew() const { return _symbol != 0xFF;}
 	};
-	Transition(GameBoard const& board);
+	Transition() : _score(0) {}
 	Transition(GameBoard const& board, Selection const& selection, uint32_t score);
 	
-	CellTransition operator() (uint8_t x, uint8_t y) const { return _cells.at(x * _size + y);}
-	uint8_t getMove(uint8_t x, uint8_t y) const {return this->operator()(x,y)._move;}
-	bool getRemoved(uint8_t x, uint8_t y) const {return this->operator()(x,y)._removed;}
-	
-	NewCell const& getNewCell(uint8_t num) const { return _newCells.at(num); }
-	std::vector<NewCell> const& getNewCells() const { return _newCells; }
+	std::vector<CellTransition> const& getCellTransition() const { return _cells; }
+	std::size_t size() const { return _cells.size();}
+	CellTransition const& get(std::size_t pos) const { return _cells.at(pos);}
 	
 	uint32_t _score;
-	uint8_t _size;
 private:
-	void move(uint8_t x, uint8_t y);
-	void remove(uint8_t x, uint8_t y);
-	
 	std::vector<CellTransition> _cells;
-	std::vector<NewCell> _newCells;
 };
 
 }

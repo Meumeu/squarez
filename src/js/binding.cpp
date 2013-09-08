@@ -25,17 +25,21 @@ EMSCRIPTEN_BINDINGS(GameBoard) {
 
 EMSCRIPTEN_BINDINGS(Transition) {
 	emscripten::class_<Transition>("Transition")
-	.function("getMove", &Transition::getMove)
-	.function("getRemoved", &Transition::getRemoved)
-	.function("getNewCell", &Transition::getNewCell)
+	.function("getCellTransition", &Transition::getCellTransition)
+	.function("size", &Transition::size)
+	.function("get", &Transition::get)
 	.property("score", &Transition::_score)
 	;
 }
 
-EMSCRIPTEN_BINDINGS(NewCell) {
-	emscripten::class_<Transition::NewCell>("NewCell")
-	.property("x", &Transition::NewCell::_x)
-	.property("y", &Transition::NewCell::_y)
-	.property("symbol", &Transition::NewCell::_symbol)
+EMSCRIPTEN_BINDINGS(CellTransition) {
+	emscripten::class_<Transition::CellTransition>("CellTransition")
+	.property("fromx", &Transition::CellTransition::_fromx)
+	.property("fromy", &Transition::CellTransition::_fromy)
+	.property("tox", &Transition::CellTransition::_tox)
+	.property("toy", &Transition::CellTransition::_toy)
+	.property("removed", &Transition::CellTransition::_removed)
+	.property("symbol", &Transition::CellTransition::_symbol)
+	.function("isNew", &Transition::CellTransition::isNew)
 	;
 }

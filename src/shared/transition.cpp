@@ -3,49 +3,53 @@
 #include "gameboard.h"
 
 #include <cstdlib>
-#include <set>
+#include <map>
 
 namespace squarez
 {
 
-Transition::Transition(const GameBoard& board): _score(0), _size(board.size())
+Transition::Transition(const GameBoard& board, const Selection& selection, uint32_t score): _score(score)
 {
-	_cells.resize(_size * _size);
-}
-
-Transition::Transition(const GameBoard& board, const Selection& selection, uint32_t score): _score(score), _size(board.size())
-{
-	_cells.resize(_size * _size);
+	std::map<std::pair<int16_t, int16_t>, CellTransition> cellTransition;
 	
-	std::set<uint8_t> targets;
-	
-	for (auto point: selection.getPoints())
+	for (std::pair<int16_t, int16_t> point: selection.getPoints())
 	{
-		uint8_t x = point.first;
-		uint8_t y = point.second;
-		this->remove(x, y);
-		while (y > 0)
+		cellTransition.insert(std::make_pair(point, CellTransition(point.first, point.second)));
+		while (point.second > 0)
 		{
-			this->move(x, --y);
+			--point.second;
+			auto it = cellTransition.find(point);
+			if  (it != cellTransition.end())
+			{
+				if (not it->second._removed)
+				{
+					it->second._toy++;
+				}
+			}
+			else
+			{
+				cellTransition.insert(std::make_pair(point, CellTransition(point.first, point.second, point.first, point.second+1)));
+			}
 		}
+		--point.second;
 		
 		uint8_t symbol = std::rand() % board.symbol();
-		if (targets.find(x) != targets.end())
+		if (cellTransition.find(point) != cellTransition.end())
 		{
-			y = 1;
+			cellTransition.find(point)->second._toy++;
+			--point.second;
+			cellTransition.insert(std::make_pair(point, CellTransition(point.first, point.second, point.first, point.second+2, symbol)));
 		}
-		_newCells.push_back(NewCell(x, y, symbol));
-		targets.insert(x);
+		else
+		{
+			cellTransition.insert(std::make_pair(point, CellTransition(point.first, point.second, point.first, point.second+1, symbol)));
+		}
 	}
-}
-
-void Transition::move(uint8_t x, uint8_t y)
-{
-	++_cells.at(x * _size + y)._move;
-}
-void Transition::remove(uint8_t x, uint8_t y)
-{
-	_cells.at(x * _size + y)._removed = true;
+	
+	for (auto const& cell : cellTransition)
+	{
+		_cells.push_back(cell.second);
+	}
 }
 
 }

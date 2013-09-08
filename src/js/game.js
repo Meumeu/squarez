@@ -65,58 +65,48 @@ Squarez.prototype =
 			return;
 
 		var size = this.board.size();
-		for (var x = 0 ; x < size ; x++)
+		var transitionSize = transition.size();
+		
+		var moveTo = function(fromx, fromy, x, y, cell)
 		{
-			var cells = new Array();
-			for (var y = 0 ; y < size ; y++)
+			cell.classList.remove("x"+fromx);
+			cell.classList.remove("y"+fromy);
+			cell.classList.add("x"+x);
+			cell.classList.add("y"+y);
+			if ((fromx - x) * (fromx - x) + (fromy - y) * (fromy - y) == 4)
 			{
-				cells[y] = this.getCell(x,y);
-			}
-			for (var y = 0 ; y < size ; y++)
-			{
-				if (transition.getRemoved(x,y))
-				{
-					cells[y].classList.add("removed");
-				}
-				else if (transition.getMove(x,y)> 0)
-				{
-					cells[y].classList.remove("y"+y);
-					cells[y].classList.remove("doubleMove");
-					if (transition.getMove(x,y) == 2)
-						cells[y].classList.add("doubleMove");
-					cells[y].classList.add("y"+(y+transition.getMove(x,y)));
-				}
-			}
-		}
-
-		var move = {};
-		for (i = 0 ; i < 4 ; i++)
-		{
-			var newCell = transition.getNewCell(i);
-			if (! move[newCell.x])
-			{
-				move[newCell.x] = 1;
+				cell.classList.add("doubleMove");
 			}
 			else
 			{
-				move[newCell.x] += 1;
+				cell.classList.remove("doubleMove");
+			}
+		};
+		
+		for (var i = 0 ; i < transitionSize ; i++)
+		{
+			var cell = transition.get(i);
+			if (cell.removed)
+			{
+				this.getCell(cell.fromx, cell.fromy).classList.add("removed");
 			}
 		}
-		for (i = 0 ; i < 4 ; i++)
+		for (var i = 0 ; i < transitionSize ; i++)
 		{
-			var newCell = transition.getNewCell(i);
-			var classes = "";
-			var cellEl = this.addElement(newCell.x, newCell.y - move[newCell.x], newCell.symbol);
-			if (move[newCell.x] == 2)
+			var cell = transition.get(i);
+			if (!cell.removed)
 			{
-				cellEl.classList.add("doubleMove");
+				if (cell.isNew())
+				{
+					setTimeout(moveTo, 0, cell.fromx, cell.fromy, cell.tox, cell.toy,
+						this.addElement(cell.fromx, cell.fromy, cell.symbol));
+				}
+				else
+				{
+					setTimeout(moveTo, 0, cell.fromx, cell.fromy, cell.tox, cell.toy,
+						this.getCell(cell.fromx, cell.fromy));
+				}
 			}
-
-			setTimeout( function(element, from, to)
-			{
-				element.classList.remove("y"+from);
-				element.classList.add("y"+to);
-			}, 1, cellEl, newCell.y - move[newCell.x], newCell.y);
 		}
 		this.board.print();
 	},
