@@ -113,8 +113,8 @@ Transition GameBoard::selectSquare(const Selection& selection) const
 	if (norm(p0,p2) != score or norm(p2,p3) != score or norm(p1,p3) != score or not isSquareAngle(p0,p1,p3) or score == 0)
 		return Transition();
 
-	// Simple score calculation: surface of the square, with a x2 bonus if it is not parallel to the edge	
-	if (p0.first != p1.first or p0.second != p1.second)
+	// Simple score calculation: surface of the square, with a x2 bonus if it is not parallel to the edge nor 45 degrees
+	if (p0.first != p1.first and p0.second != p1.second and p0.first != p3.first and p0.second != p3.second)
 		score *= 2;
 	return Transition(*this, selection, score);
 }

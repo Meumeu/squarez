@@ -1,8 +1,10 @@
-function Squarez(board, rootElement)
+function Squarez(board, rootElement, scoreElement)
 {
 	this.root = rootElement;
 	this.board = board;
 	this.selection = new Module.Selection();
+	this.scoreElement = scoreElement
+	this.score = 0;
 	
 	var fontSize = window.getComputedStyle(rootElement).fontSize.match(/[0-9]*/)[0];
 	while (document.body.clientWidth < rootElement.clientWidth)
@@ -76,6 +78,9 @@ Squarez.prototype =
 
 		if (transition.score == 0)
 			return;
+		
+		this.score += transition.score;
+		this.scoreElement.innerHTML = this.score;
 
 		var size = this.board.size();
 		var transitionSize = transition.size();

@@ -1,6 +1,8 @@
 body
 {
 	margin: 0;
+	background-color: #E0E0E0;
+	font-family: DejaVu, Arial;
 }
 
 .cell.symbol0
@@ -57,7 +59,6 @@ body
 {
 	font-size: 50px;
 	position: relative;
-	background-color: #E0E0E0;
 	overflow: hidden;
 	height: 8em;
 	width: 8em;
@@ -135,4 +136,10 @@ body
 {
 	-webkit-transform: scale(5);
 	transform: scale(5);
+}
+
+.scoreContainer
+{
+	font-size: 40px;
+	font-weight: bold;
 }

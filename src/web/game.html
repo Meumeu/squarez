@@ -6,8 +6,10 @@
 <body>
 	<div id="gameArea">
 	</div>
+	<div class="scoreContainer"><span class="scoreLabel">Score: </span><span id="score">0</span>
+	</div>
 	<script>
 	var board = new Module.GameBoard(8,3);
-	var game = new Squarez(board, document.getElementById("gameArea"));
+	var game = new Squarez(board, document.getElementById("gameArea"),  document.getElementById("score"));
 	</script>
 </body>
