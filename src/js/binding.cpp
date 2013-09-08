@@ -1,4 +1,5 @@
 #include "shared/gameboard.h"
+#include "shared/timer.h"
 
 #include <emscripten/bind.h>
 
@@ -41,5 +42,16 @@ EMSCRIPTEN_BINDINGS(CellTransition) {
 	.property("removed", &Transition::CellTransition::_removed)
 	.property("symbol", &Transition::CellTransition::_symbol)
 	.function("isNew", &Transition::CellTransition::isNew)
+	;
+}
+
+EMSCRIPTEN_BINDINGS(Timer) {
+	emscripten::class_<Timer>("Timer")
+	.constructor<int,int,int>()
+	.function("refill", &Timer::refill)
+	.function("percentageLeft", &Timer::percentageLeft)
+	.function("secondsLeft", &Timer::secondsLeft)
+	.function("pause", &Timer::pause)
+	.function("unPause", &Timer::unPause)
 	;
 }
