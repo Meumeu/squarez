@@ -235,7 +235,7 @@ Squarez.prototype =
 		this.root.getElementsByClassName("gameOver")[0].style.display = "";
 		var scores = this.getHighScores();
 		var that = this;
-		if (this.score > 0 && (scores.length == 0 || this.score >= scores[scores.length - 1].score))
+		if (this.score > 0 && (scores.length < 10 || this.score >= scores[scores.length - 1].score))
 		{
 			var form = document.getElementById("nameForm");
 			form.style.display = "";
