@@ -12,10 +12,13 @@ function Squarez(board, rootElement, scoreElement)
 	this.timerFunc = setInterval(function()
 	{
 		var timeLeft = that.timer.percentageLeft()
-		timerEl.style.width = ""+timeLeft+"%";
+		// Under 5%, show as if time was finished
+		timerEl.style.width = ""+((timeLeft-0.05)*100/0.95)+"%";
 		if (timeLeft == 0)
 			that.gameOver();
-	}, 60);
+	}, 200);
+	timerEl.style.transition = "width 0.2s linear";
+	timerEl.style.webkitTransition = "width 0.2s linear";
 	
 	var fontSize = window.getComputedStyle(rootElement).fontSize.match(/[0-9]*/)[0];
 	while (document.body.clientWidth <= rootElement.clientWidth)

@@ -37,7 +37,7 @@ public:
 	
 	void refill(uint8_t percentage);
 	
-	uint8_t percentageLeft() const;
+	float percentageLeft() const;
 	uint16_t secondsLeft() const;
 	
 	void pause();

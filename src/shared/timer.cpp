@@ -27,11 +27,11 @@ Timer::Timer(uint16_t longTerm, uint16_t shortTerm, uint16_t halfLife):
 _longTerm(longTerm), _halfLife(halfLife), _bonusDuration(1000*(uint32_t)(shortTerm - longTerm)), _begin(std::chrono::steady_clock::now()), _end(_begin + _longTerm + _bonusDuration), _paused(false)
 {}
 
-uint8_t Timer::percentageLeft() const
+float Timer::percentageLeft() const
 {
-	auto res =  100 * (_end - std::chrono::steady_clock::now()) / (_longTerm + _bonusDuration);
+	float res =  std::chrono::duration<float>(_end - std::chrono::steady_clock::now()) / std::chrono::duration<float>(_longTerm + _bonusDuration);
 	if (_paused)
-		res = 100 * (_end - _pauseTime) / (_longTerm + _bonusDuration);
+		res = std::chrono::duration<float>(_end - _pauseTime) / std::chrono::duration<float>(_longTerm + _bonusDuration);
 	if (res > 0)
 		return res;
 	return 0;
