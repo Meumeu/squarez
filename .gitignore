@@ -39,5 +39,6 @@ m4/lt~obsolete.m4
 *.kate-swp
 *.swp
 .kdev4
+.kdev_include_paths
 
-/build
+/build*
