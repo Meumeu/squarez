@@ -18,7 +18,7 @@ function Squarez(board, rootElement, scoreElement)
 	}, 60);
 	
 	var fontSize = window.getComputedStyle(rootElement).fontSize.match(/[0-9]*/)[0];
-	while (document.body.clientWidth < rootElement.clientWidth)
+	while (document.body.clientWidth <= rootElement.clientWidth)
 	{
 		fontSize -= 1;
 		rootElement.style.fontSize = ""+fontSize+"px";
@@ -42,6 +42,15 @@ function Squarez(board, rootElement, scoreElement)
 			pauseButtons[i].onclick = function() {that.pause();};
 		else
 			pauseButtons[i].ontouchstart = function() {that.pause();};
+	}
+	
+	var clearButtons = document.getElementsByClassName("jsClear");
+	for (var i = 0 ; i < clearButtons.length; i++)
+	{
+		if (this.root.ontouchstart === undefined)
+			clearButtons[i].onclick = function() {that.clearSelection();};
+		else
+			clearButtons[i].ontouchstart = function() {that.clearSelection();};
 	}
 }
 
@@ -90,9 +99,9 @@ Squarez.prototype =
 	updateBoard: function(transition)
 	{
 		var old = this.root.getElementsByClassName("transient");
-		for (var i = 0 ; i < old.length ; i++)
+		while (old.length != 0)
 		{
-			old[i].parentNode.removeChild(old[i]);
+			old[0].parentNode.removeChild(old[0]);
 		}
 
 		if (transition.score == 0)
@@ -208,8 +217,7 @@ Squarez.prototype =
 			var transition = this.board.selectSquare(this.selection);
 			if (transition.score > 0)
 			{
-				this.selection.delete();
-				this.selection = new Module.Selection();
+				this.clearSelection();
 				this.updateBoard(transition);
 			}
 		}
@@ -236,6 +244,17 @@ Squarez.prototype =
 		{
 			this.timer.pause();
 			this.root.getElementsByClassName("pause")[0].style.display = "";
+		}
+	},
+	
+	clearSelection: function()
+	{
+		this.selection.delete();
+		this.selection = new Module.Selection();
+		var selected = this.root.getElementsByClassName("selected");
+		while (selected.length != 0)
+		{
+			selected[0].classList.remove("selected");
 		}
 	}
 }
