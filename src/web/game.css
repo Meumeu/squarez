@@ -1,5 +1,6 @@
 body,
-.pause
+.pause,
+#nameForm
 {
 	margin: 0;
 	background-color: #E0E0E0;
@@ -42,7 +43,8 @@ body,
 .cell:hover::after,
 .cell.selected::after,
 .gameOver,
-.pause
+.pause,
+#nameForm
 {
 	position: absolute;
 	top: 0;
@@ -180,6 +182,28 @@ body,
 	background: rgba(255,255,255,0.8);
 }
 
+#nameForm
+{
+	text-align: center;
+	z-index: 1;
+	font-size: 0.5em;
+	padding-top: 3em;
+}
+#nameForm input[type=text]
+{
+	padding: 5px;
+	width: 94%;
+	margin-left: 3%;
+	margin-right: 3%;
+	display: block;
+	border: 1px solid #808080;
+	border-radius: 3px;
+}
+#nameForm input
+{
+	font-size: 1em;
+}
+
 .pause,
 .gameOver
 {
@@ -189,8 +213,10 @@ body,
 }
 
 .pauseButton,
-.clearButton
+.clearButton,
+#nameForm input[type=submit]
 {
+	border: none;
 	display: inline-block;
 	padding: 0.3em;
 	border-radius: 0.5em;

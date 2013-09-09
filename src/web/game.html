@@ -12,12 +12,23 @@
 		</div>
 		<div class="gameOver" style="display:none">Game over</div>
 		<div class="pause jsPause" style="display:none">Game paused</div>
+		<form id="nameForm" style="display: none">
+			<h1>New high score</h1>
+			<label>Name: <input id="nameInput" type="text" name="name"></label>
+			<input type="submit" value="Save">
+		</form>
 	</div>
 	<div class="scoreContainer"><span class="scoreLabel">Score: </span><span id="score">0</span>
 	</div>
 	<div class="buttons">
 		<div class="pauseButton jsPause">Pause</div>
 		<div class="clearButton jsClear">Clear Selection</div>
+	</div>
+	<div id="highScores" style="display:none">
+		<h1>High Scores</h1>
+		<table>
+			<tbody id="scoreList"></tbody>
+		</table>
 	</div>
 	<script>
 	var board = new Module.GameBoard(8,3);

@@ -52,6 +52,8 @@ function Squarez(board, rootElement, scoreElement)
 		else
 			clearButtons[i].ontouchstart = function() {that.clearSelection();};
 	}
+	
+	this.getHighScores(true);
 }
 
 Squarez.prototype =
@@ -81,8 +83,8 @@ Squarez.prototype =
 		var rx = /x([0-9]+)/;
 		var ry = /y([0-9]+)/;
 		return {
-			x: el.className.match(rx)[1]*1,
-			y: el.className.match(ry)[1]*1
+			x: parseInt(el.className.match(rx)[1]),
+			y: parseInt(el.className.match(ry)[1])
 		};
 	},
 
@@ -231,6 +233,23 @@ Squarez.prototype =
 	{
 		clearInterval(this.timerFunc);
 		this.root.getElementsByClassName("gameOver")[0].style.display = "";
+		var scores = this.getHighScores();
+		var that = this;
+		if (this.score > 0 && (scores.length == 0 || this.score >= scores[scores.length - 1].score))
+		{
+			var form = document.getElementById("nameForm");
+			form.style.display = "";
+			form.onsubmit = function()
+			{
+				var name = document.getElementById("nameInput").value;
+				if (! name)
+					return false;
+				form.style.display = "none";
+				that.saveScore(name);
+				that.getHighScores(true);
+				return false;
+			}
+		}
 	},
 	
 	pause: function()
@@ -256,5 +275,62 @@ Squarez.prototype =
 		{
 			selected[0].classList.remove("selected");
 		}
+	},
+	
+	getHighScores: function(draw)
+	{
+		var res = new Array();
+		if (typeof(Storage) === "undefined")
+			return res;
+		for (var i = 0 ; localStorage["score_val_"+i]; i++)
+		{
+			res.push({
+				score: parseInt(localStorage["score_val_"+i]),
+				date: new Date(parseInt(localStorage["score_date_"+i])),
+				name: localStorage["score_name_"+i]
+			});
+		}
+		if (draw)
+		{
+			var scoreList = document.getElementById("scoreList");
+			scoreList.innerHTML = "";
+			for (var i = 0 ; i < res.length ; i++)
+			{
+				document.getElementById("highScores").style.display="";
+				var n = document.createElement("tr");
+				n.innerHTML="<td>"+res[i].name+ "</td><td>"+ res[i].date.toLocaleDateString() + "</td><td>" + res[i].score + "</td>";
+				scoreList.appendChild(n);
+			}
+		}
+		return res;
+	},
+	
+	saveScore: function(name)
+	{
+		if (typeof(Storage) === "undefined" || this.score == 0)
+			return false;
+		var scores = this.getHighScores();
+		for (var i = 0 ; i < scores.length ; i++)
+		{
+			if (this.score >= scores[i].score)
+			{
+				// Shift existing scores
+				for (var j = Math.min(scores.length, 9); j > i ; j--)
+				{
+					localStorage["score_val_"+j] = localStorage["score_val_"+(j-1)];
+					localStorage["score_date_"+j] = localStorage["score_date_"+(j-1)];
+					localStorage["score_name_"+j] = localStorage["score_name_"+(j-1)]
+				}
+				break;
+			}
+		}
+		if (i < 9)
+		{
+			localStorage["score_val_"+i] = this.score;
+			localStorage["score_date_"+i] = Date.now();
+			localStorage["score_name_"+i] = name;
+			return true;
+		}
+		return false;
 	}
 }
