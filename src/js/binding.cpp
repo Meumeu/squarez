@@ -1,5 +1,6 @@
 #include "shared/gameboard.h"
 #include "shared/timer.h"
+#include "shared/selection.h"
 
 #include <emscripten/bind.h>
 

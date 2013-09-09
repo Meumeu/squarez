@@ -8,7 +8,7 @@
 namespace squarez
 {
 
-Transition::Transition(const GameBoard& board, const Selection& selection, uint32_t score): _score(score)
+Transition::Transition(const GameBoard& board, const Selection& selection, uint32_t score): _score(score), _selection(selection)
 {
 	std::map<std::pair<int16_t, int16_t>, CellTransition> cellTransition;
 	

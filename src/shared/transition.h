@@ -1,6 +1,8 @@
 #ifndef TRANSITION_H
 #define TRANSITION_H
 
+#include "selection.h"
+
 #include <stdint.h>
 #include <vector>
 
@@ -8,7 +10,6 @@ namespace squarez
 {
 	
 class GameBoard;
-class Selection;
 
 class Transition
 {
@@ -41,6 +42,7 @@ public:
 	uint32_t _score;
 private:
 	std::vector<CellTransition> _cells;
+	Selection _selection;
 };
 
 }

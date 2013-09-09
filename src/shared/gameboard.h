@@ -29,16 +29,8 @@
 
 namespace squarez
 {
-	
-class Selection
-{
-public:
-	bool addPoint(uint8_t x, uint8_t y);
-	bool getPoint(uint8_t x, uint8_t y) const;
-	std::set<std::pair<uint8_t, uint8_t>> const& getPoints() const {return _points;}
-private:
-	std::set<std::pair<uint8_t, uint8_t>> _points;
-};
+
+class Selection;
 
 class GameBoard
 {
@@ -49,6 +41,8 @@ public:
 	// Attempt to remove the selected cells from the board, return the score.
 	// Score is 0 only if selection is invalid
 	Transition selectSquare(Selection const& selection) const;
+
+	std::vector<Transition> findTransitions() const;
 	
 	void applyTransition(Transition const& transition);
 	

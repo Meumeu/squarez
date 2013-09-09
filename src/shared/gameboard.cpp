@@ -18,35 +18,14 @@
  */
 
 #include "gameboard.h"
+#include "selection.h"
 #include <stdexcept>
-#include <algorithm>
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
 
 namespace squarez
 {
-
-bool Selection::addPoint(uint8_t x, uint8_t y)
-{
-	std::pair<uint8_t, uint8_t> point(x,y);
-	if (_points.find(point) != _points.end())
-	{
-		_points.erase(point);
-		return false;
-	}
-
-	if (_points.size() >= 4)
-		return false;
-
-	_points.insert(point);
-	return true;
-}
-
-bool Selection::getPoint(uint8_t x, uint8_t y) const
-{
-	return _points.find(std::pair<uint8_t, uint8_t>(x,y)) != _points.end();
-}
 
 GameBoard::GameBoard(uint8_t size, uint8_t numberOfSymbols): _symbols(numberOfSymbols), _size(size)
 {
@@ -63,8 +42,10 @@ uint8_t GameBoard::get(uint8_t x, uint8_t y) const
 {
 	if (x >= _size)
 		throw std::out_of_range("x out of range");
+	
 	if (y >= _size)
 		throw std::out_of_range("y out of range");
+	
 	return _cells[x * _size + y];
 }
 
@@ -73,10 +54,13 @@ void GameBoard::set(uint8_t x, uint8_t y, uint8_t symbol)
 {
 	if (x >= _size)
 		throw std::out_of_range("x out of range");
+	
 	if (y >= _size)
 		throw std::out_of_range("y out of range");
+	
 	if (symbol >= _symbols)
 		throw std::out_of_range("symbol out of range");
+	
 	_cells[x * _size + y] = symbol;
 }
 
@@ -95,9 +79,11 @@ static bool isSquareAngle(std::pair<uint8_t, uint8_t> p0, std::pair<uint8_t, uin
 Transition GameBoard::selectSquare(const Selection& selection) const
 {
 	auto points = selection.getPoints();
+	
 	// Check that we are actually selecting 4 points
 	if (points.size() != 4)
 		return Transition();
+	
 	auto it = points.begin();
 	auto p0 = *(it++);
 	auto p1 = *(it++);
@@ -116,6 +102,7 @@ Transition GameBoard::selectSquare(const Selection& selection) const
 	// Simple score calculation: surface of the square, with a x2 bonus if it is not parallel to the edge nor 45 degrees
 	if (p0.first != p1.first and p0.second != p1.second and p0.first != p3.first and p0.second != p3.second)
 		score *= 2;
+	
 	return Transition(*this, selection, score);
 }
 #if 0
@@ -171,8 +158,41 @@ std::ostream& operator<<(std::ostream& out, GameBoard const& board)
 	return out;
 }
 
-void GameBoard::print() const {
+void GameBoard::print() const
+{
 	std::cout << *this << std::endl;
 }
 
+std::vector<Transition> GameBoard::findTransitions() const
+{
+	std::vector<Transition> res;
+	
+	for(int x1 = 0; x1 < _size; x1++)
+		for(int y1 = 0; y1 < _size; y1++)
+			for(int x2 = x1; x2 < _size; x2++)
+				for(int y2 = y1; y2 < _size; y2++)
+				{
+					int x3, y3, x4, y4;
+					x3 = x2 + y1 - y2;
+					y3 = y2 + x2 - x1;
+					x4 = x1 + y1 - y2;
+					y4 = y1 + x2 - x1;
+					
+					if (x3 < 0 or y3 < 0 or x4 < 0 or y4 < 0 or x3 >= _size or y3 >= _size or x4 >= _size or y4 >= _size)
+						continue;
+					
+					squarez::Selection s;
+					s.addPoint(x1, y1);
+					s.addPoint(x2, y2);
+					s.addPoint(x3, y3);
+					s.addPoint(x4, y4);
+					
+					squarez::Transition const& t = this->selectSquare(s);
+					
+					if (t._score)
+						res.push_back(t);
+				}
+
+	return res;
+}
 }
