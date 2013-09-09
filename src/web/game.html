@@ -5,8 +5,17 @@
 </head>
 <body>
 	<div id="gameArea">
+		<div class="timeLeftOuter">
+			<div class="timeLeftInner">
+			</div>
+		</div>
+		<div class="gameOver" style="display:none">Game over</div>
+		<div class="pause jsPause" style="display:none">Game paused</div>
 	</div>
 	<div class="scoreContainer"><span class="scoreLabel">Score: </span><span id="score">0</span>
+	</div>
+	<div class="buttons">
+		<div class="pauseButton jsPause">Pause</div>
 	</div>
 	<script>
 	var board = new Module.GameBoard(8,3);

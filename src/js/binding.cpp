@@ -53,5 +53,6 @@ EMSCRIPTEN_BINDINGS(Timer) {
 	.function("secondsLeft", &Timer::secondsLeft)
 	.function("pause", &Timer::pause)
 	.function("unPause", &Timer::unPause)
+	.function("paused", &Timer::paused)
 	;
 }

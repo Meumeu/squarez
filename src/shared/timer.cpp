@@ -30,6 +30,8 @@ _longTerm(longTerm), _halfLife(halfLife), _bonusDuration(1000*(uint32_t)(shortTe
 uint8_t Timer::percentageLeft() const
 {
 	auto res =  100 * (_end - std::chrono::steady_clock::now()) / (_longTerm + _bonusDuration);
+	if (_paused)
+		res = 100 * (_end - _pauseTime) / (_longTerm + _bonusDuration);
 	if (res > 0)
 		return res;
 	return 0;
@@ -38,6 +40,8 @@ uint8_t Timer::percentageLeft() const
 uint16_t Timer::secondsLeft() const
 {
 	auto res = (std::chrono::duration_cast<std::chrono::seconds>(_end - std::chrono::steady_clock::now())).count();
+	if (_paused)
+		res = (std::chrono::duration_cast<std::chrono::seconds>(_end - _pauseTime)).count();
 	if (res > 0)
 		return res;
 	return 0;
@@ -58,8 +62,11 @@ void Timer::refill(uint8_t percentage)
 
 void Timer::pause()
 {
-	_pauseTime = std::chrono::steady_clock::now();
-	_paused = true;
+	if (not _paused)
+	{
+		_pauseTime = std::chrono::steady_clock::now();
+		_paused = true;
+	}
 }
 
 void Timer::unPause()

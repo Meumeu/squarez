@@ -1,4 +1,5 @@
-body
+body,
+.pause
 {
 	margin: 0;
 	background-color: #E0E0E0;
@@ -37,6 +38,12 @@ body
 .cell.selected::after
 {
 	content: " ";
+}
+.cell:hover::after,
+.cell.selected::after,
+.gameOver,
+.pause
+{
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -60,7 +67,7 @@ body
 	font-size: 50px;
 	position: relative;
 	overflow: hidden;
-	height: 8em;
+	height: 8.2em;
 	width: 8em;
 }
 
@@ -142,4 +149,53 @@ body
 {
 	font-size: 40px;
 	font-weight: bold;
+}
+
+.timeLeftOuter,
+.timeLeftInner
+{
+	position: absolute;
+	left: 0;
+	bottom: 0;
+}
+.timeLeftOuter
+{
+	right: 0;
+	height: 0.2em;
+	background: #FFFFFF;
+}
+.pause
+{
+	bottom: 0.2em;
+}
+.timeLeftInner
+{
+	top: 0;
+	background: rgb(30,87,153);
+	background: linear-gradient(to bottom, rgba(201,222,150,1) 0%,rgba(138,182,107,1) 44%,rgba(57,130,53,1) 100%);
+}
+
+.gameOver
+{
+	background: rgba(255,255,255,0.8);
+}
+
+.pause,
+.gameOver
+{
+	z-index: 1;
+	text-align: center;
+	line-height: 8em;
+}
+
+.pauseButton
+{
+	display: inline-block;
+	padding: 0.3em;
+	border-radius: 0.5em;
+	background: rgb(254,204,177);
+	background: linear-gradient(to bottom, rgba(254,204,177,1) 0%,rgba(241,116,50,1) 50%,rgba(234,85,7,1) 51%,rgba(251,149,94,1) 100%);
+	color: #FFFFFF;
+	margin: 0.2em 0.5em;
+	box-shadow: 0 0 0.5em #808080;
 }

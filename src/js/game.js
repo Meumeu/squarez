@@ -6,6 +6,17 @@ function Squarez(board, rootElement, scoreElement)
 	this.scoreElement = scoreElement
 	this.score = 0;
 	
+	this.timer = new Module.Timer(10, 60, 180);
+	var that = this;
+	var timerEl = rootElement.getElementsByClassName("timeLeftInner")[0];
+	this.timerFunc = setInterval(function()
+	{
+		var timeLeft = that.timer.percentageLeft()
+		timerEl.style.width = ""+timeLeft+"%";
+		if (timeLeft == 0)
+			that.gameOver();
+	}, 60);
+	
 	var fontSize = window.getComputedStyle(rootElement).fontSize.match(/[0-9]*/)[0];
 	while (document.body.clientWidth < rootElement.clientWidth)
 	{
@@ -24,6 +35,14 @@ function Squarez(board, rootElement, scoreElement)
 	if (this.root.ontouchstart === undefined)
 		this.root.classList.add("no-touch");
 	
+	var pauseButtons = document.getElementsByClassName("jsPause");
+	for (var i = 0 ; i < pauseButtons.length; i++)
+	{
+		if (this.root.ontouchstart === undefined)
+			pauseButtons[i].onclick = function() {that.pause();};
+		else
+			pauseButtons[i].ontouchstart = function() {that.pause();};
+	}
 }
 
 Squarez.prototype =
@@ -78,6 +97,8 @@ Squarez.prototype =
 
 		if (transition.score == 0)
 			return;
+		
+		this.timer.refill(2*transition.score);
 		
 		this.score += transition.score;
 		this.scoreElement.innerHTML = this.score;
@@ -195,6 +216,26 @@ Squarez.prototype =
 		else
 		{
 			el.classList.remove("selected");
+		}
+	},
+	
+	gameOver: function()
+	{
+		clearInterval(this.timerFunc);
+		this.root.getElementsByClassName("gameOver")[0].style.display = "";
+	},
+	
+	pause: function()
+	{
+		if (this.timer.paused())
+		{
+			this.timer.unPause();
+			this.root.getElementsByClassName("pause")[0].style.display = "none";
+		}
+		else
+		{
+			this.timer.pause();
+			this.root.getElementsByClassName("pause")[0].style.display = "";
 		}
 	}
 }

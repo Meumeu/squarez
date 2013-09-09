@@ -31,6 +31,8 @@ public:
 	// Build a timer that will last longTerm seconds after an infinite amount of time
 	// Initially duration will be shortTerm secons, every halfLife seconds the difference
 	// between the current duration and longTerm is divided by half
+	// You should have (shortTerm - longTerm) * e * ln(2) < halfLife
+	// ie halfLife > 1.9 (shortTerm - longTerm)
 	Timer(uint16_t longTerm, uint16_t shortTerm, uint16_t halfLife);
 	
 	void refill(uint8_t percentage);
@@ -40,6 +42,7 @@ public:
 	
 	void pause();
 	void unPause();
+	bool paused() const {return _paused;}
 private:
 	const std::chrono::seconds _longTerm;
 	const std::chrono::seconds _halfLife;
