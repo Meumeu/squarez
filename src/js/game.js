@@ -239,12 +239,15 @@ Squarez.prototype =
 		{
 			var form = document.getElementById("nameForm");
 			form.style.display = "";
+			if (typeof(Storage) !== "undefined" && sessionStorage["lastname"])
+				document.getElementById("nameInput").value = sessionStorage["lastname"];
 			form.onsubmit = function()
 			{
 				var name = document.getElementById("nameInput").value;
 				if (! name)
 					return false;
 				form.style.display = "none";
+				sessionStorage["lastname"] = name;
 				that.saveScore(name);
 				that.getHighScores(true);
 				return false;
