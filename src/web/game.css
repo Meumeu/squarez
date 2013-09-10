@@ -35,13 +35,8 @@ body,
 	border-color: #0000FF;
 }
 
-.cell:hover::after,
-.cell.selected::after
-{
-	content: " ";
-}
-.cell:hover::after,
-.cell.selected::after,
+.cell:hover .inner,
+.cell.selected .inner,
 .gameOver,
 .pause,
 #nameForm
@@ -52,13 +47,14 @@ body,
 	right: 0;
 	bottom: 0;
 }
-.no-touch .cell:hover::after
+
+.no-touch .cell:hover .inner
 {
 	background-color: rgba(255,255,255,0.3);
 	border: 0.08em solid rgba(0,0,0,0.2);
 }
 
-.cell.selected::after
+.cell.selected .inner
 {
 	border: 0.16em solid rgba(0,0,0,0.8);
 	box-shadow: 0 0 0.2em black;
@@ -75,7 +71,7 @@ body,
 }
 
 .cell,
-.cell::after
+.cell .inner
 {
 	border-radius: 0.25em;
 }

@@ -57,10 +57,13 @@ Squarez.prototype =
 	addElement: function(x,y,symbol)
 	{
 		var n = document.createElement("div");
+		var n1 = document.createElement("div");
 		n.classList.add("cell");
 		n.classList.add("x"+x);
 		n.classList.add("y"+y);
 		n.classList.add("symbol"+symbol);
+		n1.classList.add("inner");
+		n.appendChild(n1);
 		var squarez = this;
 		if (n.ontouchstart !== undefined)
 		{
@@ -128,6 +131,7 @@ Squarez.prototype =
 		};
 		
 		var removed = new Array();
+		var moves = new Array();
 		
 		this.root.classList.remove("resizing");
 		
@@ -150,10 +154,15 @@ Squarez.prototype =
 				}
 				else
 				{
-					setTimeout(moveTo, 0, cell.fromx, cell.fromy, cell.tox, cell.toy,
-						this.getCell(cell.fromx, cell.fromy));
+					/*setTimeout(moveTo, 0, cell.fromx, cell.fromy, cell.tox, cell.toy,
+						this.getCell(cell.fromx, cell.fromy));*/
+					moves.push([cell.fromx, cell.fromy, cell.tox, cell.toy, this.getCell(cell.fromx, cell.fromy)])
 				}
 			}
+		}
+		for (var i = 0 ; i < moves.length; i++)
+		{
+			moveTo.apply(null, moves[i]);
 		}
 		if (removed.length == 4)
 		{
@@ -276,9 +285,9 @@ Squarez.prototype =
 		if (!this.timerFunc)
 		{
 			var that = this;
-			this.timerEl.style.transition = "right 0.2s linear, top 0.2s linear";
-			this.timerEl.style.webkitTransition = "right 0.2s linear, top 0.2s linear";
-			this.timerFunc = setInterval(function() {that.updateTimer();}, 200);
+			this.timerEl.style.transition = "right 0.5s linear, top 0.5s linear";
+			this.timerEl.style.webkitTransition = "right 0.5s linear, top 0.5s linear";
+			this.timerFunc = setInterval(function() {that.updateTimer();}, 500);
 		}
 		
 		var timeLeft = this.timer.percentageLeft()

@@ -78,7 +78,7 @@ static bool isSquareAngle(std::pair<uint8_t, uint8_t> p0, std::pair<uint8_t, uin
 
 Transition GameBoard::selectSquare(const Selection& selection, bool allowDefeat) const
 {
-	auto points = selection.getPoints();
+	auto const& points = selection.getPoints();
 	
 	// Check that we are actually selecting 4 points
 	if (points.size() != 4)
