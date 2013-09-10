@@ -239,11 +239,12 @@ body,
 {
 	z-index: 1;
 	text-align: center;
-	line-height: 8em;
+	padding-top: 2em;
 }
 
 .pauseButton,
 .clearButton,
+.restartButton,
 #nameForm input[type=submit]
 {
 	border: none;
@@ -255,6 +256,11 @@ body,
 	color: #FFFFFF;
 	margin: 0.2em 0.5em;
 	box-shadow: 0 0 0.5em #808080;
+}
+.restartButton
+{
+	font-size: 0.5em;
+	margin-top: 1em;
 }
 .info
 {
