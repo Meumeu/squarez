@@ -66,9 +66,9 @@ public:
 	CellTransition const& get(std::size_t pos) const { return _cells.at(pos);}
 	
 	uint32_t _score;
+	Selection _selection;
 private:
 	std::vector<CellTransition> _cells;
-	Selection _selection;
 };
 
 }

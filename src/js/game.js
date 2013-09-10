@@ -212,7 +212,7 @@ Squarez.prototype =
 		if (selected)
 		{
 			el.classList.add("selected");
-			var transition = this.board.selectSquare(this.selection);
+			var transition = this.board.selectSquare(this.selection, false);
 			if (transition.score > 0)
 			{
 				this.clearSelection();

@@ -40,9 +40,12 @@ public:
 	
 	// Attempt to remove the selected cells from the board, return the score.
 	// Score is 0 only if selection is invalid
-	Transition selectSquare(Selection const& selection) const;
+	// If allowDefeat is false, a selection that would lead to an impossible grid
+	// will create a shuffle transition instead
+	Transition selectSquare(Selection const& selection, bool allowDefeat = true) const;
 
 	std::vector<Transition> findTransitions() const;
+	bool hasTransition() const;
 	
 	void applyTransition(Transition const& transition);
 	
@@ -64,7 +67,7 @@ private:
 	
 	// The board itself
 	std::vector<uint8_t> _cells;
-	const uint8_t _size;
+	uint8_t _size;
 
 };
 

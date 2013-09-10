@@ -76,7 +76,7 @@ static bool isSquareAngle(std::pair<uint8_t, uint8_t> p0, std::pair<uint8_t, uin
 }
 
 
-Transition GameBoard::selectSquare(const Selection& selection) const
+Transition GameBoard::selectSquare(const Selection& selection, bool allowDefeat) const
 {
 	auto points = selection.getPoints();
 	
@@ -102,8 +102,23 @@ Transition GameBoard::selectSquare(const Selection& selection) const
 	// Simple score calculation: surface of the square, with a x2 bonus if it is not parallel to the edge nor 45 degrees
 	if (p0.first != p1.first and p0.second != p1.second and p0.first != p3.first and p0.second != p3.second)
 		score *= 2;
+
+	if (allowDefeat)
+		return Transition(*this, selection, score);
 	
-	return Transition(*this, selection, score);
+	// We do not allow defeat, test if the transition leads to a defeat scenario
+	GameBoard after(*this);
+	Transition res(*this, selection, score);
+	after.applyTransition(res);
+	while (not after.hasTransition())
+	{
+		res = Transition(_size);
+		after = GameBoard(*this);
+		after.applyTransition(res);
+	}
+	res._score = score;
+	res._selection = selection;
+	return res;
 }
 #if 0
 namespace
@@ -167,9 +182,9 @@ std::vector<Transition> GameBoard::findTransitions() const
 {
 	std::vector<Transition> res;
 	
-	for(int x1 = 0; x1 < _size; x1++)
+	for(int x1 = 0; x1 < _size - 1; x1++)
 		for(int y1 = 0; y1 < _size; y1++)
-			for(int x2 = x1; x2 < _size; x2++)
+			for(int x2 = x1 + 1; x2 < _size; x2++)
 				for(int y2 = y1; y2 < _size; y2++)
 				{
 					int x3, y3, x4, y4;
@@ -187,7 +202,7 @@ std::vector<Transition> GameBoard::findTransitions() const
 					s.addPoint(x3, y3);
 					s.addPoint(x4, y4);
 					
-					squarez::Transition const& t = this->selectSquare(s);
+					squarez::Transition const& t = this->selectSquare(s, true);
 					
 					if (t._score)
 						res.push_back(t);
@@ -195,4 +210,35 @@ std::vector<Transition> GameBoard::findTransitions() const
 
 	return res;
 }
+
+bool GameBoard::hasTransition() const
+{
+	for(int x1 = 0; x1 < _size - 1; x1++)
+		for(int y1 = 0; y1 < _size; y1++)
+			for(int x2 = x1 + 1; x2 < _size; x2++)
+				for(int y2 = y1; y2 < _size; y2++)
+				{
+					int x3, y3, x4, y4;
+					x3 = x2 + y1 - y2;
+					y3 = y2 + x2 - x1;
+					x4 = x1 + y1 - y2;
+					y4 = y1 + x2 - x1;
+					
+					if (x3 < 0 or y3 < 0 or x4 < 0 or y4 < 0 or x3 >= _size or y3 >= _size or x4 >= _size or y4 >= _size)
+						continue;
+					
+					squarez::Selection s;
+					s.addPoint(x1, y1);
+					s.addPoint(x2, y2);
+					s.addPoint(x3, y3);
+					s.addPoint(x4, y4);
+					
+					squarez::Transition const& t = this->selectSquare(s, true);
+					
+					if (t._score)
+						return true;
+				}
+	return false;
+}
+
 }
