@@ -7,19 +7,9 @@ function Squarez(board, rootElement, scoreElement)
 	this.score = 0;
 	
 	this.timer = new Module.Timer(10, 60, 180);
-	var that = this;
-	var timerEl = rootElement.getElementsByClassName("timeLeftInner")[0];
-	this.timerFunc = setInterval(function()
-	{
-		var timeLeft = that.timer.percentageLeft()
-		// Under 5%, show as if time was finished
-		timerEl.style.right = ""+(100-(timeLeft-0.05)*100/0.95)+"%";
-		timerEl.style.top = timerEl.style.right;
-		if (timeLeft == 0)
-			that.gameOver();
-	}, 200);
-	timerEl.style.transition = "right 0.2s linear, top 0.2s linear";
-	timerEl.style.webkitTransition = "right 0.2s linear, top 0.2s linear";
+	this.timerEl = rootElement.getElementsByClassName("timeLeftInner")[0];
+	this.updateTimer();
+	
 	rootElement.classList.add("resizing");
 	rootElement.style.fontSize = (Math.min(window.innerHeight, window.innerWidth)/8) + "px";
 	window.onresize = function()
@@ -38,6 +28,8 @@ function Squarez(board, rootElement, scoreElement)
 	}
 	if (this.root.ontouchstart === undefined)
 		this.root.classList.add("no-touch");
+	
+	var that = this;
 	
 	var pauseButtons = document.getElementsByClassName("jsPause");
 	for (var i = 0 ; i < pauseButtons.length; i++)
@@ -238,6 +230,7 @@ Squarez.prototype =
 	gameOver: function()
 	{
 		clearInterval(this.timerFunc);
+		this.timerFunc = null;
 		this.root.getElementsByClassName("gameOver")[0].style.display = "";
 		var scores = this.getHighScores();
 		var that = this;
@@ -267,11 +260,32 @@ Squarez.prototype =
 		{
 			this.timer.unPause();
 			this.root.getElementsByClassName("pause")[0].style.display = "none";
+			this.updateTimer();
 		}
 		else
 		{
 			this.timer.pause();
+			clearInterval(this.timerFunc);
+			this.timerFunc = null;
 			this.root.getElementsByClassName("pause")[0].style.display = "";
+		}
+	},
+	
+	updateTimer: function()
+	{
+		var timeLeft = this.timer.percentageLeft()
+		// Under 5%, show as if time was finished
+		this.timerEl.style.right = ""+(100-(timeLeft-0.05)*100/0.95)+"%";
+		this.timerEl.style.top = this.timerEl.style.right;
+		if (timeLeft == 0)
+			this.gameOver();
+		
+		if (!this.timerFunc)
+		{
+			var that = this;
+			this.timerEl.style.transition = "right 0.2s linear, top 0.2s linear";
+			this.timerEl.style.webkitTransition = "right 0.2s linear, top 0.2s linear";
+			this.timerFunc = setInterval(function() {that.updateTimer();}, 200);
 		}
 	},
 	

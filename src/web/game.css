@@ -165,10 +165,6 @@ body,
 	right: 0;
 	background: #FFFFFF;
 }
-.pause
-{
-	bottom: 0.2em;
-}
 .timeLeftInner
 {
 	top: 0;
@@ -176,6 +172,10 @@ body,
 }
 @media all and (orientation: portrait)
 {
+	.pause
+	{
+		bottom: 0.2em;
+	}
 	.timeLeftInner
 	{
 		left:0;
@@ -190,6 +190,10 @@ body,
 }
 @media all and (orientation: landscape)
 {
+	.pause
+	{
+		right: 0.2em;
+	}
 	.timeLeftInner
 	{
 		right:0 !important;
