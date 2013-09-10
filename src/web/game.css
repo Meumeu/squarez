@@ -71,6 +71,7 @@ body,
 	overflow: hidden;
 	height: 8.2em;
 	width: 8em;
+	float: left;
 }
 
 .cell,
@@ -157,13 +158,11 @@ body,
 .timeLeftInner
 {
 	position: absolute;
-	left: 0;
 	bottom: 0;
 }
 .timeLeftOuter
 {
 	right: 0;
-	height: 0.2em;
 	background: #FFFFFF;
 }
 .pause
@@ -173,10 +172,41 @@ body,
 .timeLeftInner
 {
 	top: 0;
-	background: rgb(30,87,153);
-	background: linear-gradient(to bottom, rgba(201,222,150,1) 0%,rgba(138,182,107,1) 44%,rgba(57,130,53,1) 100%);
+	background: rgb(138,182,107);
 }
-
+@media all and (orientation: portrait)
+{
+	.timeLeftInner
+	{
+		left:0;
+		top: 0 !important;
+		background: linear-gradient(to bottom, rgba(201,222,150,1) 0%,rgba(138,182,107,1) 44%,rgba(57,130,53,1) 100%);
+	}
+	.timeLeftOuter
+	{
+		height: 0.2em;
+		left:0;
+	}
+}
+@media all and (orientation: landscape)
+{
+	.timeLeftInner
+	{
+		right:0 !important;
+		left:0;
+	}
+	.timeLeftOuter
+	{
+		width: 0.2em;
+		top:0;
+	}
+	#gameArea
+	{
+		height: 8em;
+		width: 8.2em;
+		margin-right: 10px;
+	}
+}
 .gameOver
 {
 	background: rgba(255,255,255,0.8);
@@ -225,4 +255,15 @@ body,
 	color: #FFFFFF;
 	margin: 0.2em 0.5em;
 	box-shadow: 0 0 0.5em #808080;
+}
+.info
+{
+	min-width: 300px;
+	display: inline-block;
+}
+
+.resizing .cell
+{
+	transition: top 0s;
+	-webkit-transition: top 0s;
 }

@@ -13,18 +13,19 @@ function Squarez(board, rootElement, scoreElement)
 	{
 		var timeLeft = that.timer.percentageLeft()
 		// Under 5%, show as if time was finished
-		timerEl.style.width = ""+((timeLeft-0.05)*100/0.95)+"%";
+		timerEl.style.right = ""+(100-(timeLeft-0.05)*100/0.95)+"%";
+		timerEl.style.top = timerEl.style.right;
 		if (timeLeft == 0)
 			that.gameOver();
 	}, 200);
-	timerEl.style.transition = "width 0.2s linear";
-	timerEl.style.webkitTransition = "width 0.2s linear";
-	
-	var fontSize = window.getComputedStyle(rootElement).fontSize.match(/[0-9]*/)[0];
-	while (document.body.clientWidth <= rootElement.clientWidth)
+	timerEl.style.transition = "right 0.2s linear, top 0.2s linear";
+	timerEl.style.webkitTransition = "right 0.2s linear, top 0.2s linear";
+	rootElement.classList.add("resizing");
+	rootElement.style.fontSize = (Math.min(window.innerHeight, window.innerWidth)/8) + "px";
+	window.onresize = function()
 	{
-		fontSize -= 1;
-		rootElement.style.fontSize = ""+fontSize+"px";
+		rootElement.classList.add("resizing");
+		rootElement.style.fontSize = (Math.min(window.innerHeight, window.innerWidth)/8) + "px";
 	}
 
 	var size = board.size();
@@ -137,6 +138,8 @@ Squarez.prototype =
 		};
 		
 		var removed = new Array();
+		
+		this.root.classList.remove("resizing");
 		
 		for (var i = 0 ; i < transitionSize ; i++)
 		{
