@@ -39,7 +39,7 @@ EMSCRIPTEN_BINDINGS(GameBoard) {
 		.function("selectSquare", &GameBoard::selectSquare)
 		.function("applyTransition", &GameBoard::applyTransition)
 		.function("size", &GameBoard::size)
-		.function("get", emscripten::select_overload<uint8_t(uint8_t, uint8_t)const>(&GameBoard::get))
+		.function("get", emscripten::select_overload<unsigned int(unsigned int, unsigned int)const>(&GameBoard::get))
 		.function("print", &GameBoard::print)
 		;
 }

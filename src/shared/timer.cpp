@@ -47,7 +47,7 @@ uint16_t Timer::secondsLeft() const
 	return 0;
 }
 
-void Timer::refill(uint8_t percentage)
+void Timer::refill(unsigned int percentage)
 {
 	auto newBegin(std::chrono::steady_clock::now());
 	//Calculate decay of remaining time

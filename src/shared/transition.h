@@ -22,8 +22,9 @@
 
 #include "selection.h"
 
-#include <stdint.h>
 #include <vector>
+#include <string>
+#include <iostream>
 
 namespace squarez
 {
@@ -35,21 +36,23 @@ class Transition
 public:
 	struct CellTransition
 	{
-		CellTransition(int16_t fromx, int16_t fromy, uint8_t tox, uint8_t toy, uint8_t symbol = 0xFF):
+		CellTransition(int16_t fromx, int16_t fromy, unsigned int tox, unsigned int toy, unsigned int symbol = 0xFF):
 			_fromx(fromx), _fromy(fromy), _tox(tox), _toy(toy), _symbol(symbol), _removed(false) {}
 		CellTransition(int16_t deletex, int16_t deletey):
 			_fromx(deletex), _fromy(deletey), _tox(deletex), _toy(deletey), _symbol(0xFF), _removed(true) {}
+		CellTransition(std::istream & serialized);
 		
 		int16_t _fromx;
 		int16_t _fromy;
 		
-		uint8_t _tox;
-		uint8_t _toy;
+		unsigned int _tox;
+		unsigned int _toy;
 		
-		uint8_t _symbol;
+		unsigned int _symbol;
 		bool _removed;
 		
 		bool isNew() const { return _symbol != 0xFF;}
+		void serialize(std::ostream & serialized) const;
 	};
 	
 	//Create an empty transition
@@ -59,11 +62,15 @@ public:
 	Transition(GameBoard const& board, Selection const& selection, uint32_t score);
 	
 	//Creates a "shuffle" transition, by randomly moving elements
-	Transition(uint8_t size);
+	Transition(unsigned int size);
+
+	Transition(std::istream & serialized);
 	
 	std::vector<CellTransition> const& getCellTransition() const { return _cells; }
 	std::size_t size() const { return _cells.size();}
 	CellTransition const& get(std::size_t pos) const { return _cells.at(pos);}
+
+	void serialize(std::ostream & serialized) const;
 	
 	uint32_t _score;
 	Selection _selection;

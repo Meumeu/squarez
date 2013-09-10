@@ -35,7 +35,7 @@ public:
 	// ie halfLife > 1.9 (shortTerm - longTerm)
 	Timer(uint16_t longTerm, uint16_t shortTerm, uint16_t halfLife);
 	
-	void refill(uint8_t percentage);
+	void refill(unsigned int percentage);
 	
 	float percentageLeft() const;
 	uint16_t secondsLeft() const;

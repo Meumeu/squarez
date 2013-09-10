@@ -19,11 +19,13 @@
 
 #include "selection.h"
 
+#include <sstream>
+
 namespace squarez
 {
-bool Selection::addPoint(uint8_t x, uint8_t y)
+bool Selection::addPoint(unsigned int x, unsigned int y)
 {
-	std::pair<uint8_t, uint8_t> point(x,y);
+	std::pair<unsigned int, unsigned int> point(x,y);
 	if (_points.find(point) != _points.end())
 	{
 		_points.erase(point);
@@ -37,9 +39,30 @@ bool Selection::addPoint(uint8_t x, uint8_t y)
 	return true;
 }
 
-bool Selection::getPoint(uint8_t x, uint8_t y) const
+bool Selection::getPoint(unsigned int x, unsigned int y) const
 {
-	return _points.find(std::pair<uint8_t, uint8_t>(x,y)) != _points.end();
+	return _points.find(std::pair<unsigned int, unsigned int>(x,y)) != _points.end();
+}
+
+Selection::Selection(std::istream& serialized)
+{
+	size_t size;
+	serialized >> size;
+	for (size_t i = 0 ; i < size ; ++i)
+	{
+		unsigned int x,y;
+		serialized >> x >> y;
+		_points.insert(std::pair<unsigned int, unsigned int>(x,y));
+	}
+}
+
+void Selection::serialize(std::ostream& serialized) const
+{
+	serialized << _points.size() << " ";
+	for (auto const& p : _points)
+	{
+		serialized << p.first << " " << p.second << " ";
+	}
 }
 
 }

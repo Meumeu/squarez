@@ -20,10 +20,9 @@
 #ifndef GAMEBOARD_H
 #define GAMEBOARD_H
 
-#include <stdint.h>
 #include <vector>
 #include <set>
-#include <ostream>
+#include <iostream>
 
 #include "transition.h"
 
@@ -36,7 +35,11 @@ class GameBoard
 {
 	
 public:
-	GameBoard(uint8_t size, uint8_t numberOfSymbols);
+	// Create a new gmeboard from its serialized representation
+	GameBoard(std::istream & serialized);
+
+	// Create a new random gameboard with given size and possible different symbols
+	GameBoard(unsigned int size, unsigned int numberOfSymbols);
 	
 	// Attempt to remove the selected cells from the board, return the score.
 	// Score is 0 only if selection is invalid
@@ -50,24 +53,26 @@ public:
 	void applyTransition(Transition const& transition);
 	
 	// Get the symbol of the board at coordinates x,y
-	uint8_t get(uint8_t x, uint8_t y) const;
-	uint8_t get(std::pair<uint8_t, uint8_t> point) const {return get(point.first, point.second);}
+	unsigned int get(unsigned int x, unsigned int y) const;
+	unsigned int get(std::pair<unsigned int, unsigned int> point) const {return get(point.first, point.second);}
 	
 	// Set the symbol of the board at coordinates x,y
-	void set(uint8_t x, uint8_t y, uint8_t symbol);
-	void set(std::pair<uint8_t, uint8_t> point, uint8_t symbol) {set(point.first, point.second, symbol);}
+	void set(unsigned int x, unsigned int y, unsigned int symbol);
+	void set(std::pair<unsigned int, unsigned int> point, unsigned int symbol) {set(point.first, point.second, symbol);}
 	
-	uint8_t size() const { return _size;}
-	uint8_t symbol() const { return _symbols; }
+	unsigned int size() const { return _size;}
+	unsigned int symbol() const { return _symbols; }
 
 	void print() const ;
+	
+	void serialize(std::ostream&) const;
 private:
 	// Number of possible values for each cell
-	uint8_t _symbols;
+	unsigned int _symbols;
 	
 	// The board itself
-	std::vector<uint8_t> _cells;
-	uint8_t _size;
+	std::vector<unsigned int> _cells;
+	unsigned int _size;
 
 };
 

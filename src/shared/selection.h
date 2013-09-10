@@ -22,7 +22,7 @@
 
 #include <set>
 #include <utility>
-#include <stdint.h>
+#include <iostream>
 
 namespace squarez
 {
@@ -30,11 +30,16 @@ namespace squarez
 class Selection
 {
 public:
-	bool addPoint(uint8_t x, uint8_t y);
-	bool getPoint(uint8_t x, uint8_t y) const;
-	std::set<std::pair<uint8_t, uint8_t>> const& getPoints() const {return _points;}
+	Selection() {}
+	Selection(std::istream& serialized);
+
+	bool addPoint(unsigned int x, unsigned int y);
+	bool getPoint(unsigned int x, unsigned int y) const;
+	std::set<std::pair<unsigned int, unsigned int>> const& getPoints() const {return _points;}
+
+	void serialize(std::ostream&) const;
 private:
-	std::set<std::pair<uint8_t, uint8_t>> _points;
+	std::set<std::pair<unsigned int, unsigned int>> _points;
 };
 
 }

@@ -23,11 +23,12 @@
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
+#include <sstream>
 
 namespace squarez
 {
 
-GameBoard::GameBoard(uint8_t size, uint8_t numberOfSymbols): _symbols(numberOfSymbols), _size(size)
+GameBoard::GameBoard(unsigned int size, unsigned int numberOfSymbols): _symbols(numberOfSymbols), _size(size)
 {
 	_cells.resize(size * size);
 	std::srand(std::time(0));
@@ -38,7 +39,7 @@ GameBoard::GameBoard(uint8_t size, uint8_t numberOfSymbols): _symbols(numberOfSy
 
 }
 
-uint8_t GameBoard::get(uint8_t x, uint8_t y) const
+unsigned int GameBoard::get(unsigned int x, unsigned int y) const
 {
 	if (x >= _size)
 		throw std::out_of_range("x out of range");
@@ -50,7 +51,7 @@ uint8_t GameBoard::get(uint8_t x, uint8_t y) const
 }
 
 
-void GameBoard::set(uint8_t x, uint8_t y, uint8_t symbol)
+void GameBoard::set(unsigned int x, unsigned int y, unsigned int symbol)
 {
 	if (x >= _size)
 		throw std::out_of_range("x out of range");
@@ -64,13 +65,13 @@ void GameBoard::set(uint8_t x, uint8_t y, uint8_t symbol)
 	_cells[x * _size + y] = symbol;
 }
 
-static uint16_t norm(std::pair<uint8_t, uint8_t> p0, std::pair<uint8_t, uint8_t> p1)
+static uint16_t norm(std::pair<unsigned int, unsigned int> p0, std::pair<unsigned int, unsigned int> p1)
 {
 	return (p1.first - p0.first)*(p1.first - p0.first) + (p1.second - p0.second)*(p1.second - p0.second);
 }
 
 // Check if the angle p0p1,p1p2 is a square angle
-static bool isSquareAngle(std::pair<uint8_t, uint8_t> p0, std::pair<uint8_t, uint8_t> p1, std::pair<uint8_t, uint8_t> p2)
+static bool isSquareAngle(std::pair<unsigned int, unsigned int> p0, std::pair<unsigned int, unsigned int> p1, std::pair<unsigned int, unsigned int> p2)
 {
 	return ((p1.first - p0.first) * (p1.first - p2.first) + (p1.second - p0.second) * (p1.second- p2.second)) == 0;
 }
@@ -127,15 +128,15 @@ namespace
 	{
 		struct const_iterator
 		{
-			uint8_t _val;
+			unsigned int _val;
 			int _increment;
-			uint8_t operator*() const { return _val;}
+			unsigned int operator*() const { return _val;}
 			const_iterator operator++() { _val += _increment; return *this;}
 			bool operator!=(const_iterator const& other) const
 			{ return _val != other._val;}
-			const_iterator(uint8_t val, int increment): _val(val), _increment(increment) {}
+			const_iterator(unsigned int val, int increment): _val(val), _increment(increment) {}
 		};
-		Range(uint8_t from, uint8_t to):
+		Range(unsigned int from, unsigned int to):
 			_begin(from, (to > from) ? 1 : -1),
 			_end(to + ((to > from) ? 1 : -1), 1) {}
 		const_iterator begin() const { return _begin; }
@@ -156,7 +157,7 @@ void GameBoard::applyTransition(const Transition& transition)
 	{
 		if (not cellTransition._removed)
 		{
-			uint8_t symbol = (cellTransition.isNew()) ? cellTransition._symbol : oldCells.at(cellTransition._fromx * _size + cellTransition._fromy);
+			unsigned int symbol = (cellTransition.isNew()) ? cellTransition._symbol : oldCells.at(cellTransition._fromx * _size + cellTransition._fromy);
 			this->set(cellTransition._tox, cellTransition._toy, symbol);
 		}
 	}
@@ -164,9 +165,9 @@ void GameBoard::applyTransition(const Transition& transition)
 
 std::ostream& operator<<(std::ostream& out, GameBoard const& board)
 {
-	for (uint8_t y = 0 ; y< board.size() ; ++y)
+	for (unsigned int y = 0 ; y< board.size() ; ++y)
 	{
-		for (uint8_t x = 0 ; x< board.size() ; ++x)
+		for (unsigned int x = 0 ; x< board.size() ; ++x)
 			out << (int)board.get(x,y)<< " ";
 		out << std::endl;
 	}
@@ -182,18 +183,20 @@ std::vector<Transition> GameBoard::findTransitions() const
 {
 	std::vector<Transition> res;
 	
-	for(int x1 = 0; x1 < _size - 1; x1++)
-		for(int y1 = 0; y1 < _size; y1++)
-			for(int x2 = x1 + 1; x2 < _size; x2++)
-				for(int y2 = y1; y2 < _size; y2++)
+	for(unsigned int x1 = 0; x1 < _size - 1; x1++)
+		for(unsigned int y1 = 0; y1 < _size; y1++)
+			for(unsigned int x2 = x1 + 1; x2 < _size; x2++)
+				for(unsigned int y2 = y1; y2 < _size; y2++)
 				{
-					int x3, y3, x4, y4;
+					unsigned int x3, y3, x4, y4;
+					if (y2 > x2 + y1 or x1 > y2 + x2 or y2 > x1 + y1 or x1 > y1 + x2)
+						continue;
 					x3 = x2 + y1 - y2;
 					y3 = y2 + x2 - x1;
 					x4 = x1 + y1 - y2;
 					y4 = y1 + x2 - x1;
 					
-					if (x3 < 0 or y3 < 0 or x4 < 0 or y4 < 0 or x3 >= _size or y3 >= _size or x4 >= _size or y4 >= _size)
+					if (x3 >= _size or y3 >= _size or x4 >= _size or y4 >= _size)
 						continue;
 					
 					squarez::Selection s;
@@ -213,18 +216,20 @@ std::vector<Transition> GameBoard::findTransitions() const
 
 bool GameBoard::hasTransition() const
 {
-	for(int x1 = 0; x1 < _size - 1; x1++)
-		for(int y1 = 0; y1 < _size; y1++)
-			for(int x2 = x1 + 1; x2 < _size; x2++)
-				for(int y2 = y1; y2 < _size; y2++)
+	for(unsigned int x1 = 0; x1 < _size - 1; x1++)
+		for(unsigned int y1 = 0; y1 < _size; y1++)
+			for(unsigned int x2 = x1 + 1; x2 < _size; x2++)
+				for(unsigned int y2 = y1; y2 < _size; y2++)
 				{
-					int x3, y3, x4, y4;
+					unsigned int x3, y3, x4, y4;
+					if (y2 > x2 + y1 or x1 > y2 + x2 or y2 > x1 + y1 or x1 > y1 + x2)
+						continue;
 					x3 = x2 + y1 - y2;
 					y3 = y2 + x2 - x1;
 					x4 = x1 + y1 - y2;
 					y4 = y1 + x2 - x1;
-					
-					if (x3 < 0 or y3 < 0 or x4 < 0 or y4 < 0 or x3 >= _size or y3 >= _size or x4 >= _size or y4 >= _size)
+
+					if (x3 >= _size or y3 >= _size or x4 >= _size or y4 >= _size)
 						continue;
 					
 					squarez::Selection s;
@@ -239,6 +244,25 @@ bool GameBoard::hasTransition() const
 						return true;
 				}
 	return false;
+}
+
+GameBoard::GameBoard(std::istream& serialized)
+{
+	serialized >> _symbols >> _size;
+	_cells.resize(_size * _size);
+	for (auto & c :  _cells)
+		serialized >> c;
+}
+
+void GameBoard::serialize(std::ostream& serialized) const
+{
+	serialized <<  _symbols << " ";
+
+	// Cells array
+	serialized << _size << " ";
+	for (auto const& c :  _cells)
+		serialized << c << " ";
+
 }
 
 }

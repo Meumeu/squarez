@@ -112,12 +112,12 @@ void testSquareFinding()
 	squarez::GameBoard board(3, 2);
 	
 	//No square can be found
-	uint8_t situation0[] =
+	unsigned int situation0[] =
 	{0, 0, 0,
 	 0, 1, 0,
 	 1, 1, 0};
-	for (uint8_t x = 0; x < 3; x++)
-		for (uint8_t y = 0; y < 3; y++)
+	for (unsigned int x = 0; x < 3; x++)
+		for (unsigned int y = 0; y < 3; y++)
 			board.set(x,y,situation0[3*x + y]);
 
 	if (board.hasTransition())
@@ -128,12 +128,12 @@ void testSquareFinding()
 	}
 	
 	// Only one square
-	uint8_t situation1[] =
+	unsigned int situation1[] =
 	{0, 0, 0,
 	 0, 1, 0,
 	 0, 1, 0};
-	for (uint8_t x = 0; x < 3; x++)
-		for (uint8_t y = 0; y < 3; y++)
+	for (unsigned int x = 0; x < 3; x++)
+		for (unsigned int y = 0; y < 3; y++)
 			board.set(x,y,situation1[3*x + y]);
 	auto const& transitions = board.findTransitions();
 	if (transitions.size() != 1)
@@ -152,13 +152,13 @@ void testSquareFinding()
 	
 	// This transition leads to a situation with no square, test no-shuffle/shuffle cases
 	board = squarez::GameBoard(4,3);
-	uint8_t situation2[] =
+	unsigned int situation2[] =
 	{0, 0, 0, 1, // X 0 X 1
 	 0, 1, 1, 0, // X 1 X 0
 	 0, 2, 0, 0, // 0 2 1 0
 	 0, 2, 1, 0};// 0 2 1 0
-	 for (uint8_t x = 0; x < 4; x++)
-		 for (uint8_t y = 0; y < 4; y++)
+	 for (unsigned int x = 0; x < 4; x++)
+		 for (unsigned int y = 0; y < 4; y++)
 			 board.set(x,y,situation2[4*x + y]);
 	squarez::Selection s;
 	s.addPoint(0,0);
@@ -190,12 +190,38 @@ void testSquareFinding()
 	std::cout << "passed" << std::endl;
 }
 
+void testSerialization()
+{
+	std::cout << "Serialization validation testing... ";
+	squarez::GameBoard board(SIZE, SYMBOLS);
+
+	std::stringstream stream;
+	board.serialize(stream);
+
+	squarez::GameBoard board1(stream);
+	bool sameCells = true;
+	for (unsigned int x = 0 ; x < board.size() ; ++x)
+		for (unsigned int y = 0 ; y < board.size() ; ++y)
+			sameCells = sameCells and board.get(x,y) == board1.get(x,y);
+
+	if (not board.size() == board1.size()
+		or not board.symbol() == board1.symbol()
+		or not sameCells)
+	{
+		std::stringstream text;
+		text << "Board changed during serialization:" << board << std::endl << board1;
+		throw std::runtime_error(text.str());
+	}
+	std::cout << "passed" << std::endl;
+}
+
 int main() {
 	try
 	{
 		testSelection();
 		testScore();
 		testSquareFinding();
+		testSerialization();
 	}
 	catch (std::exception &e)
 	{

@@ -24,6 +24,7 @@
 #include <cstdlib>
 #include <map>
 #include <algorithm>
+#include <sstream>
 
 namespace squarez
 {
@@ -53,7 +54,7 @@ Transition::Transition(const GameBoard& board, const Selection& selection, uint3
 		}
 		--point.second;
 		
-		uint8_t symbol = std::rand() % board.symbol();
+		unsigned int symbol = std::rand() % board.symbol();
 		if (cellTransition.find(point) != cellTransition.end())
 		{
 			cellTransition.find(point)->second._toy++;
@@ -72,18 +73,52 @@ Transition::Transition(const GameBoard& board, const Selection& selection, uint3
 	}
 }
 
-Transition::Transition(uint8_t size): _score(0)
+Transition::Transition(unsigned int size): _score(0)
 {
-	std::vector<std::pair<uint8_t,uint8_t>> positions(size*size);
-	for (uint8_t y = 0; y < size ; ++y)
-		for (uint8_t x = 0; x < size ; ++x)
-			positions[x * size + y] = std::pair<uint8_t, uint8_t>(x,y);
+	std::vector<std::pair<unsigned int,unsigned int>> positions(size*size);
+	for (unsigned int y = 0; y < size ; ++y)
+		for (unsigned int x = 0; x < size ; ++x)
+			positions[x * size + y] = std::pair<unsigned int, unsigned int>(x,y);
 
 	std::random_shuffle(positions.begin(), positions.end());
 	
-	for (uint8_t y = 0; y < size ; ++y)
-		for (uint8_t x = 0; x < size ; ++x)
+	for (unsigned int y = 0; y < size ; ++y)
+		for (unsigned int x = 0; x < size ; ++x)
 			_cells.push_back(CellTransition(x, y, positions[x * size + y].first, positions[x * size + y].second));
+}
+
+Transition::Transition(std::istream& serialized)
+{
+	serialized >> _score;
+	_selection = Selection(serialized);
+
+	size_t numCells;
+	serialized >> numCells;
+	for (size_t x = 0; x < numCells; ++x)
+	{
+		_cells.push_back(CellTransition(serialized));
+	}
+}
+
+void Transition::serialize(std::ostream& serialized) const
+{
+	serialized <<  _score << " ";
+	_selection.serialize(serialized); serialized << " ";
+
+	serialized <<  _cells.size() <<  " ";
+	for (auto const& cell :  _cells)
+	{
+		cell.serialize(serialized);
+	}
+}
+
+Transition::CellTransition::CellTransition(std::istream& serialized)
+{
+	serialized >> _fromx >> _fromy >> _tox >> _toy >> _symbol >> _removed;
+}
+void Transition::CellTransition::serialize(std::ostream& serialized) const
+{
+	serialized << _fromx << " " << _fromy << " " << _tox << " " << _toy << " " << _symbol << " " << _removed;
 }
 
 
