@@ -227,8 +227,10 @@ Squarez.prototype =
 	
 	gameOver: function()
 	{
-		clearInterval(this.timerFunc);
-		this.timerFunc = null;
+		if (this.gameEnded)
+			return;
+		this.gameEnded = true;
+		
 		this.root.getElementsByClassName("gameOver")[0].style.display = "";
 		var scores = this.getHighScores();
 		var that = this;
@@ -271,19 +273,23 @@ Squarez.prototype =
 	
 	updateTimer: function()
 	{
-		var timeLeft = this.timer.percentageLeft()
-		// Under 5%, show as if time was finished
-		this.timerEl.style.right = ""+(100-(timeLeft-0.05)*100/0.95)+"%";
-		this.timerEl.style.top = this.timerEl.style.right;
-		if (timeLeft == 0)
-			this.gameOver();
-		
 		if (!this.timerFunc)
 		{
 			var that = this;
 			this.timerEl.style.transition = "right 0.2s linear, top 0.2s linear";
 			this.timerEl.style.webkitTransition = "right 0.2s linear, top 0.2s linear";
 			this.timerFunc = setInterval(function() {that.updateTimer();}, 200);
+		}
+		
+		var timeLeft = this.timer.percentageLeft()
+		// Under 5%, show as if time was finished
+		this.timerEl.style.right = ""+(100-(timeLeft-0.05)*100/0.95)+"%";
+		this.timerEl.style.top = this.timerEl.style.right;
+		if (timeLeft == 0)
+		{
+			clearInterval(this.timerFunc);
+			this.timerFunc = null;
+			this.gameOver();
 		}
 	},
 	
