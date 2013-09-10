@@ -133,7 +133,7 @@ namespace
 
 void GameBoard::applyTransition(const Transition& transition)
 {
-	if (transition._score == 0)
+	if (transition.getCellTransition().empty())
 		return;
 	
 	auto oldCells = _cells;

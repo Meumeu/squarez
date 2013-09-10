@@ -101,17 +101,15 @@ Squarez.prototype =
 		{
 			old[0].parentNode.removeChild(old[0]);
 		}
-
-		if (transition.score == 0)
-			return;
 		
 		this.timer.refill(2*transition.score);
 		
 		this.score += transition.score;
 		this.scoreElement.innerHTML = this.score;
 
-		var size = this.board.size();
 		var transitionSize = transition.size();
+		if (transitionSize == 0)
+			return;
 		
 		var moveTo = function(fromx, fromy, x, y, cell)
 		{

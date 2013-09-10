@@ -23,6 +23,7 @@
 
 #include <cstdlib>
 #include <map>
+#include <algorithm>
 
 namespace squarez
 {
@@ -70,5 +71,20 @@ Transition::Transition(const GameBoard& board, const Selection& selection, uint3
 		_cells.push_back(cell.second);
 	}
 }
+
+Transition::Transition(uint8_t size): _score(0)
+{
+	std::vector<std::pair<uint8_t,uint8_t>> positions(size*size);
+	for (uint8_t y = 0; y < size ; ++y)
+		for (uint8_t x = 0; x < size ; ++x)
+			positions[x * size + y] = std::pair<uint8_t, uint8_t>(x,y);
+
+	std::random_shuffle(positions.begin(), positions.end());
+	
+	for (uint8_t y = 0; y < size ; ++y)
+		for (uint8_t x = 0; x < size ; ++x)
+			_cells.push_back(CellTransition(x, y, positions[x * size + y].first, positions[x * size + y].second));
+}
+
 
 }

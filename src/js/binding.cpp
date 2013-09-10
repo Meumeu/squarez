@@ -46,6 +46,7 @@ EMSCRIPTEN_BINDINGS(GameBoard) {
 
 EMSCRIPTEN_BINDINGS(Transition) {
 	emscripten::class_<Transition>("Transition")
+	.constructor<int>()
 	.function("getCellTransition", &Transition::getCellTransition)
 	.function("size", &Transition::size)
 	.function("get", &Transition::get)

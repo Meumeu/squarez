@@ -51,8 +51,15 @@ public:
 		
 		bool isNew() const { return _symbol != 0xFF;}
 	};
+	
+	//Create an empty transition
 	Transition() : _score(0) {}
+	
+	//Create a "move" transition, by removing the selection and pushing down the elements
 	Transition(GameBoard const& board, Selection const& selection, uint32_t score);
+	
+	//Creates a "shuffle" transition, by randomly moving elements
+	Transition(uint8_t size);
 	
 	std::vector<CellTransition> const& getCellTransition() const { return _cells; }
 	std::size_t size() const { return _cells.size();}

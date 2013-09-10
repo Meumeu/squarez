@@ -89,13 +89,13 @@ body,
 
 .cell
 {
-	transition: top 0.3s ease-in;
-	-webkit-transition: top 0.3s ease-in;
+	transition: top 0.3s ease-in, left 0.3s ease-in;
+	-webkit-transition: top 0.3s ease-in, left 0.3s ease-in;
 }
 .cell.doubleMove
 {
-	transition: top 0.42s ease-in;
-	-webkit-transition: top 0.42s ease-in;
+	transition: top 0.42s ease-in, left 0.42s ease-in;
+	-webkit-transition: top 0.42s ease-in, left 0.42s ease-in;
 }
 
 .removed
