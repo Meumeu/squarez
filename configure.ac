@@ -57,7 +57,8 @@ AS_IF([test "x$enable_werror" = "xyes"], [
 #FastCGI library
 AS_IF([test "x$enable_server" = "xyes"], [
 	PKG_CHECK_MODULES([SERVER], [fastcgi++])
-	BOOST_REQUIRE([1.35.0])]
+	BOOST_REQUIRE([1.53.0])
+	BOOST_PROGRAM_OPTIONS]
 )
 
 # Systemd

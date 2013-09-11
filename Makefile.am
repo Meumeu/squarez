@@ -16,8 +16,8 @@ endif
 if SERVER
 bin_PROGRAMS += squarezd
 squarezd_SOURCES = $(shared_sources) src/server/server.cpp src/server/requesthandler.cpp
-squarezd_CPPFLAGS = $(AM_CPPFLAGS) $(SYSTEMD_CFLAGS) $(SERVER_CFLAGS)
-squarezd_LDFLAGS = $(SERVER_LIBS) $(SYSTEMD_LIBS)
+squarezd_CPPFLAGS = $(AM_CPPFLAGS) $(SYSTEMD_CFLAGS) $(SERVER_CFLAGS) $(BOOST_CPPFLAGS)
+squarezd_LDFLAGS = $(SERVER_LIBS) $(SYSTEMD_LIBS) $(BOOST_PROGRAM_OPTIONS_LIBS)
 endif
 
 squareztest_SOURCES = src/test/main.cpp $(shared_sources)
