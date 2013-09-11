@@ -18,13 +18,36 @@
  */
 
 #include "requesthandler.h"
+#include "gamestatus.h"
 
 namespace squarez
 {
 
 bool RequestHandler::response()
 {
-	out << "Content-Type: text/plain\r\n\r\n";
+	switch (_state)
+	{
+		case Init:
+		{
+			out << "Content-Type: text/plain\r\n\r\n";
+			auto const& scriptName = environment().scriptName;
+			std::string method = scriptName.substr(scriptName.find_last_of('/'));
+
+			if (method == "/get_board")
+				return this->getBoard();
+
+			//FIXME: Unkown method, return something ?
+			return true;
+		}
+		case LongPoll:
+			return true;
+	}
+	return true;
+}
+
+bool RequestHandler::getBoard()
+{
+	GameStatus::access().getBoard().serialize(out);
 	return true;
 }
 

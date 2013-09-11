@@ -37,18 +37,26 @@
 #include <boost/program_options.hpp>
 
 #include "server/requesthandler.h"
+#include "gamestatus.h"
 
 int main(int argc, char ** argv)
 {
 	// Declare program options
 	boost::program_options::options_description options;
 	options.add_options()
-		("port", boost::program_options::value<int>(), "Listen to the given port");
+		("help,h", "this help message")
+		("port,p", boost::program_options::value<int>(), "Listen to the given port");
 
 	// Parse command line parameters
 	boost::program_options::variables_map parameters;
 	boost::program_options::store(boost::program_options::parse_command_line(argc, argv, options), parameters);
 	boost::program_options::notify(parameters);
+
+	if (parameters.count("help"))
+	{
+		std::cout << options << std::endl;
+		return 0;
+	}
 
 	int socket_fd = -1;
 
@@ -95,6 +103,9 @@ int main(int argc, char ** argv)
 		std::cerr << "No socket available." << std::endl;
 		return 1;
 	}
+
+	// Initialize the game
+	squarez::GameStatus game(squarez::GameBoard(SIZE, SYMBOLS));
 
 	// Start listening on the provided socket
 	Fastcgipp::Manager<squarez::RequestHandler> manager(socket_fd);
