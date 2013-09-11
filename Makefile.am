@@ -13,6 +13,13 @@ squarez_js_SOURCES =  $(shared_sources) src/js/binding.cpp src/shared/timer.cpp
 squarez_js_LDFLAGS = --bind
 endif
 
+if SERVER
+bin_PROGRAMS += squarezd
+squarezd_SOURCES = $(shared_sources) src/server/server.cpp src/server/requesthandler.cpp
+squarezd_CPPFLAGS = $(AM_CPPFLAGS) $(SYSTEMD_CFLAGS) $(SERVER_CFLAGS)
+squarezd_LDFLAGS = $(SERVER_LIBS) $(SYSTEMD_LIBS)
+endif
+
 squareztest_SOURCES = src/test/main.cpp $(shared_sources)
 
 squareztest_bot_SOURCES = src/test/bot.cpp $(shared_sources)

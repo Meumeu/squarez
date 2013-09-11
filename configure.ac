@@ -15,6 +15,18 @@ AC_ARG_ENABLE([javascript],
 AC_MSG_RESULT($enable_javascript)
 AM_CONDITIONAL([JAVASCRIPT], [test "x$enable_javascript" = "xyes"])
 
+AC_MSG_CHECKING([whether to build server binary])
+AC_ARG_ENABLE([server],
+	AS_HELP_STRING([--enable-server], [build server library]))
+AC_MSG_RESULT($enable_server)
+AM_CONDITIONAL([SERVER], [test "x$enable_server" = "xyes"])
+
+AC_MSG_CHECKING([whether to enable server socket activation (systemd)])
+AC_ARG_ENABLE([systemd],
+	AS_HELP_STRING([--enable-systemd], [enable socket activation]))
+AC_MSG_RESULT($enable_systemd)
+AM_CONDITIONAL([SYSTEMD], [test "x$enable_systemd" = "xyes"])
+
 AC_MSG_CHECKING([whether to build with -Werror])
 AC_ARG_ENABLE([werror],
 	AS_HELP_STRING([--enable-werror], [treat warnings as errors]))
@@ -26,7 +38,7 @@ AM_INIT_AUTOMAKE([subdir-objects])
 # Checks for programs.
 AC_PROG_CXX
 
-# Check C++11 and C99
+# Check C++11
 AX_CXX_COMPILE_STDCXX_11
 
 # Libtool
@@ -35,10 +47,23 @@ LT_INIT
 
 CFLAGS="$CFLAGS -Wall -Wextra"
 CXXFLAGS="$CXXFLAGS -Wall -Wextra"
+CPPFLAGS=""
 
 AS_IF([test "x$enable_werror" = "xyes"], [
 	CFLAGS="$CFLAGS -Werror"
 	CXXFLAGS="$CXXFLAGS -Werror"
 ])
+
+#FastCGI library
+AS_IF([test "x$enable_server" = "xyes"], [
+	PKG_CHECK_MODULES([SERVER], [fastcgi++])
+	BOOST_REQUIRE([1.35.0])]
+)
+
+# Systemd
+AS_IF([test "x$enable_systemd" = "xyes"], [
+	PKG_CHECK_MODULES([SYSTEMD], [libsystemd-daemon])],
+	[CPPFLAGS+="-DDISABLE_SYSTEMD"]
+)
 
 AC_OUTPUT(Makefile)
