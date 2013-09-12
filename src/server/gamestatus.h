@@ -29,6 +29,8 @@
 #include <stdexcept>
 #include <chrono>
 #include <mutex>
+#include <thread>
+#include <atomic>
 
 namespace Fastcgipp {
 struct Message;}
@@ -66,6 +68,7 @@ class GameStatus : public boost::noncopyable
 	friend class RWGameStatus;
 public:
 	GameStatus(GameBoard const& board, std::chrono::seconds roundDuration);
+	~GameStatus();
 
 	GameBoard const& getBoard() const { return _board;}
 	GameBoard & accessBoard() { return _board;}
@@ -80,6 +83,11 @@ public:
 	}
 
 private:
+	// Game main loop
+	void run();
+	std::thread _mainLoop;
+	std::atomic_bool _running;
+
 	static GameStatus& instance();
 	static GameStatus* _instance;
 	std::recursive_mutex _readMutex;
@@ -87,6 +95,9 @@ private:
 
 	// Current game board
 	GameBoard _board;
+
+	// Winning transition from last round
+	Transition _lastRoundTransition;
 
 	// Best transition for the current round
 	Transition _bestTransition;

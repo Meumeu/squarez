@@ -41,6 +41,7 @@ bool RequestHandler::response()
 
 			if (method == "/get_transition")
 			{
+				_state = LongPoll;
 				RWGameStatus()().registerWait(callback());
 				return false;
 			}
@@ -49,6 +50,7 @@ bool RequestHandler::response()
 			return true;
 		}
 		case LongPoll:
+			out << "Waked after timer\r\n";
 			return true;
 	}
 	return true;

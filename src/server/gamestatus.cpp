@@ -19,19 +19,35 @@
 
 #include "gamestatus.h"
 
+#include <fastcgi++/message.hpp>
+
 namespace squarez
 {
 GameStatus* GameStatus::_instance = nullptr;
 
-GameStatus::GameStatus(const GameBoard& board, std::chrono::seconds roundDuration): _board(board), _round(0), _roundDuration(roundDuration) {
+GameStatus::GameStatus(const GameBoard& board, std::chrono::seconds roundDuration): _running(true), _board(board), _round(0), _roundDuration(roundDuration) {
 	if (_instance)
 		throw std::runtime_error("GameStatus already initialized");
 	_instance = this;
+
+	// Start the main loop in a separate thread
+	_mainLoop = std::thread(&GameStatus::run, this);
+}
+
+GameStatus::~GameStatus()
+{
+	{
+		std::unique_lock<std::recursive_mutex> read(_readMutex),
+			write(_writeMutex);
+		// Tell the main loop to stop
+		_running = false;
+	}
+	_mainLoop.join();
 }
 
 uint16_t GameStatus::pushSelection(const Selection& selection)
 {
-	auto const& transition = _board.selectSquare(selection);
+	auto const& transition = _board.selectSquare(selection, true);
 
 	// If The selection gives a better score than the stored one, keep it
 	if (transition._score > _bestTransition._score)
@@ -48,6 +64,40 @@ GameStatus & GameStatus::instance()
 		return *_instance;
 	throw std::runtime_error("GameStatus has not been initialized");
 }
+
+void GameStatus::run()
+{
+	auto nextRound = std::chrono::steady_clock::now() + _roundDuration;
+	while (_running)
+	{
+		{
+			std::unique_lock<std::recursive_mutex> read(_readMutex), write(_writeMutex);
+
+			// If no transition has been found, select a random one
+			if (_bestTransition._selection.getPoints().empty())
+			{
+				auto const & transitions = _board.findTransitions();
+				_bestTransition = transitions[std::rand() % transitions.size()];
+			}
+
+			// Make sure the transition can not end the game
+			_lastRoundTransition = _board.selectSquare(_bestTransition._selection, false);
+
+			_board.applyTransition(_lastRoundTransition);
+
+			// Wake all waiting threads
+			for (auto const& callback: _pending)
+			{
+				callback(Fastcgipp::Message(1));
+			}
+
+			_pending.clear();
+			nextRound += _roundDuration;
+		}
+		std::this_thread::sleep_until(nextRound);
+	}
+}
+
 
 ROGameStatus::ROGameStatus(): _gameStatus(GameStatus::instance()), _readLock(_gameStatus._readMutex) {}
 RWGameStatus::RWGameStatus(): ROGameStatus(), _writeLock(_gameStatus._writeMutex) {}
