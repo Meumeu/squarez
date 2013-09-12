@@ -34,7 +34,11 @@ public:
 	Selection(std::istream& serialized);
 
 	bool addPoint(unsigned int x, unsigned int y);
-	bool getPoint(unsigned int x, unsigned int y) const;
+
+	// Get coordinates of point number i
+	unsigned int getX(unsigned int i) const;
+	unsigned int getY(unsigned int i) const;
+
 	std::set<std::pair<unsigned int, unsigned int>> const& getPoints() const {return _points;}
 
 	void serialize(std::ostream&) const;

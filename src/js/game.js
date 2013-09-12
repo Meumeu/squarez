@@ -1,15 +1,12 @@
-function Squarez(board, rootElement, scoreElement)
+function UserInterface(rootElement, scoreElement)
 {
 	this.root = rootElement;
-	this.board = board;
 	this.selection = new Module.Selection();
 	this.scoreElement = scoreElement
 	this.score = 0;
-	
-	this.timer = new Module.Timer(10, 60, 180);
+
 	this.timerEl = rootElement.getElementsByClassName("timeLeftInner")[0];
-	this.updateTimer();
-	
+
 	rootElement.classList.add("resizing");
 	rootElement.style.fontSize = (Math.min(window.innerHeight, window.innerWidth)/8) + "px";
 	window.onresize = function()
@@ -18,28 +15,20 @@ function Squarez(board, rootElement, scoreElement)
 		rootElement.style.fontSize = (Math.min(window.innerHeight, window.innerWidth)/8) + "px";
 	}
 
-	var size = board.size();
+	var size = this.board.size();
 	for (var y = 0 ; y < size ; y++)
 	{
 		for (var x = 0 ; x < size ; x++)
 		{
-			this.addElement(x,y,board.get(x,y));
+			this.addElement(x,y,this.board.get(x,y));
 		}
 	}
+
 	if (this.root.ontouchstart === undefined)
 		this.root.classList.add("no-touch");
-	
+
 	var that = this;
-	
-	var pauseButtons = document.getElementsByClassName("jsPause");
-	for (var i = 0 ; i < pauseButtons.length; i++)
-	{
-		if (this.root.ontouchstart === undefined)
-			pauseButtons[i].onclick = function() {that.pause();};
-		else
-			pauseButtons[i].ontouchstart = function() {that.pause();};
-	}
-	
+
 	var clearButtons = document.getElementsByClassName("jsClear");
 	for (var i = 0 ; i < clearButtons.length; i++)
 	{
@@ -48,11 +37,31 @@ function Squarez(board, rootElement, scoreElement)
 		else
 			clearButtons[i].ontouchstart = function() {that.clearSelection();};
 	}
-	
+}
+
+function SinglePlayerRules(rootElement, scoreElement)
+{
+	this.board = new Module.GameBoard(8,3);
+
+	UserInterface.call(this, rootElement, scoreElement);
+
+	var that = this;
+	var pauseButtons = document.getElementsByClassName("jsPause");
+	for (var i = 0 ; i < pauseButtons.length; i++)
+	{
+		if (this.root.ontouchstart === undefined)
+			pauseButtons[i].onclick = function() {that.pause();};
+		else
+			pauseButtons[i].ontouchstart = function() {that.pause();};
+	}
+
+	this.timer = new Module.Timer(10, 60, 180);
+	this.updateTimer();
+
 	this.getHighScores(true);
 }
 
-Squarez.prototype =
+UserInterface.prototype =
 {
 	addElement: function(x,y,symbol)
 	{
@@ -64,14 +73,14 @@ Squarez.prototype =
 		n.classList.add("symbol"+symbol);
 		n1.classList.add("inner");
 		n.appendChild(n1);
-		var squarez = this;
+		var that = this;
 		if (n.ontouchstart !== undefined)
 		{
-			n.ontouchstart = function() {squarez.select(this);};
+			n.ontouchstart = function() {that.select(this);};
 		}
 		else
 		{
-			n.onclick = function() {squarez.select(this);}
+			n.onclick = function() {that.select(this);}
 		}
 		this.root.appendChild(n);
 		return n;
@@ -97,18 +106,69 @@ Squarez.prototype =
 		}
 	},
 
-	updateBoard: function(transition)
+	animateSelection: function(selection)
+	{
+		var removed = new Array();
+		var center = {x:0, y:0};
+		for (var i = 0 ; i < 4 ; i++)
+		{
+			removed.push({x: selection.getX(i), y: selection.getY(i)});
+			center.x += removed[i].x;
+			center.y += removed[i].y;
+		}
+		center.x /=4;
+		center.y /=4;
+		var symbol = this.board.get(removed[0].x, removed[0].y);
+
+		var squareSize = (removed[0].x - removed[1].x)*(removed[0].x - removed[1].x) + (removed[0].y - removed[1].y)*(removed[0].y - removed[1].y);
+		var side = 1;
+		var otherSize = (removed[0].x - removed[2].x)*(removed[0].x - removed[2].x) + (removed[0].y - removed[2].y)*(removed[0].y - removed[2].y);
+		if (otherSize < squareSize)
+		{
+			squareSize = otherSize;
+			side = 2;
+		}
+		squareSize = Math.sqrt(squareSize);
+		var n = document.createElement("div");
+		n.style.top = ""+(0.5+center.y)+"em";
+		n.style.left = ""+(0.5+center.x)+"em";
+		n.classList.add("transient");
+		n.classList.add("transition-square-container");
+		n.style.position = "absolute";
+		var n1 = document.createElement("div");
+		n.appendChild(n1);
+		n1.style.marginLeft = "-50%";
+		n1.style.marginTop = "-50%";
+		n1.style.width = ""+squareSize + "em";
+		n1.style.height = ""+squareSize + "em";
+		n1.classList.add("transition-square");
+		n1.classList.add("symbol"+symbol);
+		var rotation = Math.atan2(removed[0].y - removed[side].y, removed[0].x - removed[side].x);
+		if (n.style.transform !== undefined)
+		{
+			n.style.transform = "rotate("+rotation+"rad)";
+			n.style.transformOrigin = "0 0"
+		}
+		if (n.style.webkitTransform !== undefined)
+		{
+			n.style.webkitTransform = "rotate("+rotation+"rad)";
+			n.style.webkitTransformOrigin = "0 0"
+		}
+		setTimeout(function() {n.classList.add("transition-removed");}, 100)
+		this.root.appendChild(n);
+	},
+
+	clearAnimations: function()
 	{
 		var old = this.root.getElementsByClassName("transient");
 		while (old.length != 0)
 		{
 			old[0].parentNode.removeChild(old[0]);
 		}
-		
-		this.timer.refill(2*transition.score);
-		
-		this.score += transition.score;
-		this.scoreElement.innerHTML = this.score;
+	},
+
+	animateTransition: function(transition)
+	{
 
 		var transitionSize = transition.size();
 		if (transitionSize == 0)
@@ -129,8 +189,6 @@ Squarez.prototype =
 				cell.classList.remove("doubleMove");
 			}
 		};
-		
-		var removed = new Array();
 		var moves = new Array();
 		
 		this.root.classList.remove("resizing");
@@ -143,7 +201,6 @@ Squarez.prototype =
 				var e = this.getCell(cell.fromx, cell.fromy);
 				e.classList.add("removed");
 				e.classList.add("transient");//FIXME: Firefox does not support add with multiple arguments
-				removed.push({x:cell.fromx, y:cell.fromy, symbol:this.board.get(cell.fromx, cell.fromy)});
 			}
 			else
 			{
@@ -154,8 +211,6 @@ Squarez.prototype =
 				}
 				else
 				{
-					/*setTimeout(moveTo, 0, cell.fromx, cell.fromy, cell.tox, cell.toy,
-						this.getCell(cell.fromx, cell.fromy));*/
 					moves.push([cell.fromx, cell.fromy, cell.tox, cell.toy, this.getCell(cell.fromx, cell.fromy)])
 				}
 			}
@@ -163,120 +218,6 @@ Squarez.prototype =
 		for (var i = 0 ; i < moves.length; i++)
 		{
 			moveTo.apply(null, moves[i]);
-		}
-		if (removed.length == 4)
-		{
-			var center = {x:0, y:0};
-			for (var i = 0 ; i < 4 ; i++)
-			{
-				center.x += removed[i].x;
-				center.y += removed[i].y;
-			}
-			center.x /=4;
-			center.y /=4;
-			var squareSize = (removed[0].x - removed[1].x)*(removed[0].x - removed[1].x) + (removed[0].y - removed[1].y)*(removed[0].y - removed[1].y);
-			var side = 1;
-			var otherSize = (removed[0].x - removed[2].x)*(removed[0].x - removed[2].x) + (removed[0].y - removed[2].y)*(removed[0].y - removed[2].y);
-			if (otherSize < squareSize)
-			{
-				squareSize = otherSize;
-				side = 2;
-			}
-			squareSize = Math.sqrt(squareSize);
-			var n = document.createElement("div");
-			n.style.top = ""+(0.5+center.y)+"em";
-			n.style.left = ""+(0.5+center.x)+"em";
-			n.classList.add("transient");
-			n.classList.add("transition-square-container");
-			n.style.position = "absolute";
-			var n1 = document.createElement("div");
-			n.appendChild(n1);
-			n1.style.marginLeft = "-50%";
-			n1.style.marginTop = "-50%";
-			n1.style.width = ""+squareSize + "em";
-			n1.style.height = ""+squareSize + "em";
-			n1.classList.add("transition-square");
-			n1.classList.add("symbol"+removed[0].symbol);
-			var rotation = Math.atan2(removed[0].y - removed[side].y, removed[0].x - removed[side].x);
-			if (n.style.transform !== undefined)
-			{
-				n.style.transform = "rotate("+rotation+"rad)";
-				n.style.transformOrigin = "0 0"
-			}
-			if (n.style.webkitTransform !== undefined)
-			{
-				n.style.webkitTransform = "rotate("+rotation+"rad)";
-				n.style.webkitTransformOrigin = "0 0"
-			}
-			setTimeout(function() {n.classList.add("transition-removed");}, 100)
-			this.root.appendChild(n);
-		}
-		this.board.applyTransition(transition);
-	},
-
-	select: function(el)
-	{
-		var pos = this.getPosition(el);
-		var selected = this.selection.addPoint(pos.x, pos.y);
-		if (selected)
-		{
-			el.classList.add("selected");
-			var transition = this.board.selectSquare(this.selection, false);
-			if (transition.score > 0)
-			{
-				this.clearSelection();
-				this.updateBoard(transition);
-			}
-		}
-		else
-		{
-			el.classList.remove("selected");
-		}
-	},
-	
-	gameOver: function()
-	{
-		if (this.gameEnded)
-			return;
-		this.gameEnded = true;
-		
-		this.root.getElementsByClassName("gameOver")[0].style.display = "";
-		var scores = this.getHighScores();
-		var that = this;
-		if (this.score > 0 && (scores.length < 10 || this.score >= scores[scores.length - 1].score))
-		{
-			var form = document.getElementById("nameForm");
-			form.style.display = "";
-			if (typeof(Storage) !== "undefined" && sessionStorage["lastname"])
-				document.getElementById("nameInput").value = sessionStorage["lastname"];
-			form.onsubmit = function()
-			{
-				var name = document.getElementById("nameInput").value;
-				if (! name)
-					return false;
-				form.style.display = "none";
-				sessionStorage["lastname"] = name;
-				that.saveScore(name);
-				that.getHighScores(true);
-				return false;
-			}
-		}
-	},
-	
-	pause: function()
-	{
-		if (this.timer.paused())
-		{
-			this.timer.unPause();
-			this.root.getElementsByClassName("pause")[0].style.display = "none";
-			this.updateTimer();
-		}
-		else
-		{
-			this.timer.pause();
-			clearInterval(this.timerFunc);
-			this.timerFunc = null;
-			this.root.getElementsByClassName("pause")[0].style.display = "";
 		}
 	},
 	
@@ -294,12 +235,9 @@ Squarez.prototype =
 		// Under 5%, show as if time was finished
 		this.timerEl.style.right = ""+(100-(timeLeft-0.05)*100/0.95)+"%";
 		this.timerEl.style.top = this.timerEl.style.right;
-		if (timeLeft == 0)
-		{
-			clearInterval(this.timerFunc);
-			this.timerFunc = null;
-			this.gameOver();
-		}
+
+		//To be defined in rules methods
+		this.onTimerEvent();
 	},
 	
 	clearSelection: function()
@@ -311,62 +249,147 @@ Squarez.prototype =
 		{
 			selected[0].classList.remove("selected");
 		}
-	},
-	
-	getHighScores: function(draw)
-	{
-		var res = new Array();
-		if (typeof(Storage) === "undefined")
-			return res;
-		for (var i = 0 ; localStorage["score_val_"+i]; i++)
-		{
-			res.push({
-				score: parseInt(localStorage["score_val_"+i]),
-				date: new Date(parseInt(localStorage["score_date_"+i])),
-				name: localStorage["score_name_"+i]
-			});
-		}
-		if (draw)
-		{
-			var scoreList = document.getElementById("scoreList");
-			scoreList.innerHTML = "";
-			for (var i = 0 ; i < res.length ; i++)
-			{
-				document.getElementById("highScores").style.display="";
-				var n = document.createElement("tr");
-				n.innerHTML="<td>"+res[i].name+ "</td><td>"+ res[i].date.toLocaleDateString() + "</td><td>" + res[i].score + "</td>";
-				scoreList.appendChild(n);
-			}
-		}
-		return res;
-	},
-	
-	saveScore: function(name)
-	{
-		if (typeof(Storage) === "undefined" || this.score == 0)
-			return false;
-		var scores = this.getHighScores();
-		for (var i = 0 ; i < scores.length ; i++)
-		{
-			if (this.score >= scores[i].score)
-			{
-				// Shift existing scores
-				for (var j = Math.min(scores.length, 9); j > i ; j--)
-				{
-					localStorage["score_val_"+j] = localStorage["score_val_"+(j-1)];
-					localStorage["score_date_"+j] = localStorage["score_date_"+(j-1)];
-					localStorage["score_name_"+j] = localStorage["score_name_"+(j-1)]
-				}
-				break;
-			}
-		}
-		if (i < 9)
-		{
-			localStorage["score_val_"+i] = this.score;
-			localStorage["score_date_"+i] = Date.now();
-			localStorage["score_name_"+i] = name;
-			return true;
-		}
-		return false;
 	}
 }
+
+SinglePlayerRules.prototype = Object.create(UserInterface.prototype);
+SinglePlayerRules.prototype.select =  function(el)
+{
+	var pos = this.getPosition(el);
+	var selected = this.selection.addPoint(pos.x, pos.y);
+	if (selected)
+	{
+		el.classList.add("selected");
+		var transition = this.board.selectSquare(this.selection, false);
+		if (transition.score > 0)
+		{
+			// Fire animations
+			this.clearAnimations();
+			this.animateSelection(this.selection);
+			this.clearSelection();
+			this.animateTransition(transition);
+
+			// Game part
+			this.score += transition.score;
+			this.scoreElement.innerHTML = this.score;
+			this.timer.refill(2*transition.score);
+			this.board.applyTransition(transition);
+		}
+	}
+	else
+	{
+		el.classList.remove("selected");
+	}
+};
+SinglePlayerRules.prototype.onTimerEvent = function()
+{
+	if (this.timer.percentageLeft() == 0)
+	{
+		clearInterval(this.timerFunc);
+		this.timerFunc = null;
+		this.gameOver();
+	}
+};
+
+SinglePlayerRules.prototype.gameOver = function()
+{
+	if (this.gameEnded)
+		return;
+	this.gameEnded = true;
+
+	this.root.getElementsByClassName("gameOver")[0].style.display = "";
+	var scores = this.getHighScores();
+	var that = this;
+	if (this.score > 0 && (scores.length < 10 || this.score >= scores[scores.length - 1].score))
+	{
+		var form = document.getElementById("nameForm");
+		form.style.display = "";
+		if (typeof(Storage) !== "undefined" && sessionStorage["lastname"])
+			document.getElementById("nameInput").value = sessionStorage["lastname"];
+		form.onsubmit = function()
+		{
+			var name = document.getElementById("nameInput").value;
+			if (! name)
+				return false;
+			form.style.display = "none";
+			sessionStorage["lastname"] = name;
+			that.saveScore(name);
+			that.getHighScores(true);
+			return false;
+		}
+	}
+};
+
+SinglePlayerRules.prototype.pause = function()
+{
+	if (this.timer.paused())
+	{
+		this.timer.unPause();
+		this.root.getElementsByClassName("pause")[0].style.display = "none";
+		this.updateTimer();
+	}
+	else
+	{
+		this.timer.pause();
+		clearInterval(this.timerFunc);
+		this.timerFunc = null;
+		this.root.getElementsByClassName("pause")[0].style.display = "";
+	}
+};
+
+SinglePlayerRules.prototype.getHighScores = function(draw)
+{
+	var res = new Array();
+	if (typeof(Storage) === "undefined")
+		return res;
+	for (var i = 0 ; localStorage["score_val_"+i]; i++)
+	{
+		res.push({
+			score: parseInt(localStorage["score_val_"+i]),
+					date: new Date(parseInt(localStorage["score_date_"+i])),
+					name: localStorage["score_name_"+i]
+		});
+	}
+	if (draw)
+	{
+		var scoreList = document.getElementById("scoreList");
+		scoreList.innerHTML = "";
+		for (var i = 0 ; i < res.length ; i++)
+		{
+			document.getElementById("highScores").style.display="";
+			var n = document.createElement("tr");
+			n.innerHTML="<td>"+res[i].name+ "</td><td>"+ res[i].date.toLocaleDateString() + "</td><td>" + res[i].score + "</td>";
+			scoreList.appendChild(n);
+		}
+	}
+	return res;
+};
+
+SinglePlayerRules.prototype.saveScore = function(name)
+{
+	if (typeof(Storage) === "undefined" || this.score == 0)
+		return false;
+	var scores = this.getHighScores();
+	for (var i = 0 ; i < scores.length ; i++)
+	{
+		if (this.score >= scores[i].score)
+		{
+			// Shift existing scores
+			for (var j = Math.min(scores.length, 9); j > i ; j--)
+			{
+				localStorage["score_val_"+j] = localStorage["score_val_"+(j-1)];
+				localStorage["score_date_"+j] = localStorage["score_date_"+(j-1)];
+				localStorage["score_name_"+j] = localStorage["score_name_"+(j-1)]
+			}
+			break;
+		}
+	}
+	if (i < 9)
+	{
+		localStorage["score_val_"+i] = this.score;
+		localStorage["score_date_"+i] = Date.now();
+		localStorage["score_name_"+i] = name;
+		return true;
+	}
+	return false;
+};

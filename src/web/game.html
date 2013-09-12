@@ -33,7 +33,6 @@
 		</div>
 	</div>
 	<script>
-	var board = new Module.GameBoard(8,3);
-	var game = new Squarez(board, document.getElementById("gameArea"),  document.getElementById("score"));
+	var game = new SinglePlayerRules(document.getElementById("gameArea"),  document.getElementById("score"));
 	</script>
 </body>

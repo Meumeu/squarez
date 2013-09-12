@@ -29,7 +29,8 @@ EMSCRIPTEN_BINDINGS(Selection) {
 	emscripten::class_<Selection>("Selection")
 		.constructor<>()
 		.function("addPoint", &Selection::addPoint)
-		.function("getPoint", &Selection::getPoint)
+		.function("getX", &Selection::getX)
+		.function("getY", &Selection::getY)
 		;
 }
 

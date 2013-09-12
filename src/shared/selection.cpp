@@ -20,6 +20,7 @@
 #include "selection.h"
 
 #include <sstream>
+#include <stdexcept>
 
 namespace squarez
 {
@@ -39,9 +40,25 @@ bool Selection::addPoint(unsigned int x, unsigned int y)
 	return true;
 }
 
-bool Selection::getPoint(unsigned int x, unsigned int y) const
+namespace {
+std::pair<unsigned int, unsigned int> getnth(unsigned int i, std::set<std::pair<unsigned int, unsigned int>> const& points)
 {
-	return _points.find(std::pair<unsigned int, unsigned int>(x,y)) != _points.end();
+	if ( i > points.size())
+		throw std::out_of_range("Invalid index in selection");
+
+	auto it = points.begin();
+	for (; i != 0; --i, ++it) {}
+	return *it;
+}
+}
+
+unsigned int Selection::getX(unsigned int i) const
+{
+	return getnth(i, _points).first;
+}
+unsigned int Selection::getY(unsigned int i) const
+{
+	return getnth(i, _points).second;
 }
 
 Selection::Selection(std::istream& serialized)
