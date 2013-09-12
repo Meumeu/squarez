@@ -61,6 +61,23 @@ function SinglePlayerRules(rootElement, scoreElement)
 	this.getHighScores(true);
 }
 
+function MultiplayerRules(rootElement, scoreElement, server)
+{
+	this.server = server;
+	//Get the board from network
+	var boardRequest = new XMLHttpRequest();
+	boardRequest.open("get", server+"squarez/get_board", false);
+	boardRequest.send();
+
+	this.board = new Module.GameBoard(boardRequest.responseText);
+
+	UserInterface.call(this, rootElement, scoreElement);
+
+	//FIXME: get parameters from the server
+	this.timer = new Module.Timer(10);
+	this.updateTimer();
+}
+
 UserInterface.prototype =
 {
 	addElement: function(x,y,symbol)
@@ -392,4 +409,37 @@ SinglePlayerRules.prototype.saveScore = function(name)
 		return true;
 	}
 	return false;
+};
+
+MultiplayerRules.prototype = Object.create(UserInterface.prototype);
+MultiplayerRules.prototype.select =  function(el)
+{
+	var pos = this.getPosition(el);
+	var selected = this.selection.addPoint(pos.x, pos.y);
+	if (selected)
+	{
+		el.classList.add("selected");
+		var transition = this.board.selectSquare(this.selection, false);
+		if (transition.score > 0)
+		{
+			// Fire animations
+			this.clearAnimations();
+			this.animateSelection(this.selection);
+
+			// Game part
+			// Tell the server about the selection
+			var pushRequest = new XMLHttpRequest();
+			pushRequest.open("get", this.server+"squarez/push_selection?selection="+this.selection.serialize());
+			pushRequest.send()
+
+			this.clearSelection();
+		}
+	}
+	else
+	{
+		el.classList.remove("selected");
+	}
+};
+MultiplayerRules.prototype.onTimerEvent = function()
+{
 };

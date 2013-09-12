@@ -246,12 +246,26 @@ bool GameBoard::hasTransition() const
 	return false;
 }
 
+namespace
+{
+	void fill_from_stream(std::istream& serialized, unsigned int & _symbols, std::vector<unsigned int> &_cells,	unsigned int & _size)
+	{
+		serialized >> _symbols >> _size;
+		_cells.resize(_size * _size);
+		for (auto & c :  _cells)
+			serialized >> c;
+	}
+}
+
 GameBoard::GameBoard(std::istream& serialized)
 {
-	serialized >> _symbols >> _size;
-	_cells.resize(_size * _size);
-	for (auto & c :  _cells)
-		serialized >> c;
+	fill_from_stream(serialized, _symbols, _cells, _size);
+}
+
+GameBoard::GameBoard(const std::string& serialized)
+{
+	std::stringstream str(serialized);
+	fill_from_stream(str, _symbols, _cells, _size);
 }
 
 void GameBoard::serialize(std::ostream& serialized) const

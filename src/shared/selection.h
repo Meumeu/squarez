@@ -42,6 +42,7 @@ public:
 	std::set<std::pair<unsigned int, unsigned int>> const& getPoints() const {return _points;}
 
 	void serialize(std::ostream&) const;
+	std::string serialize() const;
 private:
 	std::set<std::pair<unsigned int, unsigned int>> _points;
 };

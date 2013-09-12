@@ -31,12 +31,14 @@ EMSCRIPTEN_BINDINGS(Selection) {
 		.function("addPoint", &Selection::addPoint)
 		.function("getX", &Selection::getX)
 		.function("getY", &Selection::getY)
+		.function("serialize", emscripten::select_overload<std::string(void)const>(&Selection::serialize))
 		;
 }
 
 EMSCRIPTEN_BINDINGS(GameBoard) {
 	emscripten::class_<GameBoard>("GameBoard")
 		.constructor<int,int>()
+		.constructor<std::string>()
 		.function("selectSquare", &GameBoard::selectSquare)
 		.function("applyTransition", &GameBoard::applyTransition)
 		.function("size", &GameBoard::size)
@@ -70,6 +72,7 @@ EMSCRIPTEN_BINDINGS(CellTransition) {
 EMSCRIPTEN_BINDINGS(Timer) {
 	emscripten::class_<Timer>("Timer")
 	.constructor<int,int,int>()
+	.constructor<int>()
 	.function("refill", &Timer::refill)
 	.function("percentageLeft", &Timer::percentageLeft)
 	.function("secondsLeft", &Timer::secondsLeft)

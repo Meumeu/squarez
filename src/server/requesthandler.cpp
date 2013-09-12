@@ -65,7 +65,7 @@ bool RequestHandler::getBoard()
 bool RequestHandler::pushSelection()
 {
 	// Read the selection from parameters
-	std::string const& selectionString = environment().findPost("selection").value;
+	std::string const& selectionString = environment().findGet("selection");
 	std::stringstream stream(selectionString);
 	Selection selection(stream);
 

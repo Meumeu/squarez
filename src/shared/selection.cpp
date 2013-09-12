@@ -65,6 +65,8 @@ Selection::Selection(std::istream& serialized)
 {
 	size_t size;
 	serialized >> size;
+	if (size > 4)
+		throw std::out_of_range("Invalid serialized selection");
 	for (size_t i = 0 ; i < size ; ++i)
 	{
 		unsigned int x,y;
@@ -80,6 +82,13 @@ void Selection::serialize(std::ostream& serialized) const
 	{
 		serialized << p.first << " " << p.second << " ";
 	}
+}
+
+std::string Selection::serialize() const
+{
+	std::stringstream str;
+	this->serialize(str);
+	return str.str();
 }
 
 }

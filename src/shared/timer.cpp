@@ -27,6 +27,9 @@ Timer::Timer(uint16_t longTerm, uint16_t shortTerm, uint16_t halfLife):
 _longTerm(longTerm), _halfLife(halfLife), _bonusDuration(1000*(uint32_t)(shortTerm - longTerm)), _begin(std::chrono::steady_clock::now()), _end(_begin + _longTerm + _bonusDuration), _paused(false)
 {}
 
+Timer::Timer(uint16_t duration): _longTerm(duration), _halfLife(0), _bonusDuration(0), _begin(std::chrono::steady_clock::now()), _end(_begin + _longTerm), _paused(false)
+{}
+
 float Timer::percentageLeft() const
 {
 	float res =  std::chrono::duration<float>(_end - std::chrono::steady_clock::now()) / std::chrono::duration<float>(_longTerm + _bonusDuration);
@@ -51,8 +54,11 @@ void Timer::refill(unsigned int percentage)
 {
 	auto newBegin(std::chrono::steady_clock::now());
 	//Calculate decay of remaining time
-	_bonusDuration = std::chrono::duration_cast<std::chrono::milliseconds>(
-		std::chrono::duration<double>(_bonusDuration) * std::exp2( std::chrono::duration<double>(_begin - newBegin) / std::chrono::duration<double>(_halfLife)));
+	if (_bonusDuration.count())
+	{
+		_bonusDuration = std::chrono::duration_cast<std::chrono::milliseconds>(
+			std::chrono::duration<double>(_bonusDuration) * std::exp2( std::chrono::duration<double>(_begin - newBegin) / std::chrono::duration<double>(_halfLife)));
+	}
 	
 	_end += percentage * (_longTerm + _bonusDuration) / 100;
 	_begin = newBegin;

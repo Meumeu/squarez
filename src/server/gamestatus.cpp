@@ -36,12 +36,7 @@ GameStatus::GameStatus(const GameBoard& board, std::chrono::seconds roundDuratio
 
 GameStatus::~GameStatus()
 {
-	{
-		std::unique_lock<std::recursive_mutex> read(_readMutex),
-			write(_writeMutex);
-		// Tell the main loop to stop
-		_running = false;
-	}
+	_running = false;
 	_mainLoop.join();
 }
 
@@ -49,7 +44,7 @@ uint16_t GameStatus::pushSelection(const Selection& selection)
 {
 	auto const& transition = _board.selectSquare(selection, true);
 
-	// If The selection gives a better score than the stored one, keep it
+	// If the selection gives a better score than the stored one, keep it
 	if (transition._score > _bestTransition._score)
 	{
 		_bestTransition = transition;
@@ -71,7 +66,7 @@ void GameStatus::run()
 	while (_running)
 	{
 		{
-			std::unique_lock<std::recursive_mutex> read(_readMutex), write(_writeMutex);
+			std::unique_lock<std::recursive_mutex> lock(_mutex);
 
 			// If no transition has been found, select a random one
 			if (_bestTransition._selection.getPoints().empty())
@@ -82,6 +77,7 @@ void GameStatus::run()
 
 			// Make sure the transition can not end the game
 			_lastRoundTransition = _board.selectSquare(_bestTransition._selection, false);
+			_bestTransition = Transition();
 
 			_board.applyTransition(_lastRoundTransition);
 
@@ -92,6 +88,7 @@ void GameStatus::run()
 			}
 
 			_pending.clear();
+			++_round;
 			nextRound += _roundDuration;
 		}
 		std::this_thread::sleep_until(nextRound);
@@ -99,7 +96,7 @@ void GameStatus::run()
 }
 
 
-ROGameStatus::ROGameStatus(): _gameStatus(GameStatus::instance()), _readLock(_gameStatus._readMutex) {}
-RWGameStatus::RWGameStatus(): ROGameStatus(), _writeLock(_gameStatus._writeMutex) {}
+ROGameStatus::ROGameStatus(): _gameStatus(GameStatus::instance()), _lock(_gameStatus._mutex) {}
+RWGameStatus::RWGameStatus(): ROGameStatus() {}
 
 }

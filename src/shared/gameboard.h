@@ -35,8 +35,9 @@ class GameBoard
 {
 	
 public:
-	// Create a new gmeboard from its serialized representation
+	// Create a new gameboard from its serialized representation
 	GameBoard(std::istream & serialized);
+	GameBoard(std::string const& serialized);
 
 	// Create a new random gameboard with given size and possible different symbols
 	GameBoard(unsigned int size, unsigned int numberOfSymbols);

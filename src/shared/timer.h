@@ -34,6 +34,9 @@ public:
 	// You should have (shortTerm - longTerm) * e * ln(2) < halfLife
 	// ie halfLife > 1.9 (shortTerm - longTerm)
 	Timer(uint16_t longTerm, uint16_t shortTerm, uint16_t halfLife);
+
+	// Simple timer, with constant duration
+	Timer(uint16_t duration);
 	
 	void refill(unsigned int percentage);
 	

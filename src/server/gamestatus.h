@@ -48,7 +48,7 @@ public:
 protected:
 	GameStatus & _gameStatus;
 private:
-	std::unique_lock<std::recursive_mutex> const _readLock;
+	std::unique_lock<std::recursive_mutex> const _lock;
 };
 
 // Read-write thread-safe accessor for GameStatus
@@ -57,8 +57,6 @@ class RWGameStatus : public ROGameStatus
 public:
 	RWGameStatus();
 	GameStatus & operator()() { return _gameStatus;}
-private:
-	std::unique_lock<std::recursive_mutex> const _writeLock;
 };
 
 // Singleton-like class: can be initialized only once, and accessed anywhere using the RW/RO versions
@@ -90,8 +88,7 @@ private:
 
 	static GameStatus& instance();
 	static GameStatus* _instance;
-	std::recursive_mutex _readMutex;
-	std::recursive_mutex _writeMutex;
+	std::recursive_mutex _mutex;
 
 	// Current game board
 	GameBoard _board;
