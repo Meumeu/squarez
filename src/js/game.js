@@ -79,6 +79,8 @@ function MultiplayerRules(rootElement, scoreElement, server)
 
 	// Start the transition polling mechanism
 	this.queryTransition();
+
+	this.roundSelectionScore = 0;
 }
 
 UserInterface.prototype =
@@ -301,6 +303,7 @@ SinglePlayerRules.prototype.select =  function(el)
 			this.timer.refill(2*transition.score);
 			this.board.applyTransition(transition);
 		}
+		transition.delete();
 	}
 	else
 	{
@@ -431,18 +434,24 @@ MultiplayerRules.prototype.select =  function(el)
 		var transition = this.board.selectSquare(this.selection, false);
 		if (transition.score > 0)
 		{
-			// Fire animations
-			this.clearAnimations();
-			this.drawSelection(this.selection);
+			if (transition.score > this.roundSelectionScore)
+			{
+				this.roundSelectionScore = transition.score;
+				
+				// Fire animations
+				this.clearAnimations();
+				this.drawSelection(this.selection);
 
-			// Game part
-			// Tell the server about the selection
-			var pushRequest = new XMLHttpRequest();
-			pushRequest.open("get", this.server+"squarez/push_selection?selection="+this.selection.serialize());
-			pushRequest.send()
+				// Game part
+				// Tell the server about the selection
+				var pushRequest = new XMLHttpRequest();
+				pushRequest.open("get", this.server+"squarez/push_selection?selection="+this.selection.serialize());
+				pushRequest.send()
+			}
 
 			this.clearSelection();
 		}
+		transition.delete();
 	}
 	else
 	{
@@ -464,6 +473,7 @@ MultiplayerRules.prototype.queryTransition = function()
 		{
 			var transition = new Module.Transition(this.transitionQuery.responseText)
 			this.clearSelection();
+			this.roundSelectionScore = 0;
 
 			// Fire animations
 			this.clearAnimations();
