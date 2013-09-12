@@ -76,6 +76,9 @@ function MultiplayerRules(rootElement, scoreElement, server)
 	//FIXME: get parameters from the server
 	this.timer = new Module.Timer(10);
 	this.updateTimer();
+
+	// Start the transition polling mechanism
+	this.queryTransition();
 }
 
 UserInterface.prototype =
@@ -123,7 +126,7 @@ UserInterface.prototype =
 		}
 	},
 
-	animateSelection: function(selection)
+	drawSelection: function(selection)
 	{
 		var removed = new Array();
 		var center = {x:0, y:0};
@@ -171,8 +174,14 @@ UserInterface.prototype =
 			n.style.webkitTransform = "rotate("+rotation+"rad)";
 			n.style.webkitTransformOrigin = "0 0"
 		}
-		setTimeout(function() {n.classList.add("transition-removed");}, 100)
 		this.root.appendChild(n);
+		return n;
+	},
+
+	animateSelection: function(selection)
+	{
+		var n = this.drawSelection(selection);
+		setTimeout(function() {n.classList.add("transition-removed");}, 100)
 	},
 
 	clearAnimations: function()
@@ -424,7 +433,7 @@ MultiplayerRules.prototype.select =  function(el)
 		{
 			// Fire animations
 			this.clearAnimations();
-			this.animateSelection(this.selection);
+			this.drawSelection(this.selection);
 
 			// Game part
 			// Tell the server about the selection
@@ -443,3 +452,37 @@ MultiplayerRules.prototype.select =  function(el)
 MultiplayerRules.prototype.onTimerEvent = function()
 {
 };
+
+MultiplayerRules.prototype.queryTransition = function()
+{
+	// Process the result if we are doing a query
+	if (this.transitionQuery)
+	{
+		if (this.transitionQuery.readyState != 4)
+			return;
+		if (this.transitionQuery.status == 200)
+		{
+			var transition = new Module.Transition(this.transitionQuery.responseText)
+			this.clearSelection();
+
+			// Fire animations
+			this.clearAnimations();
+			try{
+				this.animateSelection(transition.selection);
+			} catch(err){}
+			this.animateTransition(transition);
+
+			this.board.applyTransition(transition);
+			transition.delete();
+			this.timer.refill(200);
+		}
+	}
+
+	var that = this;
+
+	// Schedule a new query
+	this.transitionQuery = new XMLHttpRequest();
+	this.transitionQuery.open("get", this.server+"squarez/get_transition");
+	this.transitionQuery.onreadystatechange = function() {that.queryTransition();};
+	this.transitionQuery.send();
+}

@@ -49,11 +49,12 @@ EMSCRIPTEN_BINDINGS(GameBoard) {
 
 EMSCRIPTEN_BINDINGS(Transition) {
 	emscripten::class_<Transition>("Transition")
-	.constructor<int>()
+	.constructor<std::string>()
 	.function("getCellTransition", &Transition::getCellTransition)
 	.function("size", &Transition::size)
 	.function("get", &Transition::get)
 	.property("score", &Transition::_score)
+	.property("selection", &Transition::_selection)
 	;
 }
 

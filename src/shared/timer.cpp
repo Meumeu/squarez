@@ -59,6 +59,10 @@ void Timer::refill(unsigned int percentage)
 		_bonusDuration = std::chrono::duration_cast<std::chrono::milliseconds>(
 			std::chrono::duration<double>(_bonusDuration) * std::exp2( std::chrono::duration<double>(_begin - newBegin) / std::chrono::duration<double>(_halfLife)));
 	}
+
+	// The timer can not have negative values
+	if (_end < newBegin)
+		_end = newBegin;
 	
 	_end += percentage * (_longTerm + _bonusDuration) / 100;
 	_begin = newBegin;

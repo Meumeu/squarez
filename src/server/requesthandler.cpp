@@ -50,8 +50,11 @@ bool RequestHandler::response()
 			return true;
 		}
 		case LongPoll:
-			out << "Waked after timer\r\n";
+		{
+			ROGameStatus status;
+			status().getLastRoundTransition().serialize(out);
 			return true;
+		}
 	}
 	return true;
 }

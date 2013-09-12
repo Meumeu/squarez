@@ -87,7 +87,9 @@ Transition::Transition(unsigned int size): _score(0)
 			_cells.push_back(CellTransition(x, y, positions[x * size + y].first, positions[x * size + y].second));
 }
 
-Transition::Transition(std::istream& serialized)
+namespace
+{
+	void fill_from_stream(std::istream& serialized, uint32_t &_score, Selection &_selection, std::vector<Transition::CellTransition> &_cells)
 {
 	serialized >> _score;
 	_selection = Selection(serialized);
@@ -96,8 +98,20 @@ Transition::Transition(std::istream& serialized)
 	serialized >> numCells;
 	for (size_t x = 0; x < numCells; ++x)
 	{
-		_cells.push_back(CellTransition(serialized));
+		_cells.push_back(Transition::CellTransition(serialized));
 	}
+}
+}
+
+Transition::Transition(std::istream& serialized)
+{
+	fill_from_stream(serialized, _score, _selection, _cells);
+}
+
+Transition::Transition(const std::string& serialized)
+{
+	std::stringstream str(serialized);
+	fill_from_stream(str, _score, _selection, _cells);
 }
 
 void Transition::serialize(std::ostream& serialized) const
@@ -118,7 +132,7 @@ Transition::CellTransition::CellTransition(std::istream& serialized)
 }
 void Transition::CellTransition::serialize(std::ostream& serialized) const
 {
-	serialized << _fromx << " " << _fromy << " " << _tox << " " << _toy << " " << _symbol << " " << _removed;
+	serialized << _fromx << " " << _fromy << " " << _tox << " " << _toy << " " << _symbol << " " << _removed << " ";
 }
 
 

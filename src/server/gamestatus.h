@@ -80,6 +80,8 @@ public:
 		_pending.push_back(callback);
 	}
 
+	Transition const& getLastRoundTransition() const { return _lastRoundTransition;}
+
 private:
 	// Game main loop
 	void run();
