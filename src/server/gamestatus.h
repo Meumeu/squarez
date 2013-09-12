@@ -21,32 +21,85 @@
 #define SQUAREZ_GAMESTATUS_H
 
 #include <boost/noncopyable.hpp>
+#include <boost/function.hpp>
+
 #include <shared/gameboard.h>
 
 #include <memory>
 #include <stdexcept>
+#include <chrono>
+#include <mutex>
+
+namespace Fastcgipp {
+struct Message;}
 
 namespace squarez {
 
-class GameStatus : public boost::noncopyable
+class GameStatus;
+
+// Read-only thread-safe accessor for GameStatus
+class ROGameStatus
 {
 public:
-	GameStatus(GameBoard const& board) : _board(board) {_instance = this;}
+	ROGameStatus();
+	GameStatus const& operator()() const { return _gameStatus;}
+protected:
+	GameStatus & _gameStatus;
+private:
+	std::unique_lock<std::recursive_mutex> const _readLock;
+};
 
-	static GameStatus& access() {
-		if (_instance)
-			return *_instance;
-		throw std::runtime_error("GameStatus has not been initialized");
-	}
+// Read-write thread-safe accessor for GameStatus
+class RWGameStatus : public ROGameStatus
+{
+public:
+	RWGameStatus();
+	GameStatus & operator()() { return _gameStatus;}
+private:
+	std::unique_lock<std::recursive_mutex> const _writeLock;
+};
+
+// Singleton-like class: can be initialized only once, and accessed anywhere using the RW/RO versions
+class GameStatus : public boost::noncopyable
+{
+	friend class ROGameStatus;
+	friend class RWGameStatus;
+public:
+	GameStatus(GameBoard const& board, std::chrono::seconds roundDuration);
 
 	GameBoard const& getBoard() const { return _board;}
 	GameBoard & accessBoard() { return _board;}
 
+	// Test a selection, returns the updated score for the player
+	// And stores the transition if it is better
+	uint16_t pushSelection(Selection const& selection);
+
+	void registerWait(boost::function<void(Fastcgipp::Message)> const& callback)
+	{
+		_pending.push_back(callback);
+	}
+
 private:
+	static GameStatus& instance();
 	static GameStatus* _instance;
+	std::recursive_mutex _readMutex;
+	std::recursive_mutex _writeMutex;
 
+	// Current game board
 	GameBoard _board;
-};
-}
 
+	// Best transition for the current round
+	Transition _bestTransition;
+
+	// Identifier of the round
+	unsigned int _round;
+
+	// Duration of a round
+	std::chrono::seconds _roundDuration;
+
+	// Request waiting for a new round
+	std::vector<boost::function<void(Fastcgipp::Message)>> _pending;
+};
+
+}
 #endif // SQUAREZ_GAMESTATUS_H

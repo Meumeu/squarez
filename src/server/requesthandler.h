@@ -44,6 +44,8 @@ private:
 
 	// Get the current board (serialized)
 	bool getBoard();
+
+	bool pushSelection();
 };
 
 }

@@ -21,5 +21,35 @@
 
 namespace squarez
 {
-	GameStatus* GameStatus::_instance = nullptr;
+GameStatus* GameStatus::_instance = nullptr;
+
+GameStatus::GameStatus(const GameBoard& board, std::chrono::seconds roundDuration): _board(board), _round(0), _roundDuration(roundDuration) {
+	if (_instance)
+		throw std::runtime_error("GameStatus already initialized");
+	_instance = this;
+}
+
+uint16_t GameStatus::pushSelection(const Selection& selection)
+{
+	auto const& transition = _board.selectSquare(selection);
+
+	// If The selection gives a better score than the stored one, keep it
+	if (transition._score > _bestTransition._score)
+	{
+		_bestTransition = transition;
+	}
+
+	return transition._score;
+}
+
+GameStatus & GameStatus::instance()
+{
+	if (_instance)
+		return *_instance;
+	throw std::runtime_error("GameStatus has not been initialized");
+}
+
+ROGameStatus::ROGameStatus(): _gameStatus(GameStatus::instance()), _readLock(_gameStatus._readMutex) {}
+RWGameStatus::RWGameStatus(): ROGameStatus(), _writeLock(_gameStatus._writeMutex) {}
+
 }

@@ -36,6 +36,15 @@ bool RequestHandler::response()
 			if (method == "/get_board")
 				return this->getBoard();
 
+			if (method == "/push_selection")
+				return this->pushSelection();
+
+			if (method == "/get_transition")
+			{
+				RWGameStatus()().registerWait(callback());
+				return false;
+			}
+
 			//FIXME: Unkown method, return something ?
 			return true;
 		}
@@ -47,8 +56,20 @@ bool RequestHandler::response()
 
 bool RequestHandler::getBoard()
 {
-	GameStatus::access().getBoard().serialize(out);
+	ROGameStatus()().getBoard().serialize(out);
 	return true;
 }
+
+bool RequestHandler::pushSelection()
+{
+	// Read the selection from parameters
+	std::string const& selectionString = environment().findPost("selection").value;
+	std::stringstream stream(selectionString);
+	Selection selection(stream);
+
+	out << RWGameStatus()().pushSelection(selection);
+	return true;
+}
+
 
 }
