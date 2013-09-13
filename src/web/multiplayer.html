@@ -12,7 +12,7 @@
 			</div>
 		</div>
 		<div class="pause jsPause" style="display:none">Game paused</div>
-		<form id="nameForm" style="display: none">
+		<form id="nameForm">
 			<label>Name: <input id="nameInput" type="text" name="name"></label>
 			<input type="submit" value="Start">
 		</form>
@@ -31,6 +31,15 @@
 		</div>
 	</div>
 	<script>
-	var game = new MultiplayerRules(document.getElementById("gameArea"),  document.getElementById("score"), "");
+	document.getElementById("nameForm").onsubmit = function()
+	{
+		var name = document.getElementById("nameInput").value;
+		if (name)
+		{
+			document.getElementById("nameForm").style.display = "none"
+			var game = new MultiplayerRules(document.getElementById("gameArea"),  document.getElementById("score"), "", name);
+		}
+		return false;
+	}
 	</script>
 </body>

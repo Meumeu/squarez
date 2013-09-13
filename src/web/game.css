@@ -134,6 +134,14 @@ body,
 	-webkit-transform: scale(1);
 	transform: scale(1);
 }
+
+.userSelection .transition-square
+{
+	border-width: 0.05em;
+	border-color: rgba(0,0,0,0.8);
+	border-style: dashed;
+	background: none;
+}
 .transition-removed
 {
 	opacity:0;

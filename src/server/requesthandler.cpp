@@ -20,6 +20,8 @@
 #include "requesthandler.h"
 #include "gamestatus.h"
 
+#include <boost/lexical_cast.hpp>
+
 namespace squarez
 {
 
@@ -61,7 +63,7 @@ bool RequestHandler::response()
 
 bool RequestHandler::getBoard()
 {
-	ROGameStatus status;
+	RWGameStatus status;
 	out << "{";
 
 	out << "\"board\":\"";
@@ -71,6 +73,13 @@ bool RequestHandler::getBoard()
 	out << status().getRoundDuration().count() << ",";
 
 	out << "\"progress\":" << status().getRoundTimeAdvancement();
+
+	std::string const& name = environment().findGet("name");
+	if (not name.empty())
+	{
+		auto token = status().registerPlayer(Player(name));
+		out << ",\"token\":" << token;
+	}
 	out << "}";
 	return true;
 }
@@ -82,9 +91,10 @@ bool RequestHandler::pushSelection()
 	std::stringstream stream(selectionString);
 	Selection selection(stream);
 
-	out << RWGameStatus()().pushSelection(selection);
+	unsigned int token = boost::lexical_cast<unsigned int>(environment().findGet("token"));
+
+	out << RWGameStatus()().pushSelection(selection, token);
 	return true;
 }
-
 
 }

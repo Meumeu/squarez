@@ -23,7 +23,9 @@
 #include <boost/noncopyable.hpp>
 #include <boost/function.hpp>
 
-#include <shared/gameboard.h>
+#include "shared/gameboard.h"
+
+#include "server/player.h"
 
 #include <memory>
 #include <stdexcept>
@@ -31,6 +33,7 @@
 #include <mutex>
 #include <thread>
 #include <atomic>
+#include <map>
 
 namespace Fastcgipp {
 struct Message;}
@@ -65,7 +68,7 @@ class GameStatus : public boost::noncopyable
 	friend class ROGameStatus;
 	friend class RWGameStatus;
 public:
-	GameStatus(GameBoard const& board, std::chrono::seconds roundDuration);
+	GameStatus(GameBoard const& board, std::chrono::seconds roundDuration, unsigned int roundsPerGame);
 	~GameStatus();
 
 	GameBoard const& getBoard() const { return _board;}
@@ -73,7 +76,7 @@ public:
 
 	// Test a selection, returns the updated score for the player
 	// And stores the transition if it is better
-	uint16_t pushSelection(Selection const& selection);
+	uint16_t pushSelection(Selection const& selection, unsigned int token);
 
 	void registerWait(boost::function<void(Fastcgipp::Message)> const& callback)
 	{
@@ -85,6 +88,11 @@ public:
 	// Current progress in the round (0: no timeleft, 1: _roundDuration time left)
 	float getRoundTimeAdvancement() const;
 	std::chrono::seconds getRoundDuration() const { return _roundDuration; }
+
+	// Insert the provided player and return the associated token (Player is copied)
+	unsigned int registerPlayer(Player const& player);
+
+	Player const& getPlayer(unsigned int token) const;
 
 private:
 	// Game main loop
@@ -107,6 +115,7 @@ private:
 
 	// Identifier of the round
 	unsigned int _round;
+	const unsigned int _roundsPerGame;
 
 	// Duration of a round
 	std::chrono::seconds _roundDuration;
@@ -115,6 +124,8 @@ private:
 	std::vector<boost::function<void(Fastcgipp::Message)>> _pending;
 
 	std::chrono::steady_clock::time_point _nextRound;
+
+	std::map<unsigned int, Player> _players;
 };
 
 }

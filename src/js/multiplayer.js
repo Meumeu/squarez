@@ -1,12 +1,14 @@
-function MultiplayerRules(rootElement, scoreElement, server)
+function MultiplayerRules(rootElement, scoreElement, server, playerName)
 {
 	this.server = server;
 	//Get the board from network
 	var boardRequest = new XMLHttpRequest();
-	boardRequest.open("get", server+"squarez/get_board", false);
+	boardRequest.open("get", server+"squarez/get_board?name="+encodeURIComponent(playerName), false);
 	boardRequest.send();
 
 	var res = JSON.parse(boardRequest.responseText);
+
+	this.token = res.token;
 
 	this.board = new Module.GameBoard(res.board);
 
@@ -39,12 +41,23 @@ MultiplayerRules.prototype.select =  function(el)
 				
 				// Fire animations
 				this.clearAnimations();
-				this.drawSelection(this.selection);
+				var n = this.drawSelection(this.selection);
+				n.classList.add("userSelection");
 
 				// Game part
 				// Tell the server about the selection
 				var pushRequest = new XMLHttpRequest();
-				pushRequest.open("get", this.server+"squarez/push_selection?selection="+this.selection.serialize());
+				pushRequest.open("get", this.server+"squarez/push_selection?selection=" + this.selection.serialize() + "&token=" + this.token);
+
+				var that = this;
+				pushRequest.onreadystatechange = function()
+				{
+					if (pushRequest.readyState == 4 && pushRequest.status == 200)
+					{
+						that.score = parseInt(pushRequest.responseText);
+						that.scoreElement.innerHTML = that.score;
+					}
+				};
 				pushRequest.send()
 			}
 
