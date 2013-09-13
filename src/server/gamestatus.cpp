@@ -62,7 +62,7 @@ GameStatus & GameStatus::instance()
 
 void GameStatus::run()
 {
-	auto nextRound = std::chrono::steady_clock::now() + _roundDuration;
+	_nextRound = std::chrono::steady_clock::now() + _roundDuration;
 	while (_running)
 	{
 		{
@@ -89,12 +89,16 @@ void GameStatus::run()
 
 			_pending.clear();
 			++_round;
-			nextRound += _roundDuration;
+			_nextRound += _roundDuration;
 		}
-		std::this_thread::sleep_until(nextRound);
+		std::this_thread::sleep_until(_nextRound);
 	}
 }
 
+float GameStatus::getRoundTimeAdvancement() const
+{
+	return std::chrono::duration<float>(_nextRound - std::chrono::steady_clock::now())/std::chrono::duration<float>(_roundDuration);
+}
 
 ROGameStatus::ROGameStatus(): _gameStatus(GameStatus::instance()), _lock(_gameStatus._mutex) {}
 RWGameStatus::RWGameStatus(): ROGameStatus() {}

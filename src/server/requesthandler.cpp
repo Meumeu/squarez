@@ -61,7 +61,17 @@ bool RequestHandler::response()
 
 bool RequestHandler::getBoard()
 {
-	ROGameStatus()().getBoard().serialize(out);
+	ROGameStatus status;
+	out << "{";
+
+	out << "\"board\":\"";
+	status().getBoard().serialize(out);
+
+	out << "\",\"timer\":";
+	out << status().getRoundDuration().count() << ",";
+
+	out << "\"progress\":" << status().getRoundTimeAdvancement();
+	out << "}";
 	return true;
 }
 

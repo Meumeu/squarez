@@ -82,6 +82,10 @@ public:
 
 	Transition const& getLastRoundTransition() const { return _lastRoundTransition;}
 
+	// Current progress in the round (0: no timeleft, 1: _roundDuration time left)
+	float getRoundTimeAdvancement() const;
+	std::chrono::seconds getRoundDuration() const { return _roundDuration; }
+
 private:
 	// Game main loop
 	void run();
@@ -109,6 +113,8 @@ private:
 
 	// Request waiting for a new round
 	std::vector<boost::function<void(Fastcgipp::Message)>> _pending;
+
+	std::chrono::steady_clock::time_point _nextRound;
 };
 
 }

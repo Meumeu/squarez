@@ -6,12 +6,14 @@ function MultiplayerRules(rootElement, scoreElement, server)
 	boardRequest.open("get", server+"squarez/get_board", false);
 	boardRequest.send();
 
-	this.board = new Module.GameBoard(boardRequest.responseText);
+	var res = JSON.parse(boardRequest.responseText);
+
+	this.board = new Module.GameBoard(res.board);
 
 	UserInterface.call(this, rootElement, scoreElement);
 
 	//FIXME: get parameters from the server
-	this.timer = new Module.Timer(10);
+	this.timer = new Module.Timer(res.timer, res.progress);
 	this.updateTimer();
 
 	// Start the transition polling mechanism
