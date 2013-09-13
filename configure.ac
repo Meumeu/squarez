@@ -37,6 +37,12 @@ AM_CONDITIONAL([WERROR], [test "x$enable_werror" = "xyes"])
 
 AM_INIT_AUTOMAKE([subdir-objects])
 
+AS_IF([test "x$enable_javascript" = "xyes"], [
+	CXXFLAGS=-O2
+	AS_IF([test "x$wwwdir" = "x"], [
+		AC_MSG_ERROR("wwwdir must be set")])
+	])
+
 AC_PROG_CXX
 
 # Check C++11

@@ -8,9 +8,8 @@ shared_sources = src/shared/transition.cpp src/shared/gameboard.cpp src/shared/s
 if JAVASCRIPT
 www_PROGRAMS = squarez.js
 squarez_js_SOURCES =  $(shared_sources) src/js/binding.cpp src/shared/timer.cpp
-squarez_js_LDFLAGS = --bind
+squarez_js_LDFLAGS = --bind --closure 1 --llvm-lto 1
 www_DATA = src/js/game.js src/js/singleplayer.js src/js/multiplayer.js src/web/game.css src/web/singleplayer.html src/web/multiplayer.html
-
 else
 
 bin_PROGRAMS = squareztest squareztest_bot
