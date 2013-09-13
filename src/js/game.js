@@ -44,20 +44,23 @@ UserInterface.prototype =
 	{
 		var n = document.createElement("div");
 		var n1 = document.createElement("div");
+		var n2 = document.createElement("div");
 		n.classList.add("cell");
 		n.classList.add("x"+x);
 		n.classList.add("y"+y);
 		n.classList.add("symbol"+symbol);
-		n1.classList.add("inner");
+		n1.classList.add("cellShape");
+		n2.classList.add("inner");
 		n.appendChild(n1);
+		n1.appendChild(n2);
 		var that = this;
 		if (n.ontouchstart !== undefined)
 		{
-			n.ontouchstart = function() {that.select(this);};
+			n.ontouchstart = function(event) {event.preventDefault(); that.select(this);};
 		}
 		else
 		{
-			n.onclick = function() {that.select(this);}
+			n1.onclick = function() {that.select(n);}
 		}
 		this.root.appendChild(n);
 		return n;

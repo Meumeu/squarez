@@ -7,7 +7,7 @@ body,
 	font-family: DejaVu, Arial;
 }
 
-.cell.symbol0
+.symbol0 .cellShape
 {
 	background-color: #FF0000;
 }
@@ -16,7 +16,7 @@ body,
 	background-color: rgba(255,0,0,0.3);
 	border-color: #FF0000;
 }
-.cell.symbol1
+.symbol1 .cellShape
 {
 	background-color: #FFFF00;
 }
@@ -25,7 +25,7 @@ body,
 	background-color: rgba(255,255,0,0.3);
 	border-color: #FFFF00;
 }
-.cell.symbol2
+.symbol2 .cellShape
 {
 	background-color: #0000FF;
 }
@@ -35,8 +35,7 @@ body,
 	border-color: #0000FF;
 }
 
-.cell:hover .inner,
-.cell.selected .inner,
+.cell .inner,
 .gameOver,
 .pause,
 #nameForm
@@ -48,7 +47,7 @@ body,
 	bottom: 0;
 }
 
-.no-touch .cell:hover .inner
+.no-touch .cellShape:hover .inner
 {
 	background-color: rgba(255,255,255,0.3);
 	border: 0.08em solid rgba(0,0,0,0.2);
@@ -70,17 +69,21 @@ body,
 	float: left;
 }
 
-.cell,
+.cellShape,
 .cell .inner
 {
 	border-radius: 0.25em;
 }
+.cellShape,
 .cell
 {
 	position: absolute;
-	width: 0.8em;
 	height: 0.8em;
-	margin: 0.1em;
+	width: 0.8em
+}
+.cell
+{
+	padding: 0.1em;
 }
 
 .cell
