@@ -40,7 +40,8 @@ public:
 	
 	void refill(unsigned int percentage);
 	
-	float percentageLeft() const;
+	// Get the percentage of time left in offset s
+	float percentageLeft(float offset = 0) const;
 	uint16_t secondsLeft() const;
 	
 	void pause();

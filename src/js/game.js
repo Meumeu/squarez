@@ -6,7 +6,7 @@ function UserInterface(rootElement, scoreElement, timerCheat)
 	this.score = 0;
 
 	this.timerEl = document.getElementById("timerInner");
-	// Amount of time (from 0 to 1) that is hidden by the timer
+	// Amount of time in seconds that is hidden by the timer
 	this.timerCheat = timerCheat;
 
 	rootElement.classList.add("resizing");
@@ -219,8 +219,8 @@ UserInterface.prototype =
 			this.timerFunc = setInterval(function() {that.updateTimer();}, 500);
 		}
 		
-		var timeLeft = this.timer.percentageLeft();
-		this.timerEl.style.right = ""+(100-(timeLeft-this.timerCheat)*100/(1 - this.timerCheat))+"%";
+		var timeLeft = this.timer.percentageLeft(0.5 - this.timerCheat);
+		this.timerEl.style.right = ""+((1-timeLeft)*100)+"%";
 		this.timerEl.style.top = this.timerEl.style.right;
 
 		//To be defined in rules methods

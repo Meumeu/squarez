@@ -17,7 +17,16 @@ function MultiplayerRules(rootElement, scoreElement, server, playerName)
 	this.round = res.round;
 	this.gameRounds = res.gameRounds;
 
-	this.timer = new Module.Timer(res.timer * this.gameRounds, res.progress);
+	var grad = document.getElementById("timerScale");
+	for (var i = 0 ; i < this.gameRounds ; i++)
+	{
+		var n = document.createElement("div");
+		n.style.width = (100/this.gameRounds)+"%";
+		n.style.height = n.style.width;
+		grad.appendChild(n);
+	}
+
+	this.timer = new Module.Timer(res.timer * this.gameRounds, (res.round + res.progress) / res.gameRounds);
 	this.updateTimer();
 
 	// Start the transition polling mechanism
