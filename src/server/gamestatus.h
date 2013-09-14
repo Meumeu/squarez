@@ -89,11 +89,16 @@ public:
 	float getRoundTimeAdvancement() const;
 	std::chrono::seconds getRoundDuration() const { return _roundDuration; }
 
+	unsigned int getRound() const { return _round;}
+
 	// Insert the provided player and return the associated token (Player is copied)
 	unsigned int registerPlayer(Player const& player);
 
 	Player const& getPlayer(unsigned int token) const;
 
+	std::vector<std::reference_wrapper<const Player>> getPlayersByScore() const;
+
+	const unsigned int _roundsPerGame;
 private:
 	// Game main loop
 	void run();
@@ -115,7 +120,6 @@ private:
 
 	// Identifier of the round
 	unsigned int _round;
-	const unsigned int _roundsPerGame;
 
 	// Duration of a round
 	std::chrono::seconds _roundDuration;

@@ -1,11 +1,13 @@
-function UserInterface(rootElement, scoreElement)
+function UserInterface(rootElement, scoreElement, timerCheat)
 {
 	this.root = rootElement;
 	this.selection = new Module.Selection();
 	this.scoreElement = scoreElement
 	this.score = 0;
 
-	this.timerEl = rootElement.getElementsByClassName("timeLeftInner")[0];
+	this.timerEl = document.getElementById("timerInner");
+	// Amount of time (from 0 to 1) that is hidden by the timer
+	this.timerCheat = timerCheat;
 
 	rootElement.classList.add("resizing");
 	rootElement.style.fontSize = (Math.min(window.innerHeight, window.innerWidth)/8) + "px";
@@ -217,9 +219,8 @@ UserInterface.prototype =
 			this.timerFunc = setInterval(function() {that.updateTimer();}, 500);
 		}
 		
-		var timeLeft = this.timer.percentageLeft()
-		// Under 5%, show as if time was finished
-		this.timerEl.style.right = ""+(100-(timeLeft-0.05)*100/0.95)+"%";
+		var timeLeft = this.timer.percentageLeft();
+		this.timerEl.style.right = ""+(100-(timeLeft-this.timerCheat)*100/(1 - this.timerCheat))+"%";
 		this.timerEl.style.top = this.timerEl.style.right;
 
 		//To be defined in rules methods

@@ -12,14 +12,18 @@ function MultiplayerRules(rootElement, scoreElement, server, playerName)
 
 	this.board = new Module.GameBoard(res.board);
 
-	UserInterface.call(this, rootElement, scoreElement);
+	UserInterface.call(this, rootElement, scoreElement, 0);
 
-	//FIXME: get parameters from the server
-	this.timer = new Module.Timer(res.timer, res.progress);
+	this.round = res.round;
+	this.gameRounds = res.gameRounds;
+
+	this.timer = new Module.Timer(res.timer * this.gameRounds, res.progress);
 	this.updateTimer();
 
 	// Start the transition polling mechanism
 	this.queryTransition();
+
+	this.updateScores();
 
 	this.roundSelectionScore = 0;
 }
@@ -83,9 +87,15 @@ MultiplayerRules.prototype.queryTransition = function()
 			return;
 		if (this.transitionQuery.status == 200)
 		{
-			var transition = new Module.Transition(this.transitionQuery.responseText)
+			var res = JSON.parse(this.transitionQuery.responseText);
+			var transition = new Module.Transition(res.transition)
 			this.clearSelection();
 			this.roundSelectionScore = 0;
+			this.round = res.round;
+			if (this.round == 0)
+			{
+				this.timer.refill(200);
+			}
 
 			// Fire animations
 			this.clearAnimations();
@@ -96,15 +106,55 @@ MultiplayerRules.prototype.queryTransition = function()
 
 			this.board.applyTransition(transition);
 			transition.delete();
-			this.timer.refill(200);
+		}
+		else
+		{
+			this.transitionQuery = null;
+			return;
 		}
 	}
 
 	var that = this;
-
 	// Schedule a new query
 	this.transitionQuery = new XMLHttpRequest();
 	this.transitionQuery.open("get", this.server+"squarez/get_transition");
 	this.transitionQuery.onreadystatechange = function() {that.queryTransition();};
 	this.transitionQuery.send();
+}
+
+MultiplayerRules.prototype.updateScores = function()
+{
+	// Process the result if we are doing a query
+	if (this.scoreQuery)
+	{
+		if (this.scoreQuery.readyState != 4)
+			return;
+		if (this.scoreQuery.status == 200)
+		{
+			var scores = JSON.parse(this.scoreQuery.responseText);
+			var scoreList = document.getElementById("scoreList");
+			scoreList.innerHTML = "";
+			for (var i = 0 ; i < scores.scores.length; i++)
+			{
+				var p = scores.scores[i]
+				var n = document.createElement("tr");
+				n.innerHTML="<td>"+p.name+ "</td><td>" + p.score + "</td>";
+				scoreList.appendChild(n);
+			}
+		}
+		else
+		{
+			this.scoreQuery= null;
+			return;
+		}
+	}
+
+	// Schedule the schedule of a query
+	setTimeout(function(that)
+	{
+		that.scoreQuery = new XMLHttpRequest();
+		that.scoreQuery.open("get", that.server+"squarez/get_scores");
+		that.scoreQuery.onreadystatechange = function() {that.updateScores();};
+		that.scoreQuery.send();
+	}, 1000, this);
 }

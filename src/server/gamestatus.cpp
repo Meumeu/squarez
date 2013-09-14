@@ -86,7 +86,7 @@ void GameStatus::run()
 				// Player cleanup: remove those who scored no point, reset scores
 				for (auto it = _players.begin(); it != _players.end();)
 				{
-					if (it->second.getScore() == 0)
+					if (it->second.getPreviousScore() == 0 and it->second.getScore() == 0)
 						it = _players.erase(it);
 					else
 					{
@@ -150,6 +150,23 @@ unsigned int GameStatus::registerPlayer(Player const& player)
 Player const& GameStatus::getPlayer(unsigned int token) const
 {
 	return _players.at(token);
+}
+
+std::vector<std::reference_wrapper<const Player>> GameStatus::getPlayersByScore() const
+{
+	std::vector<std::reference_wrapper<const Player>> res;
+	res.reserve(_players.size());
+	for (auto const& p : _players)
+	{
+		res.push_back(p.second);
+	}
+
+	std::sort(res.begin(), res.end(), [](std::reference_wrapper<const Player> left, std::reference_wrapper<const Player> right)
+	{
+		return left.get().getScore() > right.get().getScore();
+	});
+
+	return res;
 }
 
 ROGameStatus::ROGameStatus(): _gameStatus(GameStatus::instance()), _lock(_gameStatus._mutex) {}

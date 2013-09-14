@@ -175,6 +175,9 @@ body,
 .timeLeftInner
 {
 	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
 	background: rgb(138,182,107);
 }
 @media all and (orientation: portrait)
@@ -185,14 +188,13 @@ body,
 	}
 	.timeLeftInner
 	{
-		left:0;
 		top: 0 !important;
-		background: linear-gradient(to bottom, rgba(201,222,150,1) 0%,rgba(138,182,107,1) 44%,rgba(57,130,53,1) 100%);
 	}
 	.timeLeftOuter
 	{
 		height: 0.2em;
 		left:0;
+		background: linear-gradient(to bottom, rgba(201,222,150,1) 0%,rgba(138,182,107,1) 44%,rgba(57,130,53,1) 100%);
 	}
 }
 @media all and (orientation: landscape)
@@ -204,7 +206,6 @@ body,
 	.timeLeftInner
 	{
 		right:0 !important;
-		left:0;
 	}
 	.timeLeftOuter
 	{

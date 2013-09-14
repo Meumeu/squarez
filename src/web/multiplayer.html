@@ -7,11 +7,10 @@
 </head>
 <body>
 	<div id="gameArea" class="multiplayer">
-		<div class="timeLeftOuter">
-			<div class="timeLeftInner">
+		<div id="timerOuter" class="timeLeftOuter">
+			<div id="timerInner" class="timeLeftInner">
 			</div>
 		</div>
-		<div class="pause jsPause" style="display:none">Game paused</div>
 		<form id="nameForm">
 			<label>Name: <input id="nameInput" type="text" name="name"></label>
 			<input type="submit" value="Start">
@@ -23,8 +22,8 @@
 		<div class="buttons">
 			<div class="clearButton jsClear">Clear Selection</div>
 		</div>
-		<div id="highScores" style="display:none">
-			<h1>High Scores</h1>
+		<div id="highScores">
+			<h1>Player scores</h1>
 			<table>
 				<tbody id="scoreList"></tbody>
 			</table>
@@ -40,6 +39,6 @@
 			var game = new MultiplayerRules(document.getElementById("gameArea"),  document.getElementById("score"), "", name);
 		}
 		return false;
-	}
+	};
 	</script>
 </body>

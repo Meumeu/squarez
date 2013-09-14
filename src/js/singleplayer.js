@@ -2,7 +2,7 @@ function SinglePlayerRules(rootElement, scoreElement)
 {
 	this.board = new Module.GameBoard(8,3);
 
-	UserInterface.call(this, rootElement, scoreElement);
+	UserInterface.call(this, rootElement, scoreElement, 0.05);
 
 	var that = this;
 	var pauseButtons = document.getElementsByClassName("jsPause");

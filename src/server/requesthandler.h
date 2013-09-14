@@ -33,7 +33,7 @@ class RequestHandler: public Fastcgipp::Request<char>
 	enum State
 	{
 		Init,
-		LongPoll
+		GetTransition
 	} state;
 public:
 	RequestHandler(): _state(Init) {}
@@ -46,6 +46,11 @@ private:
 	bool getBoard();
 
 	bool pushSelection();
+
+	bool getScores();
+
+	// Invoked by the callback, right after the transition has been computed
+	bool getTransition();
 };
 
 }
