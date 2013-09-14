@@ -53,7 +53,7 @@ SinglePlayerRules.prototype.select =  function(el)
 
 SinglePlayerRules.prototype.onTimerEvent = function()
 {
-	if (this.timer.percentageLeft() == 0)
+	if (this.timer.percentageLeft(0) == 0)
 	{
 		clearInterval(this.timerFunc);
 		this.timerFunc = null;
