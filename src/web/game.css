@@ -46,6 +46,10 @@ body,
 	right: 0;
 	bottom: 0;
 }
+.multiplayer #nameForm
+{
+	position: fixed;
+}
 
 .no-touch .cellShape:hover .inner
 {
@@ -196,18 +200,23 @@ body,
 	}
 	.timeLeftInner
 	{
+		background: linear-gradient(to bottom, rgba(201,222,150,1) 0%,rgba(138,182,107,1) 44%,rgba(57,130,53,1) 100%);
 		top: 0 !important;
 	}
 	.timeLeftOuter
 	{
 		height: 0.2em;
 		left:0;
-		background: linear-gradient(to bottom, rgba(201,222,150,1) 0%,rgba(138,182,107,1) 44%,rgba(57,130,53,1) 100%);
 	}
 	.timerScale > div
 	{
+		display: inline-block;
 		height: 100% !important;
 		border-left: 1px solid;
+	}
+	.timerScale >div:first-child
+	{
+		border-color: rgba(0,0,0,0);
 	}
 }
 @media all and (orientation: landscape)
@@ -229,6 +238,10 @@ body,
 	{
 		width: 100% !important;
 		border-bottom: 1px solid;
+	}
+	.timerScale >div:last-child
+	{
+		border-color: rgba(0,0,0,0);
 	}
 	#gameArea
 	{
