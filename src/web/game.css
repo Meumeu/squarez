@@ -316,3 +316,35 @@ body,
 	transition: top 0s;
 	-webkit-transition: top 0s;
 }
+
+.multiplayer #highScores
+{
+	margin: 10px;
+	box-shadow: 0 0 20px #808080;
+	background: #FFFFFF;
+}
+.multiplayer #highScores h1
+{
+	margin: 5px 5px 0 5px;
+	text-align: center;
+}
+#highScores table
+{
+	width: 100%;
+}
+table
+{
+	border-collapse: collapse;
+}
+#highScores td
+{
+	padding: 0 5px;
+}
+#highScores tr:nth-child(2n)
+{
+	background: #D0D0D0;
+}
+.name
+{
+	min-width: 200px;
+}

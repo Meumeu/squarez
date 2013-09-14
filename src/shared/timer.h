@@ -36,7 +36,7 @@ public:
 	Timer(uint16_t longTerm, uint16_t shortTerm, uint16_t halfLife);
 
 	// Simple timer, with constant duration
-	Timer(uint16_t duration, float progress = 1);
+	Timer(uint16_t duration, float percentLeft = 1);
 	
 	void refill(unsigned int percentage);
 	

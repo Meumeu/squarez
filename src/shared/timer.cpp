@@ -27,7 +27,7 @@ Timer::Timer(uint16_t longTerm, uint16_t shortTerm, uint16_t halfLife):
 _longTerm(longTerm), _halfLife(halfLife), _bonusDuration(1000*(uint32_t)(shortTerm - longTerm)), _begin(std::chrono::steady_clock::now()), _end(_begin + _longTerm + _bonusDuration), _paused(false)
 {}
 
-Timer::Timer(uint16_t duration, float progress): _longTerm(duration), _halfLife(0), _bonusDuration(0), _begin(std::chrono::steady_clock::now()), _end(_begin + std::chrono::milliseconds(std::lround(1000* duration * progress))), _paused(false)
+Timer::Timer(uint16_t duration, float percentLeft): _longTerm(duration), _halfLife(0), _bonusDuration(0), _begin(std::chrono::steady_clock::now()), _end(_begin + std::chrono::milliseconds(std::lround(1000* duration * percentLeft))), _paused(false)
 {}
 
 float Timer::percentageLeft(float offset) const

@@ -26,7 +26,7 @@ function MultiplayerRules(rootElement, scoreElement, server, playerName)
 		grad.appendChild(n);
 	}
 
-	this.timer = new Module.Timer(res.timer * this.gameRounds, (res.round + res.progress) / res.gameRounds);
+	this.timer = new Module.Timer(res.timer * this.gameRounds, (res.gameRounds - res.round - 1 + res.progress) / res.gameRounds);
 	this.updateTimer();
 
 	// Start the transition polling mechanism
@@ -147,7 +147,7 @@ MultiplayerRules.prototype.updateScores = function()
 			{
 				var p = scores.scores[i]
 				var n = document.createElement("tr");
-				n.innerHTML="<td>"+p.name+ "</td><td>" + p.score + "</td>";
+				n.innerHTML='<td class="name">'+p.name+ '</td><td class="score">' + p.score + "</td>";
 				scoreList.appendChild(n);
 			}
 		}
