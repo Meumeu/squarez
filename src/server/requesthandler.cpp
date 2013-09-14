@@ -31,20 +31,25 @@ bool RequestHandler::response()
 	{
 		case Init:
 		{
+			auto const& path = environment().pathInfo;
+			if (path.empty())
+			{
+				std::cerr << "No path information" << std::endl;
+				return true;
+			}
 			out << "Content-Type: text/plain\r\n\r\n";
-			auto const& scriptName = environment().scriptName;
-			std::string method = scriptName.substr(scriptName.find_last_of('/'));
+			std::string method = path.front();
 
-			if (method == "/get_board")
+			if (method == "get_board")
 				return this->getBoard();
 
-			if (method == "/get_scores")
+			if (method == "get_scores")
 				return this->getScores();
 
-			if (method == "/push_selection")
+			if (method == "push_selection")
 				return this->pushSelection();
 
-			if (method == "/get_transition")
+			if (method == "get_transition")
 			{
 				_state = GetTransition;
 				RWGameStatus()().registerWait(callback());
@@ -52,6 +57,7 @@ bool RequestHandler::response()
 			}
 
 			//FIXME: Unkown method, return something ?
+			std::cerr << "Unkown method [" << method << "]" << std::endl;
 			return true;
 		}
 		case GetTransition:
