@@ -78,10 +78,7 @@ public:
 	// And stores the transition if it is better
 	uint16_t pushSelection(Selection const& selection, unsigned int token);
 
-	void registerWait(boost::function<void(Fastcgipp::Message)> const& callback)
-	{
-		_pending.push_back(callback);
-	}
+	void registerWait(boost::function<void(Fastcgipp::Message)> const& callback, unsigned int token);
 
 	Transition const& getLastRoundTransition() const { return _lastRoundTransition;}
 

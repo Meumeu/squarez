@@ -83,10 +83,10 @@ void GameStatus::run()
 			// We have just finished the last round of the game
 			if (_round == _roundsPerGame - 1)
 			{
-				// Player cleanup: remove those who scored no point, reset scores
+				// Player cleanup: remove those who have been inactive, reset scores
 				for (auto it = _players.begin(); it != _players.end();)
 				{
-					if (it->second.getPreviousScore() == 0 and it->second.getScore() == 0)
+					if (not it->second.isActive())
 						it = _players.erase(it);
 					else
 					{
@@ -167,6 +167,12 @@ std::vector<std::reference_wrapper<const Player>> GameStatus::getPlayersByScore(
 	});
 
 	return res;
+}
+
+void GameStatus::registerWait(boost::function<void(Fastcgipp::Message)> const& callback, unsigned int token)
+{
+	_players.at(token).setActive();
+	_pending.push_back(callback);
 }
 
 ROGameStatus::ROGameStatus(): _gameStatus(GameStatus::instance()), _lock(_gameStatus._mutex) {}

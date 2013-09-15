@@ -1,46 +1,49 @@
-<head>
-	<script src="squarez.js"></script>
-	<script src="game.js"></script>
-	<script src="multiplayer.js"></script>
-	<link rel="stylesheet" type="text/css" href="game.css">
-	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
-</head>
-<body class="multiplayer">
-	<div id="gameArea">
-		<div id="timerOuter" class="timeLeftOuter">
-			<div id="timerInner" class="timeLeftInner">
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="squarez.js"></script>
+		<script src="game.js"></script>
+		<script src="multiplayer.js"></script>
+		<link rel="stylesheet" type="text/css" href="game.css">
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+	</head>
+	<body class="multiplayer">
+		<div id="gameArea">
+			<div id="timerOuter" class="timeLeftOuter">
+				<div id="timerInner" class="timeLeftInner">
+				</div>
+				<div id="timerScale" class="timerScale">
+				</div>
 			</div>
-			<div id="timerScale" class="timerScale">
+			<form id="nameForm">
+				<label>Name: <input id="nameInput" type="text" name="name" autofocus></label>
+				<input type="submit" value="Start">
+			</form>
+		</div>
+		<div class="info">
+			<div class="scoreContainer"><span class="scoreLabel">Score: </span><span id="score">0</span>
+			</div>
+			<div class="buttons">
+				<div class="clearButton jsClear">Clear Selection</div>
+			</div>
+			<div id="highScores">
+				<h1>Player scores</h1>
+				<table>
+					<tbody id="scoreList"></tbody>
+				</table>
 			</div>
 		</div>
-		<form id="nameForm">
-			<label>Name: <input id="nameInput" type="text" name="name" autofocus></label>
-			<input type="submit" value="Start">
-		</form>
-	</div>
-	<div class="info">
-		<div class="scoreContainer"><span class="scoreLabel">Score: </span><span id="score">0</span>
-		</div>
-		<div class="buttons">
-			<div class="clearButton jsClear">Clear Selection</div>
-		</div>
-		<div id="highScores">
-			<h1>Player scores</h1>
-			<table>
-				<tbody id="scoreList"></tbody>
-			</table>
-		</div>
-	</div>
-	<script>
-	document.getElementById("nameForm").onsubmit = function()
-	{
-		var name = document.getElementById("nameInput").value;
-		if (name)
+		<script>
+		document.getElementById("nameForm").onsubmit = function()
 		{
-			document.getElementById("nameForm").style.display = "none"
-			var game = new MultiplayerRules(document.getElementById("gameArea"),  document.getElementById("score"), "", name);
-		}
-		return false;
-	};
-	</script>
-</body>
+			var name = document.getElementById("nameInput").value;
+			if (name)
+			{
+				document.getElementById("nameForm").style.display = "none"
+				var game = new MultiplayerRules(document.getElementById("gameArea"),  document.getElementById("score"), "", name);
+			}
+			return false;
+		};
+		</script>
+	</body>
+</html>

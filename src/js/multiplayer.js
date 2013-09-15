@@ -126,7 +126,7 @@ MultiplayerRules.prototype.queryTransition = function()
 	var that = this;
 	// Schedule a new query
 	this.transitionQuery = new XMLHttpRequest();
-	this.transitionQuery.open("get", this.server+"squarez/get_transition");
+	this.transitionQuery.open("get", this.server+"squarez/get_transition?token=" + this.token);
 	this.transitionQuery.onreadystatechange = function() {that.queryTransition();};
 	this.transitionQuery.send();
 }

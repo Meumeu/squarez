@@ -1,39 +1,42 @@
-<head>
-	<script src="squarez.js"></script>
-	<script src="game.js"></script>
-	<script src="singleplayer.js"></script>
-	<link rel="stylesheet" type="text/css" href="game.css">
-	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
-</head>
-<body class="singleplayer">
-	<div id="gameArea">
-		<div id="timerOuter" class="timeLeftOuter">
-			<div id="timerInner" class="timeLeftInner">
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="squarez.js"></script>
+		<script src="game.js"></script>
+		<script src="singleplayer.js"></script>
+		<link rel="stylesheet" type="text/css" href="game.css">
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+	</head>
+	<body class="singleplayer">
+		<div id="gameArea">
+			<div id="timerOuter" class="timeLeftOuter">
+				<div id="timerInner" class="timeLeftInner">
+				</div>
+			</div>
+			<div class="gameOver" style="display:none"><div>Game over</div><div class="restartButton" onclick="location.reload()">Restart</div></div>
+			<div class="pause jsPause" style="display:none">Game paused</div>
+			<form id="nameForm" style="display: none">
+				<h1>New high score</h1>
+				<label>Name: <input id="nameInput" type="text" name="name"></label>
+				<input type="submit" value="Save">
+			</form>
+		</div>
+		<div class="info">
+			<div class="scoreContainer"><span class="scoreLabel">Score: </span><span id="score">0</span>
+			</div>
+			<div class="buttons">
+				<div class="pauseButton jsPause">Pause</div>
+				<div class="clearButton jsClear">Clear Selection</div>
+			</div>
+			<div id="highScores" style="display:none">
+				<h1>High Scores</h1>
+				<table>
+					<tbody id="scoreList"></tbody>
+				</table>
 			</div>
 		</div>
-		<div class="gameOver" style="display:none"><div>Game over</div><div class="restartButton" onclick="location.reload()">Restart</div></div>
-		<div class="pause jsPause" style="display:none">Game paused</div>
-		<form id="nameForm" style="display: none">
-			<h1>New high score</h1>
-			<label>Name: <input id="nameInput" type="text" name="name"></label>
-			<input type="submit" value="Save">
-		</form>
-	</div>
-	<div class="info">
-		<div class="scoreContainer"><span class="scoreLabel">Score: </span><span id="score">0</span>
-		</div>
-		<div class="buttons">
-			<div class="pauseButton jsPause">Pause</div>
-			<div class="clearButton jsClear">Clear Selection</div>
-		</div>
-		<div id="highScores" style="display:none">
-			<h1>High Scores</h1>
-			<table>
-				<tbody id="scoreList"></tbody>
-			</table>
-		</div>
-	</div>
-	<script>
-	var game = new SinglePlayerRules(document.getElementById("gameArea"),  document.getElementById("score"));
-	</script>
-</body>
+		<script>
+		var game = new SinglePlayerRules(document.getElementById("gameArea"),  document.getElementById("score"));
+		</script>
+	</body>
+</html>
