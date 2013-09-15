@@ -27,12 +27,13 @@ Timer::Timer(uint16_t longTerm, uint16_t shortTerm, uint16_t halfLife):
 _longTerm(longTerm), _halfLife(halfLife), _bonusDuration(1000*(uint32_t)(shortTerm - longTerm)), _begin(std::chrono::steady_clock::now()), _end(_begin + _longTerm + _bonusDuration), _paused(false)
 {}
 
-Timer::Timer(uint16_t duration): _longTerm(duration), _halfLife(0), _bonusDuration(0), _begin(std::chrono::steady_clock::now()), _end(_begin + _longTerm), _paused(false)
+Timer::Timer(uint16_t duration, float percentLeft): _longTerm(duration), _halfLife(0), _bonusDuration(0), _begin(std::chrono::steady_clock::now()), _end(_begin + std::chrono::milliseconds(std::lround(1000* duration * percentLeft))), _paused(false)
 {}
 
-float Timer::percentageLeft() const
+float Timer::percentageLeft(float offset) const
 {
-	float res =  std::chrono::duration<float>(_end - std::chrono::steady_clock::now()) / std::chrono::duration<float>(_longTerm + _bonusDuration);
+	std::chrono::duration<float> offset_chrono(offset);
+	float res =  (std::chrono::duration<float>(_end - std::chrono::steady_clock::now()) - offset_chrono) / std::chrono::duration<float>(_longTerm + _bonusDuration);
 	if (_paused)
 		res = std::chrono::duration<float>(_end - _pauseTime) / std::chrono::duration<float>(_longTerm + _bonusDuration);
 	if (res > 0)

@@ -36,11 +36,12 @@ public:
 	Timer(uint16_t longTerm, uint16_t shortTerm, uint16_t halfLife);
 
 	// Simple timer, with constant duration
-	Timer(uint16_t duration);
+	Timer(uint16_t duration, float percentLeft = 1);
 	
 	void refill(unsigned int percentage);
 	
-	float percentageLeft() const;
+	// Get the percentage of time left in offset s
+	float percentageLeft(float offset = 0) const;
 	uint16_t secondsLeft() const;
 	
 	void pause();

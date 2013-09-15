@@ -25,7 +25,9 @@ namespace squarez
 {
 GameStatus* GameStatus::_instance = nullptr;
 
-GameStatus::GameStatus(const GameBoard& board, std::chrono::seconds roundDuration): _running(true), _board(board), _round(0), _roundDuration(roundDuration) {
+GameStatus::GameStatus(const GameBoard& board, std::chrono::seconds roundDuration, unsigned int roundsPerGame):
+	_running(true), _board(board), _round(0), _roundsPerGame(roundsPerGame), _roundDuration(roundDuration)
+{
 	if (_instance)
 		throw std::runtime_error("GameStatus already initialized");
 	_instance = this;
@@ -40,7 +42,7 @@ GameStatus::~GameStatus()
 	_mainLoop.join();
 }
 
-uint16_t GameStatus::pushSelection(const Selection& selection)
+uint16_t GameStatus::pushSelection(const Selection& selection, unsigned int token)
 {
 	auto const& transition = _board.selectSquare(selection, true);
 
@@ -50,7 +52,11 @@ uint16_t GameStatus::pushSelection(const Selection& selection)
 		_bestTransition = transition;
 	}
 
-	return transition._score;
+	// Add the score to the player
+	auto & player = _players.at(token);
+	player.setRoundScore(transition._score);
+
+	return player.getScore();
 }
 
 GameStatus & GameStatus::instance()
@@ -62,21 +68,49 @@ GameStatus & GameStatus::instance()
 
 void GameStatus::run()
 {
-	auto nextRound = std::chrono::steady_clock::now() + _roundDuration;
+	_nextRound = std::chrono::steady_clock::now() + _roundDuration;
 	while (_running)
 	{
 		{
 			std::unique_lock<std::recursive_mutex> lock(_mutex);
 
-			// If no transition has been found, select a random one
-			if (_bestTransition._selection.getPoints().empty())
+			// Adjust player scores
+			for (auto & player: _players)
 			{
-				auto const & transitions = _board.findTransitions();
-				_bestTransition = transitions[std::rand() % transitions.size()];
+				player.second.endRound();
 			}
 
-			// Make sure the transition can not end the game
-			_lastRoundTransition = _board.selectSquare(_bestTransition._selection, false);
+			// We have just finished the last round of the game
+			if (_round == _roundsPerGame - 1)
+			{
+				// Player cleanup: remove those who scored no point, reset scores
+				for (auto it = _players.begin(); it != _players.end();)
+				{
+					if (it->second.getPreviousScore() == 0 and it->second.getScore() == 0)
+						it = _players.erase(it);
+					else
+					{
+						it->second.endGame();
+						++it;
+					}
+				}
+
+				// Shuffle the board
+				_lastRoundTransition = Transition(_board.size());
+			}
+			else
+			{
+				// If no transition has been found, select a random one
+				if (_bestTransition._selection.getPoints().empty())
+				{
+					auto const & transitions = _board.findTransitions();
+					_bestTransition = transitions[std::rand() % transitions.size()];
+				}
+
+				// Make sure the transition can not end the game
+				_lastRoundTransition = _board.selectSquare(_bestTransition._selection, false);
+			}
+
 			_bestTransition = Transition();
 
 			_board.applyTransition(_lastRoundTransition);
@@ -88,13 +122,52 @@ void GameStatus::run()
 			}
 
 			_pending.clear();
-			++_round;
-			nextRound += _roundDuration;
+			_round = (_round + 1)% _roundsPerGame;
+			_nextRound += _roundDuration;
 		}
-		std::this_thread::sleep_until(nextRound);
+		std::this_thread::sleep_until(_nextRound);
 	}
 }
 
+float GameStatus::getRoundTimeAdvancement() const
+{
+	return std::chrono::duration<float>(_nextRound - std::chrono::steady_clock::now())/std::chrono::duration<float>(_roundDuration);
+}
+
+unsigned int GameStatus::registerPlayer(Player const& player)
+{
+	if (_players.empty())
+	{
+		_players.insert(std::make_pair(0, player));
+		return 0;
+	}
+
+	unsigned int const pos = _players.rbegin()->first + 1;
+	_players.insert(_players.end(), std::make_pair(pos, player));
+	return pos;
+}
+
+Player const& GameStatus::getPlayer(unsigned int token) const
+{
+	return _players.at(token);
+}
+
+std::vector<std::reference_wrapper<const Player>> GameStatus::getPlayersByScore() const
+{
+	std::vector<std::reference_wrapper<const Player>> res;
+	res.reserve(_players.size());
+	for (auto const& p : _players)
+	{
+		res.push_back(p.second);
+	}
+
+	std::sort(res.begin(), res.end(), [](std::reference_wrapper<const Player> left, std::reference_wrapper<const Player> right)
+	{
+		return left.get().getScore() > right.get().getScore();
+	});
+
+	return res;
+}
 
 ROGameStatus::ROGameStatus(): _gameStatus(GameStatus::instance()), _lock(_gameStatus._mutex) {}
 RWGameStatus::RWGameStatus(): ROGameStatus() {}

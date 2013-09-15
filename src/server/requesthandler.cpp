@@ -20,6 +20,8 @@
 #include "requesthandler.h"
 #include "gamestatus.h"
 
+#include <boost/lexical_cast.hpp>
+
 namespace squarez
 {
 
@@ -29,31 +31,38 @@ bool RequestHandler::response()
 	{
 		case Init:
 		{
+			auto const& path = environment().pathInfo;
+			if (path.empty())
+			{
+				std::cerr << "No path information" << std::endl;
+				return true;
+			}
 			out << "Content-Type: text/plain\r\n\r\n";
-			auto const& scriptName = environment().scriptName;
-			std::string method = scriptName.substr(scriptName.find_last_of('/'));
+			std::string method = path.front();
 
-			if (method == "/get_board")
+			if (method == "get_board")
 				return this->getBoard();
 
-			if (method == "/push_selection")
+			if (method == "get_scores")
+				return this->getScores();
+
+			if (method == "push_selection")
 				return this->pushSelection();
 
-			if (method == "/get_transition")
+			if (method == "get_transition")
 			{
-				_state = LongPoll;
+				_state = GetTransition;
 				RWGameStatus()().registerWait(callback());
 				return false;
 			}
 
 			//FIXME: Unkown method, return something ?
+			std::cerr << "Unkown method [" << method << "]" << std::endl;
 			return true;
 		}
-		case LongPoll:
+		case GetTransition:
 		{
-			ROGameStatus status;
-			status().getLastRoundTransition().serialize(out);
-			return true;
+			return this->getTransition();
 		}
 	}
 	return true;
@@ -61,7 +70,27 @@ bool RequestHandler::response()
 
 bool RequestHandler::getBoard()
 {
-	ROGameStatus()().getBoard().serialize(out);
+	RWGameStatus status;
+	out << "{";
+
+	out << "\"board\":\"";
+	status().getBoard().serialize(out);
+
+	out << "\",\"timer\":";
+	out << status().getRoundDuration().count() << ",";
+
+	out << "\"progress\":" << status().getRoundTimeAdvancement() << ",";
+
+	out << "\"round\":" << status().getRound() << ",";
+	out << "\"gameRounds\":" << status()._roundsPerGame;
+
+	std::string const& name = environment().findGet("name");
+	if (not name.empty())
+	{
+		auto token = status().registerPlayer(Player(name));
+		out << ",\"token\":" << token;
+	}
+	out << "}";
 	return true;
 }
 
@@ -72,9 +101,36 @@ bool RequestHandler::pushSelection()
 	std::stringstream stream(selectionString);
 	Selection selection(stream);
 
-	out << RWGameStatus()().pushSelection(selection);
+	unsigned int token = boost::lexical_cast<unsigned int>(environment().findGet("token"));
+
+	out << RWGameStatus()().pushSelection(selection, token);
 	return true;
 }
 
+bool RequestHandler::getScores()
+{
+	ROGameStatus status;
+	auto const& players = status().getPlayersByScore();
+	out << "{\"scores\":[";
+	bool first = true;
+	for (auto const & player: players)
+	{
+		if (first) first = false;
+		else out << ",";
+		out << "{\"name\":\"" << player.get().getName() << "\",";
+		out << "\"score\":" << player.get().getScore() << "}";
+	}
+	out << "]}";
+	return true;
+}
+
+bool RequestHandler::getTransition()
+{
+	out << "{\"transition\":\"";
+	ROGameStatus status;
+	status().getLastRoundTransition().serialize(out);
+	out << "\",\"round\":" << status().getRound() << "}";
+	return true;
+}
 
 }

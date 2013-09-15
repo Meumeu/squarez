@@ -73,7 +73,7 @@ EMSCRIPTEN_BINDINGS(CellTransition) {
 EMSCRIPTEN_BINDINGS(Timer) {
 	emscripten::class_<Timer>("Timer")
 	.constructor<int,int,int>()
-	.constructor<int>()
+	.constructor<int,float>()
 	.function("refill", &Timer::refill)
 	.function("percentageLeft", &Timer::percentageLeft)
 	.function("secondsLeft", &Timer::secondsLeft)

@@ -15,6 +15,8 @@ AC_ARG_ENABLE([javascript],
 AC_MSG_RESULT($enable_javascript)
 AM_CONDITIONAL([JAVASCRIPT], [test "x$enable_javascript" = "xyes"])
 
+AC_ARG_VAR([wwwdir], [http server files directory])
+
 AC_MSG_CHECKING([whether to build server binary])
 AC_ARG_ENABLE([server],
 	AS_HELP_STRING([--enable-server], [build server library]))
@@ -41,7 +43,12 @@ AM_CONDITIONAL([WERROR], [test "x$enable_werror" = "xyes"])
 
 AM_INIT_AUTOMAKE([subdir-objects])
 
-# Checks for programs.
+AS_IF([test "x$enable_javascript" = "xyes"], [
+	CXXFLAGS=-O2
+	AS_IF([test "x$wwwdir" = "x"], [
+		AC_MSG_ERROR("wwwdir must be set")])
+	])
+
 AC_PROG_CXX
 
 # Check C++11

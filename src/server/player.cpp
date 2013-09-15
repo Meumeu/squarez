@@ -1,58 +1,48 @@
 /*
  * Squarez puzzle game server binary
  * Copyright (C) 2013  Patrick Nicolas <patricknicolas@laposte.net>
- *
+ * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * 
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * 
  */
 
-#ifndef SQUAREZ_REQUESTHANDLER_H
-#define SQUAREZ_REQUESTHANDLER_H
-
-#include <memory>
-
-// FastCGI
-#include <fastcgi++/request.hpp>
+#include "player.h"
 
 namespace squarez
 {
-
-class RequestHandler: public Fastcgipp::Request<char>
+Player::Player(std::string name): _score(0), _name(name), _roundScore(0), _previousScore(1)
 {
-	enum State
-	{
-		Init,
-		GetTransition
-	} state;
-public:
-	RequestHandler(): _state(Init) {}
-	// Process the request
-	bool response();
-private:
-	State _state;
-
-	// Get the current board (serialized)
-	bool getBoard();
-
-	bool pushSelection();
-
-	bool getScores();
-
-	// Invoked by the callback, right after the transition has been computed
-	bool getTransition();
-};
 
 }
 
-#endif // SQUAREZ_REQUESTHANDLER_H
+void Player::endGame()
+{
+	_previousScore = _score + _roundScore;
+	_score = 0;
+	_roundScore = 0;
+}
+
+void Player::endRound()
+{
+	_score += _roundScore;
+	_roundScore = 0;
+}
+
+void Player::setRoundScore(unsigned int roundScore)
+{
+	if (roundScore > _roundScore)
+		_roundScore = roundScore;
+}
+
+}
