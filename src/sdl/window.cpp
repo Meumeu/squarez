@@ -20,6 +20,8 @@
 #include "window.h"
 #include <stdexcept>
 #include <iostream>
+#include <GL/gl.h>
+#include <GL/glext.h>
 
 squarez::Window::Window() : _window(nullptr), _gl_context(nullptr)
 {
@@ -39,7 +41,6 @@ squarez::Window::Window() : _window(nullptr), _gl_context(nullptr)
 // 	SDL_GetWindowDisplayMode(_window, &mode);
 	
 	std::cout << "Mode: " << width() << "x" << height() << std::endl;
-	
 }
 
 squarez::Window::~Window()

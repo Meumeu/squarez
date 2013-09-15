@@ -144,17 +144,21 @@ void squarez::Game::mouseDown(int x, int y, int button)
 			Cell& c = cells[i][j];
 			if (fabs(fx - c.x) < c.size / 2 && fabs(fy - c.y) < c.size / 2)
 			{
-				bool selected = current_selection.addPoint(i, j);
-				
-				set_cell_color(c, true, selected);
+				current_selection.addPoint(i, j);
 			}
 		}
 	}
 	
+	resetCellColours(x, y);
 	selectionChanged(current_selection);
 }
 
 void squarez::Game::mouseMoved(int x, int y)
+{
+	resetCellColours(x, y);
+}
+
+void squarez::Game::resetCellColours(int x, int y)
 {
 	float fx = x * xmax / width;
 	float fy = y * ymax / height;
@@ -173,7 +177,6 @@ void squarez::Game::mouseMoved(int x, int y)
 		}
 	}
 }
-
 
 void squarez::Game::windowResized(int _width, int _height)
 {
@@ -199,7 +202,7 @@ void squarez::Game::windowResized(int _width, int _height)
 
 void squarez::Game::run()
 {
-// 	auto t0 = std::chrono::steady_clock::now();
+	auto t0 = std::chrono::steady_clock::now();
 	bool running = true;
 	while(running)
 	{
@@ -221,7 +224,7 @@ void squarez::Game::run()
 				if (e.window.event == SDL_WINDOWEVENT_RESIZED)
 					windowResized(e.window.data1, e.window.data2);
 				break;
-			
+				
 			case SDL_MOUSEBUTTONDOWN:
 				mouseDown(e.button.x, e.button.y, e.button.button);
 				break;
@@ -233,6 +236,7 @@ void squarez::Game::run()
 			default:
 				if (e.type == user_event_id)
 				{
+					timeTick(std::chrono::steady_clock::now() - t0);
 					renderFrame(std::chrono::steady_clock::now());
 					SDL_FlushEvent(user_event_id);
 					
@@ -261,6 +265,18 @@ void squarez::Game::renderFrame(std::chrono::time_point<std::chrono::steady_cloc
 	for(auto& i: removed_cells)
 	{
 		i.render(0, 0, xmax, ymax);
+	}
+	
+	for(std::list<Cell>::iterator it = removed_cells.begin(); it != removed_cells.end(); )
+	{
+		if (it->alpha == 0)
+		{
+			it = removed_cells.erase(it);
+		}
+		else
+		{
+			++it;
+		}
 	}
 	
 	SDL_GL_SwapWindow(_window.getWindow());
@@ -302,15 +318,17 @@ void squarez::Game::applyTransition(const squarez::Transition& transition)
 			cells[tr._tox][tr._toy].y = tr._toy + 0.5;
 		}
 	}
+	
+	current_selection = Selection();
+	
+	board.applyTransition(transition);
 }
 
-void squarez::Game::selectionChanged(squarez::Selection& selection)
+void squarez::Game::timeTick(std::chrono::duration<float>)
 {
-	Transition tr = board.selectSquare(selection);
-	if (tr._score)
-	{
-		applyTransition(tr);
-		board.applyTransition(tr);
-		selection = Selection();
-	}
+}
+
+void squarez::Game::setSelection(const Selection& selection)
+{
+	current_selection = selection;
 }

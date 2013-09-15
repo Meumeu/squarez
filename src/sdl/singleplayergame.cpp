@@ -17,23 +17,18 @@
  *
  */
 
-#include <SDL2/SDL.h>
 #include "singleplayergame.h"
-#include "demo.h"
-#include "window.h"
 
-int main()
+squarez::SinglePlayerGame::SinglePlayerGame(Window& w) : Game(w), score(0)
 {
-	SDL_SetMainReady();
-	SDL_Init(SDL_INIT_VIDEO);
-	
+}
+
+void squarez::SinglePlayerGame::selectionChanged(const squarez::Selection& selection)
+{
+	Transition tr = board.selectSquare(selection);
+	if (tr._score)
 	{
-		squarez::Window w;
-		squarez::Demo g(w);
-		g.run();
+		score += tr._score;
+		applyTransition(tr);
 	}
-	
-	SDL_Quit();
-	
-	return 0;
 }
