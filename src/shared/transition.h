@@ -68,8 +68,8 @@ public:
 	Transition(std::string const& serialized);
 
 	std::vector<CellTransition> const& getCellTransition() const { return _cells; }
-	std::size_t size() const { return _cells.size();}
-	CellTransition const& get(std::size_t pos) const { return _cells.at(pos);}
+	std::size_t size() const { return _cells.size(); }
+	CellTransition const& get(std::size_t pos) const { return _cells.at(pos); }
 
 	void serialize(std::ostream & serialized) const;
 	

@@ -21,6 +21,13 @@ squarezd_CPPFLAGS = $(AM_CPPFLAGS) $(SYSTEMD_CFLAGS) $(SERVER_CFLAGS) $(BOOST_CP
 squarezd_LDFLAGS = $(SERVER_LIBS) $(SYSTEMD_LIBS) $(BOOST_PROGRAM_OPTIONS_LIBS)
 endif
 
+if SDLCLIENT
+bin_PROGRAMS += squarezsdl
+squarezsdl_SOURCES = $(shared_sources) src/sdl/main.cpp src/sdl/game.cpp src/sdl/window.cpp src/sdl/shader.cpp src/sdl/animatable.cpp src/sdl/cell.cpp src/sdl/colour.cpp src/sdl/gamerules.cpp
+squarezsdl_CPPFLAGS = $(SDL2_CFLAGS) $(GL_CFLAGS) -DSDL_MAIN_HANDLED -DGL_GLEXT_PROTOTYPES=1
+squarezsdl_LDFLAGS = $(SDL2_LIBS) $(GL_LIBS)
+endif
+
 squareztest_SOURCES = src/test/main.cpp $(shared_sources)
 
 squareztest_bot_SOURCES = src/test/bot.cpp $(shared_sources)

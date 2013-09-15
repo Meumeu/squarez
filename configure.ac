@@ -23,6 +23,12 @@ AC_ARG_ENABLE([server],
 AC_MSG_RESULT($enable_server)
 AM_CONDITIONAL([SERVER], [test "x$enable_server" = "xyes"])
 
+AC_MSG_CHECKING([whether to build SDL client])
+AC_ARG_ENABLE([sdlclient],
+	AS_HELP_STRING([--enable-sdlclient], [build SDL client]))
+AC_MSG_RESULT($enable_sdlclient)
+AM_CONDITIONAL([SDLCLIENT], [test "x$enable_sdlclient" = "xyes"])
+
 AC_MSG_CHECKING([whether to enable server socket activation (systemd)])
 AC_ARG_ENABLE([systemd],
 	AS_HELP_STRING([--enable-systemd], [enable socket activation]))
@@ -68,6 +74,13 @@ AS_IF([test "x$enable_server" = "xyes"], [
 	BOOST_PROGRAM_OPTIONS]
 )
 
+#SDL2 library
+AS_IF([test "x$enable_sdlclient" = "xyes"], [
+	PKG_CHECK_MODULES([SDL2], [sdl2])
+	PKG_CHECK_MODULES([GL], gl)
+	BOOST_REQUIRE([])
+	BOOST_PROGRAM_OPTIONS]
+)
 # Systemd
 AS_IF([test "x$enable_systemd" = "xyes"], [
 	PKG_CHECK_MODULES([SYSTEMD], [libsystemd-daemon])],
