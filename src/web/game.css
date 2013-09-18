@@ -210,7 +210,7 @@ body,
 	}
 	.timerScale > div
 	{
-		display: inline-block;
+		float: left;
 		height: 100% !important;
 		border-left: 1px solid;
 	}
