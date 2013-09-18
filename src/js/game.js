@@ -125,7 +125,7 @@ UserInterface.prototype =
 		n1.style.height = ""+squareSize + "em";
 		n1.classList.add("transition-square");
 		n1.classList.add("symbol"+symbol);
-		var rotation = Math.atan2(removed[0].y - removed[side].y, removed[0].x - removed[side].x);
+		var rotation = Math.atan2(removed[side].x - removed[0].x, removed[0].y - removed[side].y);
 		if (n.style.transform !== undefined)
 		{
 			n.style.transform = "rotate("+rotation+"rad)";
@@ -144,6 +144,7 @@ UserInterface.prototype =
 	{
 		var n = this.drawSelection(selection);
 		setTimeout(function() {n.classList.add("transition-removed");}, 100)
+		return n;
 	},
 
 	clearAnimations: function()

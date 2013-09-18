@@ -128,7 +128,7 @@ SinglePlayerRules.prototype.getHighScores = function(draw)
 		{
 			document.getElementById("highScores").style.display="";
 			var n = document.createElement("tr");
-			n.innerHTML="<td>"+res[i].name+ "</td><td>"+ res[i].date.toLocaleDateString() + "</td><td>" + res[i].score + "</td>";
+			n.innerHTML='<td class="name">'+res[i].name+ '</td><td class="date">'+ res[i].date.toLocaleDateString() + '</td><td class="score">' + res[i].score + "</td>";
 			scoreList.appendChild(n);
 		}
 	}

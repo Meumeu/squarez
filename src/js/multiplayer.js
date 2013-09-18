@@ -104,6 +104,7 @@ MultiplayerRules.prototype.queryTransition = function()
 			if (this.round == 0)
 			{
 				this.timer.refill(200);
+				this.scoreElement.innerHTML = 0;
 			}
 
 			// Fire animations
