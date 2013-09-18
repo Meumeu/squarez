@@ -17,6 +17,27 @@
  *
  */
 
-#include "gamerules.h"
+#ifndef SQUAREZ_DEMO_H
+#define SQUAREZ_DEMO_H
 
-using namespace squarez;
+#include "game.h"
+
+namespace squarez {
+
+class Demo : public squarez::Game
+{
+private:
+	std::chrono::duration<float> last_square;
+	Transition transition;
+	int status;
+	
+protected:
+	virtual void selectionChanged(const Selection& selection);
+	virtual void mouseDown(int x, int y, int button);
+	virtual void timeTick(std::chrono::duration<float> t);
+public:
+	Demo(Window& w) : Game(w), last_square(std::chrono::seconds(-10)), status(0) {};
+};
+}
+
+#endif // SQUAREZ_DEMO_H

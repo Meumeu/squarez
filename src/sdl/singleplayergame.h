@@ -17,21 +17,22 @@
  *
  */
 
-#ifndef SQUAREZ_GAMERULES_H
-#define SQUAREZ_GAMERULES_H
+#ifndef SQUAREZ_SINGLEPLAYERGAME_H
+#define SQUAREZ_SINGLEPLAYERGAME_H
 
-#include "shared/gameboard.h"
+#include "game.h"
 
 namespace squarez {
 
-class GameRules
+class SinglePlayerGame : public squarez::Game
 {
-	GameBoard& board;
-	
+private:
+	int score;
+protected:
+	virtual void selectionChanged(const Selection& selection);
 public:
-	virtual ~GameRules();
-	virtual void changedSelection(const Selection& selection);
+	SinglePlayerGame(Window& w);
 };
 }
 
-#endif // SQUAREZ_GAMERULES_H
+#endif // SQUAREZ_SINGLEPLAYERGAME_H

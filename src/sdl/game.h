@@ -22,6 +22,7 @@
 
 #include <SDL2/SDL.h>
 #include <vector>
+#include <list>
 #include <chrono>
 
 #include "shader.h"
@@ -36,7 +37,6 @@ class Window;
 class Game
 {
 private:
-	
 	SDL_TimerID timer_id;
 	Uint32 user_event_id;
 	squarez::Window& _window;
@@ -52,19 +52,22 @@ private:
 	
 	static Uint32 timerCallback(Uint32 interval, void * param);
 	
-	GameBoard board;
 	Selection current_selection;
 	std::vector<std::vector<Cell>> cells;
-	std::vector<Cell> removed_cells;
+	std::list<Cell> removed_cells;
 	
 	void renderFrame(std::chrono::time_point<std::chrono::steady_clock> t);
-	void mouseDown(int x, int y, int button);
 	void mouseMoved(int x, int y);
 	void windowResized(int width, int height);
 	
 protected:
-	virtual void selectionChanged(Selection& selection);
 	void applyTransition(const Transition& transition);
+	GameBoard board;
+	void setSelection(const Selection& selection);
+	virtual void mouseDown(int x, int y, int button);
+	virtual void selectionChanged(const Selection& selection) = 0;
+	virtual void timeTick(std::chrono::duration<float> t);
+	void resetCellColours(int x, int y);
 	
 public:
 	Game(Window& w);

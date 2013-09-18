@@ -23,7 +23,8 @@ endif
 
 if SDLCLIENT
 bin_PROGRAMS += squarezsdl
-squarezsdl_SOURCES = $(shared_sources) src/sdl/main.cpp src/sdl/game.cpp src/sdl/window.cpp src/sdl/shader.cpp src/sdl/animatable.cpp src/sdl/cell.cpp src/sdl/colour.cpp src/sdl/gamerules.cpp
+squarezsdl_SOURCES = $(shared_sources) src/sdl/main.cpp src/sdl/game.cpp src/sdl/window.cpp src/sdl/shader.cpp src/sdl/animatable.cpp \
+	src/sdl/cell.cpp src/sdl/colour.cpp src/sdl/singleplayergame.cpp src/sdl/demo.cpp
 squarezsdl_CPPFLAGS = $(AM_CPPFLAGS) $(SDL2_CFLAGS) $(GL_CFLAGS) -DSDL_MAIN_HANDLED -DGL_GLEXT_PROTOTYPES=1
 squarezsdl_LDFLAGS = $(SDL2_LIBS) $(GL_LIBS)
 endif
