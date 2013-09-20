@@ -103,13 +103,13 @@ a
 
 .cell
 {
-	transition: top 0.3s ease-in, left 0.3s ease-in;
-	-webkit-transition: top 0.3s ease-in, left 0.3s ease-in;
+	transition: left 0.3s ease-in, transform 0.3s ease-in;
+	-webkit-transition: left 0.3s ease-in, -webkit-transform 0.3s ease-in;
 }
 .cell.doubleMove
 {
-	transition: top 0.42s ease-in, left 0.42s ease-in;
-	-webkit-transition: top 0.42s ease-in, left 0.42s ease-in;
+	transition: left 0.42s ease-in, transform 0.3s ease-in;
+	-webkit-transition: left 0.42s ease-in, -webkit-transform 0.3s ease-in;
 }
 
 .removed
@@ -117,16 +117,17 @@ a
 	display:none;
 }
 
-.y-2 {top: -2em;}
-.y-1 {top: -1em;}
-.y0 {top: 0em;}
-.y1 {top: 1em;}
-.y2 {top: 2em;}
-.y3 {top: 3em;}
-.y4 {top: 4em;}
-.y5 {top: 5em;}
-.y6 {top: 6em;}
-.y7 {top: 7em;}
+.cell {top:0;left:0}
+.y-2 {-webkit-transform:translateY(-2em);transform:translateY(-2em);}
+.y-1 {-webkit-transform:translateY(-1em);transform:translateY(-1em);}
+.y0  {-webkit-transform:translateY(0em); transform:translateY(0em);}
+.y1  {-webkit-transform:translateY(1em); transform:translateY(1em);}
+.y2  {-webkit-transform:translateY(2em); transform:translateY(2em);}
+.y3  {-webkit-transform:translateY(3em); transform:translateY(3em);}
+.y4  {-webkit-transform:translateY(4em); transform:translateY(4em);}
+.y5  {-webkit-transform:translateY(5em); transform:translateY(5em);}
+.y6  {-webkit-transform:translateY(6em); transform:translateY(6em);}
+.y7  {-webkit-transform:translateY(7em); transform:translateY(7em);}
 
 .x0 {left: 0em;}
 .x1 {left: 1em;}
