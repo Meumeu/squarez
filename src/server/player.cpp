@@ -21,13 +21,14 @@
 
 namespace squarez
 {
-Player::Player(std::string name): _score(0), _name(name), _roundScore(0), _previousScore(1)
+Player::Player(std::string name): _name(name), _score(0), _previousScore(0), _roundScore(0), _active(true)
 {
 
 }
 
 void Player::endGame()
 {
+	_active = false;
 	_previousScore = _score + _roundScore;
 	_score = 0;
 	_roundScore = 0;

@@ -37,6 +37,8 @@ public:
 
 	void endGame();
 	void endRound();
+	bool isActive() const {return _active;}
+	void setActive() {_active = true;}
 
 	void setRoundScore(unsigned int roundScore);
 	unsigned int getRoundScore() const { return _roundScore;}
@@ -50,6 +52,8 @@ private:
 
 	// Score of the best transition of the current round
 	unsigned int _roundScore;
+
+	bool _active;
 };
 }
 

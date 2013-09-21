@@ -25,34 +25,38 @@
 namespace squarez
 {
 
+namespace {
+unsigned int getToken(Fastcgipp::Http::Environment<char> const& env)
+{
+	return boost::lexical_cast<unsigned int>(env.findGet("token"));
+}
+}
+
 bool RequestHandler::response()
 {
 	switch (_state)
 	{
 		case Init:
 		{
-			auto const& path = environment().pathInfo;
-			if (path.empty())
-			{
-				std::cerr << "No path information" << std::endl;
-				return true;
-			}
+			auto const& uri = environment().requestUri;
+			std::string method = uri.substr(0, uri.find_first_of('?'));
+			method = method.substr(method.find_last_of('/'));
+			
 			out << "Content-Type: text/plain\r\n\r\n";
-			std::string method = path.front();
 
-			if (method == "get_board")
+			if (method == "/get_board")
 				return this->getBoard();
 
-			if (method == "get_scores")
+			if (method == "/get_scores")
 				return this->getScores();
 
-			if (method == "push_selection")
+			if (method == "/push_selection")
 				return this->pushSelection();
 
-			if (method == "get_transition")
+			if (method == "/get_transition")
 			{
 				_state = GetTransition;
-				RWGameStatus()().registerWait(callback());
+				RWGameStatus()().registerWait(callback(), getToken(environment()));
 				return false;
 			}
 
@@ -101,7 +105,7 @@ bool RequestHandler::pushSelection()
 	std::stringstream stream(selectionString);
 	Selection selection(stream);
 
-	unsigned int token = boost::lexical_cast<unsigned int>(environment().findGet("token"));
+	unsigned int token = getToken(environment());
 
 	out << RWGameStatus()().pushSelection(selection, token);
 	return true;

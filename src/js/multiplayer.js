@@ -104,6 +104,7 @@ MultiplayerRules.prototype.queryTransition = function()
 			if (this.round == 0)
 			{
 				this.timer.refill(200);
+				this.scoreElement.innerHTML = 0;
 			}
 
 			// Fire animations
@@ -126,7 +127,7 @@ MultiplayerRules.prototype.queryTransition = function()
 	var that = this;
 	// Schedule a new query
 	this.transitionQuery = new XMLHttpRequest();
-	this.transitionQuery.open("get", this.server+"squarez/get_transition");
+	this.transitionQuery.open("get", this.server+"squarez/get_transition?token=" + this.token);
 	this.transitionQuery.onreadystatechange = function() {that.queryTransition();};
 	this.transitionQuery.send();
 }

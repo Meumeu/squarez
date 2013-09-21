@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT([Squarez], [0.1], [xytovl@laposte.net])
+AC_INIT([Squarez], [1.0.1], [xytovl@laposte.net])
 AC_CONFIG_SRCDIR([src/shared/gameboard.cpp])
 AM_INIT_AUTOMAKE
 AC_CONFIG_HEADERS([src/config.h])
@@ -73,14 +73,14 @@ AS_IF([test "x$enable_werror" = "xyes"], [
 	CXXFLAGS="$CXXFLAGS -Werror"
 ])
 
-#FastCGI library
+# FastCGI library
 AS_IF([test "x$enable_server" = "xyes"], [
 	PKG_CHECK_MODULES([SERVER], [fastcgi++])
-	BOOST_REQUIRE([1.53.0])
+	BOOST_REQUIRE([1.49.0])
 	BOOST_PROGRAM_OPTIONS]
 )
 
-#SDL2 library
+# SDL2 and OpenGL
 AS_IF([test "x$enable_sdlclient" = "xyes"], [
 	AS_IF([test "x$with_sdl2" = "xyes"],
 	[
@@ -90,8 +90,7 @@ AS_IF([test "x$enable_sdlclient" = "xyes"], [
 		PKG_CHECK_MODULES([SDL], [sdl])
 	])
 	PKG_CHECK_MODULES([GLES], glesv2)
-	BOOST_REQUIRE([])
-	BOOST_PROGRAM_OPTIONS]
+	BOOST_REQUIRE([])]
 )
 # Systemd
 AS_IF([test "x$enable_systemd" = "xyes"], [

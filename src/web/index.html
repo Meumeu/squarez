@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="game.css">
+		<link rel="stylesheet" type="text/css" href="gameSelection.css">
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+	</head>
+	<body>
+		<div class="modeSelection">
+			<a href="singleplayer.html" class="singleplayerChoice">
+				<h1>1 player game</h1>
+			</a>
+			<a href="multiplayer.html" class="multiplayerChoice" id="multiplayerChoice" style="display:none">
+				<h1>online game</h1>
+				<div id="playerInfo">
+					<span id="numPlayers"></span> players currently online
+				</div>
+			</a>
+		</div>
+		<script>
+			var r = new XMLHttpRequest();
+			r.open("get", "squarez/get_scores");
+			r.onreadystatechange = function()
+			{
+				if (r.readyState == 4 && r.status == 200)
+					{
+						scores = JSON.parse(r.responseText);
+
+						if (scores.scores.length == 0)
+							document.getElementById("playerInfo").style.display = "none";
+
+						document.getElementById("numPlayers").innerHTML = scores.scores.length;
+						document.getElementById("multiplayerChoice").style.display = "";
+					}
+			};
+			r.send();
+		</script>
+	</body>
+</html>
