@@ -17,19 +17,24 @@
  *
  */
 
+#ifdef USE_SDL2
 #include <SDL2/SDL.h>
+#else
+#include <SDL/SDL.h>
+#endif
+
 #include "singleplayergame.h"
 #include "demo.h"
 #include "window.h"
 
-int main()
+int main(int argc, char *argv[])
 {
-	SDL_SetMainReady();
 	SDL_Init(SDL_INIT_VIDEO);
 	
 	{
 		squarez::Window w;
-		squarez::Demo g(w);
+// 		squarez::Demo g(w);
+		squarez::SinglePlayerGame g(w);
 		g.run();
 	}
 	

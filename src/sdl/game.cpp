@@ -22,6 +22,7 @@
 #include <stdexcept>
 #include <chrono>
 #include <iostream>
+#include <cmath>
 
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
@@ -78,12 +79,6 @@ static void set_cell_color(squarez::Cell& c, bool hover, bool selected)
 squarez::Game::Game(Window& w) : timer_id(0), user_event_id(0), _window(w), shader_rounded_rectangle(DATADIR "/squarez/roundrect.vert.glsl", DATADIR "/squarez/roundrect.frag.glsl"),
 	vbo_id(0), board(BOARD_SIZE, NB_SYMBOLS)
 {
-	timer_id = SDL_AddTimer(20, timerCallback, this);
-	if (!timer_id)
-		throw std::runtime_error(SDL_GetError());
-	
-	user_event_id = SDL_RegisterEvents(1);
-	
 	glGenBuffers(1, &vbo_id);
 	if (!vbo_id)
 		throw std::runtime_error("Cannot create VBO");
@@ -126,19 +121,6 @@ squarez::Game::~Game()
 		SDL_RemoveTimer(timer_id);
 }
 
-Uint32 squarez::Game::timerCallback(Uint32 interval, void* param)
-{
-	Game * g = (Game*)param;
-	
-	SDL_Event e;
-	memset(&e, 0, sizeof(e));
-	e.type = g->user_event_id;
-	e.user.code = 0;
-	SDL_PushEvent(&e);
-	
-	return 1;
-}
-
 void squarez::Game::mouseDown(int x, int y, int button)
 {
 	float fx = x * xmax / width;
@@ -149,7 +131,7 @@ void squarez::Game::mouseDown(int x, int y, int button)
 		for(unsigned int j = 0; j < BOARD_SIZE; ++j)
 		{
 			Cell& c = cells[i][j];
-			if (fabs(fx - c.x) < c.size / 2 && fabs(fy - c.y) < c.size / 2)
+			if (std::fabs(fx - c.x) < c.size / 2 && std::fabs(fy - c.y) < c.size / 2)
 			{
 				current_selection.addPoint(i, j);
 			}
@@ -214,41 +196,42 @@ void squarez::Game::run()
 	while(running)
 	{
 		SDL_Event e;
-		SDL_WaitEvent(&e);
-		
-		switch(e.type)
+		while(SDL_PollEvent(&e))
 		{
-			case SDL_QUIT:
-				running = false;
-				break;
-				
-			case SDL_KEYDOWN:
-				if (e.key.keysym.sym == SDLK_ESCAPE)
+			switch(e.type)
+			{
+				case SDL_QUIT:
 					running = false;
-				break;
-				
-			case SDL_WINDOWEVENT:
-				if (e.window.event == SDL_WINDOWEVENT_RESIZED)
-					windowResized(e.window.data1, e.window.data2);
-				break;
-				
-			case SDL_MOUSEBUTTONDOWN:
-				mouseDown(e.button.x, e.button.y, e.button.button);
-				break;
-			
-			case SDL_MOUSEMOTION:
-				mouseMoved(e.motion.x, e.motion.y);
-				break;
-				
-			default:
-				if (e.type == user_event_id)
-				{
-					timeTick(std::chrono::steady_clock::now() - t0);
-					renderFrame(std::chrono::steady_clock::now());
-					SDL_FlushEvent(user_event_id);
+					break;
 					
-				}
+				case SDL_KEYDOWN:
+					if (e.key.keysym.sym == SDLK_ESCAPE)
+						running = false;
+					break;
+					
+#ifdef USE_SDL2
+				case SDL_WINDOWEVENT:
+					if (e.window.event == SDL_WINDOWEVENT_RESIZED)
+						windowResized(e.window.data1, e.window.data2);
+					break;
+#else
+				case SDL_VIDEORESIZE:
+					windowResized(e.resize.w, e.resize.h);
+					break;
+#endif
+					
+				case SDL_MOUSEBUTTONDOWN:
+					mouseDown(e.button.x, e.button.y, e.button.button);
+					break;
+				
+				case SDL_MOUSEMOTION:
+					mouseMoved(e.motion.x, e.motion.y);
+					break;
+			}
 		}
+		
+		timeTick(std::chrono::steady_clock::now() - t0);
+		renderFrame(std::chrono::steady_clock::now());
 	}
 }
 
@@ -286,7 +269,11 @@ void squarez::Game::renderFrame(std::chrono::time_point<std::chrono::steady_cloc
 		}
 	}
 	
+#ifdef USE_SDL2
 	SDL_GL_SwapWindow(_window.getWindow());
+#else
+	SDL_GL_SwapBuffers();
+#endif
 }
 
 void squarez::Game::applyTransition(const squarez::Transition& transition)

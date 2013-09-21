@@ -20,7 +20,12 @@
 #ifndef GAME_H
 #define GAME_H
 
+#ifdef USE_SDL2
 #include <SDL2/SDL.h>
+#else
+#include <SDL/SDL.h>
+#endif
+
 #include <vector>
 #include <list>
 #include <chrono>
@@ -49,8 +54,6 @@ private:
 	int cell_coords_id;
 	int color_id;
 	int border_radius_id;
-	
-	static Uint32 timerCallback(Uint32 interval, void * param);
 	
 	Selection current_selection;
 	std::vector<std::vector<Cell>> cells;

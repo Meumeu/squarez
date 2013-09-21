@@ -20,21 +20,29 @@
 #ifndef SQUAREZ_WINDOW_H
 #define SQUAREZ_WINDOW_H
 
+#ifdef USE_SDL2
 #include <SDL2/SDL.h>
+#else
+#include <SDL/SDL.h>
+#endif
 
 namespace squarez {
 
 class Window
 {
 private:
+#ifdef USE_SDL2
 	SDL_Window * _window;
 	SDL_GLContext _gl_context;
+#endif
 	
 public:
 	Window();
 	~Window();
-	
+
+#ifdef USE_SDL2
 	SDL_Window * getWindow() const { return _window; }
+#endif
 	int width();
 	int height();
 };

@@ -30,7 +30,7 @@ AC_MSG_RESULT($enable_sdlclient)
 AM_CONDITIONAL([SDLCLIENT], [test "x$enable_sdlclient" = "xyes"])
 
 AC_MSG_CHECKING([whether ths SDL client uses SDL2 or SDL1.2])
-AC_ARG_ENABLE([sdl2],
+AC_ARG_WITH([sdl2],
 	AS_HELP_STRING([--with-sdl2], [use SDL2]))
 AC_MSG_RESULT($with_sdl2)
 AM_CONDITIONAL([SDL2], [test "x$with_sdl2" = "xyes"])

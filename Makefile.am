@@ -25,8 +25,15 @@ if SDLCLIENT
 bin_PROGRAMS += squarezsdl
 squarezsdl_SOURCES = $(shared_sources) src/sdl/main.cpp src/sdl/game.cpp src/sdl/window.cpp src/sdl/shader.cpp src/sdl/animatable.cpp \
 	src/sdl/cell.cpp src/sdl/colour.cpp src/sdl/singleplayergame.cpp src/sdl/demo.cpp
-squarezsdl_CPPFLAGS = $(AM_CPPFLAGS) $(SDL2_CFLAGS) $(GLES_CFLAGS) -DSDL_MAIN_HANDLED -DGL_GLEXT_PROTOTYPES=1
+squarezsdl_CPPFLAGS = $(AM_CPPFLAGS) $(GLES_CFLAGS) -DGL_GLEXT_PROTOTYPES=1
 squarezsdl_LDFLAGS = $(SDL2_LIBS) $(GLES_LIBS)
+if SDL2
+squarezsdl_CPPFLAGS += $(SDL2_CFLAGS) -DUSE_SDL2
+squarezsdl_LDFLAGS += $(SDL2_LIBS)
+else
+squarezsdl_CPPFLAGS += $(SDL_CFLAGS)
+squarezsdl_LDFLAGS += $(SDL_LIBS)
+endif
 squarezsdldir = $(datadir)/squarez
 squarezsdl_DATA = src/sdl/roundrect.frag.glsl src/sdl/roundrect.vert.glsl
 endif
