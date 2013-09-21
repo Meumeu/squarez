@@ -22,8 +22,8 @@
 
 #include "animatable.h"
 #include "colour.h"
-#include <GL/gl.h>
-#include <GL/glext.h>
+#include <GLES2/gl2.h>
+#include <GLES2/gl2ext.h>
 
 class shader;
 

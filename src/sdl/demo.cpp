@@ -31,43 +31,42 @@ void squarez::Demo::timeTick(std::chrono::duration<float> t)
 {
 	float dt = (t - last_square).count();
 	
-	switch(status)
+	if (status == 0)
 	{
-		case 0:
+		auto transitions = board.findTransitions();
+	
+		if (transitions.empty())
 		{
-			auto transitions = board.findTransitions();
-		
-			if (transitions.empty())
-			{
-				transition = Transition(board.size());
-				setSelection(Selection());
-			}
-			else
-			{
-				transition = transitions[rand() % transitions.size()];
-				setSelection(transition._selection);
-				resetCellColours(-1, -1);
-			}
-			status = 1;
+			transition = Transition(board.size());
+			setSelection(Selection());
 		}
-		break;
-		
-		case 1:
-			if (dt > 1)
-				status = 2;
-			break;
-			
-		case 2:
-			applyTransition(transition);
-			status = 3;
-			break;
-			
-		case 3:
-			if (dt > 2)
-			{
-				last_square = t;
-				status = 0;
-				break;
-			}
+		else
+		{
+			transition = transitions[rand() % transitions.size()];
+			setSelection(transition._selection);
+			resetCellColours(-1, -1);
+		}
+		status = 1;
+	}
+	
+	if (status == 1)
+	{
+		if (dt >= 1.2)
+			status = 2;
+	}
+	
+	if (status == 2)
+	{
+		applyTransition(transition);
+		status = 3;
+	}
+	
+	if (status == 3)
+	{
+		if (dt >= 1.5)
+		{
+			last_square = t;
+			status = 0;
+		}
 	}
 }

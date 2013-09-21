@@ -20,8 +20,8 @@
 #include "window.h"
 #include <stdexcept>
 #include <iostream>
-#include <GL/gl.h>
-#include <GL/glext.h>
+#include <GLES2/gl2.h>
+#include <GLES2/gl2ext.h>
 
 squarez::Window::Window() : _window(nullptr), _gl_context(nullptr)
 {

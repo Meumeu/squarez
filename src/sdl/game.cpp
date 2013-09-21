@@ -23,18 +23,25 @@
 #include <chrono>
 #include <iostream>
 
-
-#include <GL/gl.h>
-#include <GL/glext.h>
+#include <GLES2/gl2.h>
+#include <GLES2/gl2ext.h>
 
 #define NB_SYMBOLS 3
 #define BOARD_SIZE 8
+
+#ifndef DATADIR // for kdevelop
+#error DATADIR not defined
+#define DATADIR
+#endif
 
 const squarez::Colour symbol_colors[] =
 {
 	squarez::Colour(1.0, 0.0, 0.0),
 	squarez::Colour(1.0, 0.8, 0.0),
-	squarez::Colour(0.1, 0.2, 1.0)
+	squarez::Colour(0.1, 0.2, 1.0),
+	squarez::Colour(1.0, 0.2, 1.0),
+	squarez::Colour(0.0, 1.0, 0.0),
+	squarez::Colour(0.0, 1.0, 1.0)
 };
 
 static void set_cell_color(squarez::Cell& c, bool hover, bool selected)
@@ -68,7 +75,7 @@ static void set_cell_color(squarez::Cell& c, bool hover, bool selected)
 	}
 }
 
-squarez::Game::Game(Window& w) : timer_id(0), user_event_id(0), _window(w), shader_rounded_rectangle("src/sdl/roundrect.vert.glsl", "src/sdl/roundrect.frag.glsl"),
+squarez::Game::Game(Window& w) : timer_id(0), user_event_id(0), _window(w), shader_rounded_rectangle(DATADIR "/squarez/roundrect.vert.glsl", DATADIR "/squarez/roundrect.frag.glsl"),
 	vbo_id(0), board(BOARD_SIZE, NB_SYMBOLS)
 {
 	timer_id = SDL_AddTimer(20, timerCallback, this);

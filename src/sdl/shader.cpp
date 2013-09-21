@@ -18,9 +18,6 @@
  */
 
 #include "shader.h"
-#include <GL/gl.h>
-#include <GL/glext.h>
-#include <string>
 #include <fstream>
 #include <stdexcept>
 #include <memory>
