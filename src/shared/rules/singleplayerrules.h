@@ -37,6 +37,8 @@ public:
 	virtual void onSelect(Selection const& selection);
 	virtual Timer const& getTimer() const;
 	virtual bool gameOver() const;
+
+	unsigned int getScore() const {return score;}
 	
 	void pause();
 	void unpause();

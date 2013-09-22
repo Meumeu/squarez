@@ -20,6 +20,8 @@
 #include "shared/gameboard.h"
 #include "shared/timer.h"
 #include "shared/selection.h"
+#include "shared/rules/singleplayerrules.h"
+#include "shared/ui.h"
 
 #include <emscripten/bind.h>
 
@@ -31,25 +33,18 @@ EMSCRIPTEN_BINDINGS(Selection) {
 		.function("addPoint", &Selection::addPoint)
 		.function("getX", &Selection::getX)
 		.function("getY", &Selection::getY)
-		.function("serialize", emscripten::select_overload<std::string(void)const>(&Selection::serialize))
 		;
 }
 
 EMSCRIPTEN_BINDINGS(GameBoard) {
 	emscripten::class_<GameBoard>("GameBoard")
-		.constructor<int,int>()
-		.constructor<std::string>()
-		.function("selectSquare", &GameBoard::selectSquare)
-		.function("applyTransition", &GameBoard::applyTransition)
 		.function("size", &GameBoard::size)
 		.function("get", emscripten::select_overload<unsigned int(unsigned int, unsigned int)const>(&GameBoard::get))
-		.function("print", &GameBoard::print)
 		;
 }
 
 EMSCRIPTEN_BINDINGS(Transition) {
 	emscripten::class_<Transition>("Transition")
-	.constructor<std::string>()
 	.function("getCellTransition", &Transition::getCellTransition)
 	.function("size", &Transition::size)
 	.function("get", &Transition::get)
@@ -72,13 +67,52 @@ EMSCRIPTEN_BINDINGS(CellTransition) {
 
 EMSCRIPTEN_BINDINGS(Timer) {
 	emscripten::class_<Timer>("Timer")
-	.constructor<int,int,int>()
-	.constructor<int,float>()
-	.function("refill", &Timer::refill)
 	.function("percentageLeft", &Timer::percentageLeft)
 	.function("secondsLeft", &Timer::secondsLeft)
-	.function("pause", &Timer::pause)
-	.function("unPause", &Timer::unPause)
 	.function("paused", &Timer::paused)
 	;
 }
+
+struct UIWrapper: public emscripten::wrapper<UI>
+{
+	EMSCRIPTEN_WRAPPER(UIWrapper);
+	void onTransition(Transition const& transition)
+	{
+		return call<void>("onTransition", transition);
+	}
+	void onScoreChanged(int new_score)
+	{
+		return call<void>("onScoreChanged", new_score);
+	}
+	void onSelectionAccepted(Selection const& selection)
+	{
+		return call<void>("onSelectionAccepted", selection);
+	}
+};
+
+EMSCRIPTEN_BINDINGS(UI) {
+	emscripten::class_<UI>("UI")
+	.function("onTransition", &UI::onTransition)
+	.function("onScoreChanged", &UI::onScoreChanged)
+	.function("onSelectionAccepted", &UI::onSelectionAccepted)
+	.function("setRules", &UI::setRules)
+	.allow_subclass<UIWrapper>()
+	;
+}
+
+EMSCRIPTEN_BINDINGS(SinglePlayerRules) {
+	emscripten::class_<Rules>("Rules")
+	.smart_ptr<std::shared_ptr<Rules>>()
+	;
+	emscripten::class_<SinglePlayerRules, emscripten::base<Rules>>("SinglePlayerRules")
+	.smart_ptr_constructor(&std::make_shared<SinglePlayerRules,int,int,int,int,int>)
+	.function("onSelect", &SinglePlayerRules::onSelect)
+	.function("gameOver", &SinglePlayerRules::gameOver)
+	.function("pause", &SinglePlayerRules::pause)
+	.function("unPause", &SinglePlayerRules::unpause)
+	.property("timer", &SinglePlayerRules::getTimer)
+	.property("board", &SinglePlayerRules::getBoard)
+	.property("score", &SinglePlayerRules::getScore)
+	;
+}
+

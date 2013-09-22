@@ -1,65 +1,19 @@
+function SinglePlayerRulesUI(rootElement, scoreElement)
+{
+	x = new SinglePlayerRules(rootElement, scoreElement);
+	var r = Module.UI.implement(x);
+	r.setRules(x.rules);
+	return r;
+}
+
 function SinglePlayerRules(rootElement, scoreElement)
 {
-	this.board = new Module.GameBoard(8,3);
-
-	UserInterface.call(this, rootElement, scoreElement, -2);
-
-	var that = this;
-	var pauseButtons = document.getElementsByClassName("jsPause");
-	for (var i = 0 ; i < pauseButtons.length; i++)
-	{
-		if (this.root.ontouchstart === undefined)
-			pauseButtons[i].onclick = function() {that.pause();};
-		else
-			pauseButtons[i].ontouchstart = function() {that.pause();};
-	}
-
-	this.timer = new Module.Timer(10, 60, 180);
-	this.updateTimer();
+	SquarezUI.call(this, rootElement, scoreElement, -2, new Module.SinglePlayerRules(8,3,10,60,180));
 
 	this.getHighScores(true);
 }
 
-SinglePlayerRules.prototype = Object.create(UserInterface.prototype);
-SinglePlayerRules.prototype.select =  function(el)
-{
-	var pos = this.getPosition(el);
-	var selected = this.selection.addPoint(pos.x, pos.y);
-	if (selected)
-	{
-		el.classList.add("selected");
-		var transition = this.board.selectSquare(this.selection, false);
-		if (transition.score > 0)
-		{
-			// Fire animations
-			this.clearAnimations();
-			this.animateSelection(this.selection);
-			this.clearSelection();
-			this.animateTransition(transition);
-
-			// Game part
-			this.score += transition.score;
-			this.scoreElement.innerHTML = this.score;
-			this.timer.refill(2*transition.score);
-			this.board.applyTransition(transition);
-		}
-		transition.delete();
-	}
-	else
-	{
-		el.classList.remove("selected");
-	}
-};
-
-SinglePlayerRules.prototype.onTimerEvent = function()
-{
-	if (this.timer.percentageLeft(0) == 0)
-	{
-		clearInterval(this.timerFunc);
-		this.timerFunc = null;
-		this.gameOver();
-	}
-};
+SinglePlayerRules.prototype = Object.create(SquarezUI.prototype);
 
 SinglePlayerRules.prototype.gameOver = function()
 {
@@ -70,7 +24,7 @@ SinglePlayerRules.prototype.gameOver = function()
 	this.root.getElementsByClassName("gameOver")[0].style.display = "";
 	var scores = this.getHighScores();
 	var that = this;
-	if (this.score > 0 && (scores.length < 10 || this.score >= scores[scores.length - 1].score))
+	if (this.rules.score > 0 && (scores.length < 10 || this.rules.score >= scores[scores.length - 1].score))
 	{
 		var form = document.getElementById("nameForm");
 		form.style.display = "";
@@ -87,23 +41,6 @@ SinglePlayerRules.prototype.gameOver = function()
 			that.getHighScores(true);
 			return false;
 		}
-	}
-};
-
-SinglePlayerRules.prototype.pause = function()
-{
-	if (this.timer.paused())
-	{
-		this.timer.unPause();
-		this.root.getElementsByClassName("pause")[0].style.display = "none";
-		this.updateTimer();
-	}
-	else
-	{
-		this.timer.pause();
-		clearInterval(this.timerFunc);
-		this.timerFunc = null;
-		this.root.getElementsByClassName("pause")[0].style.display = "";
 	}
 };
 
@@ -142,7 +79,7 @@ SinglePlayerRules.prototype.saveScore = function(name)
 	var scores = this.getHighScores();
 	for (var i = 0 ; i < scores.length ; i++)
 	{
-		if (this.score >= scores[i].score)
+		if (this.rules.score >= scores[i].score)
 		{
 			// Shift existing scores
 			for (var j = Math.min(scores.length, 9); j > i ; j--)
