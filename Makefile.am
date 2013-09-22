@@ -3,11 +3,11 @@ ACLOCAL_AMFLAGS = -I m4
 
 AM_CPPFLAGS = -I$(top_srcdir)/src -DDATADIR=\"$(datadir)\"
 
-shared_sources = src/shared/transition.cpp src/shared/gameboard.cpp src/shared/selection.cpp
+shared_sources = src/shared/transition.cpp src/shared/gameboard.cpp src/shared/selection.cpp src/shared/rules/rules.cpp src/shared/rules/singleplayerrules.cpp src/shared/timer.cpp src/shared/ui.cpp
 
 if JAVASCRIPT
 www_PROGRAMS = squarez.js
-squarez_js_SOURCES =  $(shared_sources) src/js/binding.cpp src/shared/timer.cpp
+squarez_js_SOURCES =  $(shared_sources) src/js/binding.cpp
 squarez_js_LDFLAGS = --bind --closure 1 --llvm-lto 1
 www_DATA = src/js/game.js src/js/singleplayer.js src/js/multiplayer.js src/web/gameSelection.css src/web/game.css src/web/singleplayer.html src/web/multiplayer.html src/web/index.html
 else
@@ -23,8 +23,8 @@ endif
 
 if SDLCLIENT
 bin_PROGRAMS += squarezsdl
-squarezsdl_SOURCES = $(shared_sources) src/sdl/main.cpp src/sdl/game.cpp src/sdl/window.cpp src/sdl/shader.cpp src/sdl/animatable.cpp \
-	src/sdl/cell.cpp src/sdl/colour.cpp src/sdl/singleplayergame.cpp src/sdl/demo.cpp
+squarezsdl_SOURCES = $(shared_sources) src/sdl/main.cpp src/sdl/sdlui.cpp src/sdl/window.cpp src/sdl/shader.cpp src/sdl/animatable.cpp \
+	src/sdl/cell.cpp src/sdl/colour.cpp src/sdl/demo.cpp 
 squarezsdl_CPPFLAGS = $(AM_CPPFLAGS) $(GLES_CFLAGS) -DGL_GLEXT_PROTOTYPES=1
 squarezsdl_LDFLAGS = $(SDL2_LIBS) $(GLES_LIBS)
 if SDL2

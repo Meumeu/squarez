@@ -17,27 +17,30 @@
  *
  */
 
-#ifndef SQUAREZ_DEMO_H
-#define SQUAREZ_DEMO_H
+#ifndef SQUAREZ_SINGLEPLAYERRULES_H
+#define SQUAREZ_SINGLEPLAYERRULES_H
 
-// #include "game.h"
-// 
-// namespace squarez {
-// 
-// class Demo : public squarez::SdlUI
-// {
-// private:
-// 	std::chrono::duration<float> last_square;
-// 	Transition transition;
-// 	int status;
-// 	
-// protected:
-// 	virtual void selectionChanged(const Selection& selection);
-// 	virtual void mouseDown(int x, int y, int button);
-// 	virtual void timeTick(std::chrono::duration<float> t);
-// public:
-// 	Demo(Window& w) : SdlUI(w), last_square(std::chrono::seconds(-10)), status(0) {};
-// };
-// }
+#include "rules.h"
+#include "shared/timer.h"
 
-#endif // SQUAREZ_DEMO_H
+namespace squarez {
+
+class SinglePlayerRules : public squarez::Rules
+{
+private:
+	Timer timer;
+	unsigned int score;
+	
+public:
+	SinglePlayerRules(int board_size, int nb_symbols, int long_term, int short_term, int duration);
+	
+	virtual void onSelect(Selection const& selection);
+	virtual Timer const& getTimer() const;
+	virtual bool gameOver() const;
+	
+	void pause();
+	void unpause();
+};
+}
+
+#endif // SQUAREZ_SINGLEPLAYERRULES_H

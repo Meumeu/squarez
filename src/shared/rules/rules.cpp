@@ -17,22 +17,19 @@
  *
  */
 
-#ifndef SQUAREZ_SINGLEPLAYERGAME_H
-#define SQUAREZ_SINGLEPLAYERGAME_H
+#include "rules.h"
 
-#include "game.h"
-
-namespace squarez {
-
-class SinglePlayerGame : public squarez::Game
+squarez::Rules::Rules(int board_size, int nb_symbols) : board(board_size, nb_symbols)
 {
-private:
-	int score;
-protected:
-	virtual void selectionChanged(const Selection& selection);
-public:
-	SinglePlayerGame(Window& w);
-};
+
 }
 
-#endif // SQUAREZ_SINGLEPLAYERGAME_H
+squarez::Rules::Rules(const squarez::GameBoard& board) : board(board)
+{
+
+}
+
+void squarez::Rules::setUI(squarez::UI * _ui)
+{
+	ui = _ui;
+}

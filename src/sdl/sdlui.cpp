@@ -17,8 +17,9 @@
  *
  */
 
-#include "game.h"
+#include "sdlui.h"
 #include "window.h"
+#include <shared/rules/rules.h>
 #include <stdexcept>
 #include <chrono>
 #include <iostream>
@@ -27,15 +28,12 @@
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
 
-#define NB_SYMBOLS 3
-#define BOARD_SIZE 8
-
 #ifndef DATADIR // for kdevelop
 #error DATADIR not defined
 #define DATADIR
 #endif
 
-const squarez::Colour symbol_colors[] =
+const squarez::Colour symbol_colours[] =
 {
 	squarez::Colour(1.0, 0.0, 0.0),
 	squarez::Colour(1.0, 0.8, 0.0),
@@ -47,10 +45,10 @@ const squarez::Colour symbol_colors[] =
 
 static void set_cell_color(squarez::Cell& c, bool hover, bool selected)
 {
-	if (c.symbol < 0 || c.symbol >= NB_SYMBOLS)
+	if (c.symbol >= sizeof(symbol_colours) / sizeof(symbol_colours[0]))
 		throw std::runtime_error("invalid symbol");
 
-	squarez::Colour col = symbol_colors[c.symbol];
+	squarez::Colour col = symbol_colours[c.symbol];
 	
 	if (selected)
 	{
@@ -76,8 +74,8 @@ static void set_cell_color(squarez::Cell& c, bool hover, bool selected)
 	}
 }
 
-squarez::Game::Game(Window& w) : timer_id(0), user_event_id(0), _window(w), shader_rounded_rectangle(DATADIR "/squarez/roundrect.vert.glsl", DATADIR "/squarez/roundrect.frag.glsl"),
-	vbo_id(0), board(BOARD_SIZE, NB_SYMBOLS)
+squarez::SdlUI::SdlUI(squarez::Window& w, std::shared_ptr< squarez::Rules > rules) : UI(rules), _window(w), shader_rounded_rectangle(DATADIR "/squarez/roundrect.vert.glsl", DATADIR "/squarez/roundrect.frag.glsl"),
+	vbo_id(0)
 {
 	glGenBuffers(1, &vbo_id);
 	if (!vbo_id)
@@ -89,10 +87,13 @@ squarez::Game::Game(Window& w) : timer_id(0), user_event_id(0), _window(w), shad
 	
 	windowResized(_window.width(), _window.height());
 	
-	cells.resize(BOARD_SIZE);
-	for(int x = 0; x < BOARD_SIZE; ++x)
+	GameBoard const& board = rules->getBoard();
+	
+	cells.resize(board.size());
+	
+	for(unsigned int x = 0; x < board.size(); ++x)
 	{
-		for(int y = 0; y < BOARD_SIZE; ++y)
+		for(unsigned int y = 0; y < board.size(); ++y)
 		{
 			cells[x].emplace_back(&shader_rounded_rectangle, vbo_id);
 			Cell& c = cells[x][y];
@@ -112,23 +113,20 @@ squarez::Game::Game(Window& w) : timer_id(0), user_event_id(0), _window(w), shad
 	}
 }
 
-squarez::Game::~Game()
+squarez::SdlUI::~SdlUI()
 {
 	if (vbo_id)
 		glDeleteBuffers(1, &vbo_id);
-		
-	if (timer_id)
-		SDL_RemoveTimer(timer_id);
 }
 
-void squarez::Game::mouseDown(int x, int y, int button)
+void squarez::SdlUI::mouseDown(int x, int y, int button)
 {
 	float fx = x * xmax / width;
 	float fy = y * ymax / height;
 	
-	for(unsigned int i = 0; i < BOARD_SIZE; ++i)
+	for(unsigned int i = 0; i < cells.size(); ++i)
 	{
-		for(unsigned int j = 0; j < BOARD_SIZE; ++j)
+		for(unsigned int j = 0; j < cells[i].size(); ++j)
 		{
 			Cell& c = cells[i][j];
 			if (std::fabs(fx - c.x) < c.size / 2 && std::fabs(fy - c.y) < c.size / 2)
@@ -139,22 +137,22 @@ void squarez::Game::mouseDown(int x, int y, int button)
 	}
 	
 	resetCellColours(x, y);
-	selectionChanged(current_selection);
+	rules->onSelect(current_selection);
 }
 
-void squarez::Game::mouseMoved(int x, int y)
+void squarez::SdlUI::mouseMoved(int x, int y)
 {
 	resetCellColours(x, y);
 }
 
-void squarez::Game::resetCellColours(int x, int y)
+void squarez::SdlUI::resetCellColours(int x, int y)
 {
 	float fx = x * xmax / width;
 	float fy = y * ymax / height;
 	
-	for(unsigned int i = 0; i < BOARD_SIZE; ++i)
+	for(unsigned int i = 0; i < cells.size(); ++i)
 	{
-		for(unsigned int j = 0; j < BOARD_SIZE; ++j)
+		for(unsigned int j = 0; j < cells[i].size(); ++j)
 		{
 			Cell& c = cells[i][j];
 			
@@ -167,7 +165,7 @@ void squarez::Game::resetCellColours(int x, int y)
 	}
 }
 
-void squarez::Game::windowResized(int _width, int _height)
+void squarez::SdlUI::windowResized(int _width, int _height)
 {
 	width = _width;
 	height = _height;
@@ -176,20 +174,20 @@ void squarez::Game::windowResized(int _width, int _height)
 	float aspect_ratio = width / height;
 	if (aspect_ratio > 1)
 	{
-		xmax = BOARD_SIZE * aspect_ratio;
-		ymax = BOARD_SIZE;
+		xmax = rules->getBoard().size() * aspect_ratio;
+		ymax = rules->getBoard().size();
 	}
 	else
 	{
-		xmax = BOARD_SIZE;
-		ymax = BOARD_SIZE / aspect_ratio;
+		xmax = rules->getBoard().size();
+		ymax = rules->getBoard().size() / aspect_ratio;
 	}
 	
 	renderFrame(std::chrono::steady_clock::now());
 }
 
 
-void squarez::Game::run()
+void squarez::SdlUI::run()
 {
 	auto t0 = std::chrono::steady_clock::now();
 	bool running = true;
@@ -236,7 +234,7 @@ void squarez::Game::run()
 }
 
 
-void squarez::Game::renderFrame(std::chrono::time_point<std::chrono::steady_clock> t)
+void squarez::SdlUI::renderFrame(std::chrono::time_point<std::chrono::steady_clock> t)
 {
 	squarez::Animatable::setTime(t);
 	
@@ -276,7 +274,7 @@ void squarez::Game::renderFrame(std::chrono::time_point<std::chrono::steady_cloc
 #endif
 }
 
-void squarez::Game::applyTransition(const squarez::Transition& transition)
+void squarez::SdlUI::onTransition(const squarez::Transition& transition)
 {
 	auto old_cells = cells;
 	for(const squarez::Transition::CellTransition& tr: transition.getCellTransition())
@@ -314,15 +312,24 @@ void squarez::Game::applyTransition(const squarez::Transition& transition)
 	}
 	
 	current_selection = Selection();
-	
-	board.applyTransition(transition);
 }
 
-void squarez::Game::timeTick(std::chrono::duration<float>)
+void squarez::SdlUI::onScoreChanged(int new_score)
+{
+// TODO
+}
+
+void squarez::SdlUI::onSelectionAccepted(const squarez::Selection& selection)
+{
+// TODO
+}
+
+
+void squarez::SdlUI::timeTick(std::chrono::duration<float>)
 {
 }
 
-void squarez::Game::setSelection(const Selection& selection)
+void squarez::SdlUI::setSelection(const Selection& selection)
 {
 	current_selection = selection;
 }

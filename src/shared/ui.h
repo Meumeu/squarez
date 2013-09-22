@@ -17,18 +17,29 @@
  *
  */
 
-#include "singleplayergame.h"
+#ifndef SQUAREZ_UI_H
+#define SQUAREZ_UI_H
 
-squarez::SinglePlayerGame::SinglePlayerGame(Window& w) : Game(w), score(0)
+#include <memory>
+
+namespace squarez {
+
+class Rules;
+class Selection;
+class Transition;
+
+class UI
 {
+protected:
+	std::shared_ptr<Rules> rules;
+	
+public:
+	virtual void onTransition(Transition const& transition) = 0; // Called before the board is modified
+	virtual void onScoreChanged(int new_score) = 0;
+	virtual void onSelectionAccepted(Selection const& selection) = 0;
+	UI(std::shared_ptr<Rules> rules);
+	virtual ~UI();
+};
 }
 
-void squarez::SinglePlayerGame::selectionChanged(const squarez::Selection& selection)
-{
-	Transition tr = board.selectSquare(selection);
-	if (tr._score)
-	{
-		score += tr._score;
-		applyTransition(tr);
-	}
-}
+#endif // SQUAREZ_UI_H

@@ -54,7 +54,7 @@ public:
 	float border_radius;
 	float border_size;
 	float border_alpha;
-	int symbol;
+	unsigned int symbol;
 	
 	void render(float xmin, float ymin, float xmax, float ymax);
 };

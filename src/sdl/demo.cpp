@@ -18,7 +18,7 @@
  */
 
 #include "demo.h"
-
+/*
 void squarez::Demo::mouseDown(int x, int y, int button)
 {
 }
@@ -69,4 +69,4 @@ void squarez::Demo::timeTick(std::chrono::duration<float> t)
 			status = 0;
 		}
 	}
-}
+}*/

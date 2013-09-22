@@ -34,16 +34,15 @@
 #include "animatable.h"
 #include "cell.h"
 #include "shared/gameboard.h"
+#include <shared/ui.h>
 
 namespace squarez
 {
 class Window;
 
-class Game
+class SdlUI : public UI
 {
 private:
-	SDL_TimerID timer_id;
-	Uint32 user_event_id;
 	squarez::Window& _window;
 	float xmax, ymax;
 	float width, height;
@@ -64,17 +63,18 @@ private:
 	void windowResized(int width, int height);
 	
 protected:
-	void applyTransition(const Transition& transition);
-	GameBoard board;
 	void setSelection(const Selection& selection);
 	virtual void mouseDown(int x, int y, int button);
-	virtual void selectionChanged(const Selection& selection) = 0;
 	virtual void timeTick(std::chrono::duration<float> t);
 	void resetCellColours(int x, int y);
 	
 public:
-	Game(Window& w);
-	virtual ~Game();
+	virtual void onTransition(Transition const& transition); // Called before the board is modified
+	virtual void onScoreChanged(int new_score);
+	virtual void onSelectionAccepted(Selection const& selection);
+	
+	SdlUI(Window& w, std::shared_ptr<Rules> rules);
+	virtual ~SdlUI();
 	
 	void run();
 };

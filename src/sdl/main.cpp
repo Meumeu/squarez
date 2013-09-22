@@ -23,7 +23,8 @@
 #include <SDL/SDL.h>
 #endif
 
-#include "singleplayergame.h"
+#include "shared/rules/singleplayerrules.h"
+#include "sdlui.h"
 #include "demo.h"
 #include "window.h"
 
@@ -34,8 +35,11 @@ int main(int argc, char *argv[])
 	{
 		squarez::Window w;
 // 		squarez::Demo g(w);
-		squarez::SinglePlayerGame g(w);
-		g.run();
+// 		squarez::SinglePlayerGame g(w);
+// 		g.run();
+		std::shared_ptr<squarez::SinglePlayerRules> rules(new squarez::SinglePlayerRules(8, 3, 10, 60, 180));
+		squarez::SdlUI ui(w, rules);
+		ui.run();
 	}
 	
 	SDL_Quit();

@@ -17,27 +17,15 @@
  *
  */
 
-#ifndef SQUAREZ_DEMO_H
-#define SQUAREZ_DEMO_H
+#include "ui.h"
+#include "shared/rules/rules.h"
 
-// #include "game.h"
-// 
-// namespace squarez {
-// 
-// class Demo : public squarez::SdlUI
-// {
-// private:
-// 	std::chrono::duration<float> last_square;
-// 	Transition transition;
-// 	int status;
-// 	
-// protected:
-// 	virtual void selectionChanged(const Selection& selection);
-// 	virtual void mouseDown(int x, int y, int button);
-// 	virtual void timeTick(std::chrono::duration<float> t);
-// public:
-// 	Demo(Window& w) : SdlUI(w), last_square(std::chrono::seconds(-10)), status(0) {};
-// };
-// }
+squarez::UI::UI(std::shared_ptr<squarez::Rules> rules) : rules(rules)
+{
+	rules->setUI(this);
+}
 
-#endif // SQUAREZ_DEMO_H
+squarez::UI::~UI()
+{
+	rules->setUI(nullptr);
+}
