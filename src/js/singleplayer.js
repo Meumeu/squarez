@@ -93,7 +93,7 @@ SinglePlayerRules.prototype.saveScore = function(name)
 	}
 	if (i < 9)
 	{
-		localStorage["score_val_"+i] = this.score;
+		localStorage["score_val_"+i] = this.rules.score;
 		localStorage["score_date_"+i] = Date.now();
 		localStorage["score_name_"+i] = name;
 		return true;
