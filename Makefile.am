@@ -9,7 +9,7 @@ if JAVASCRIPT
 www_PROGRAMS = squarez.js
 squarez_js_SOURCES =  $(shared_sources) src/js/binding.cpp
 squarez_js_LDFLAGS = --bind --closure 1 --llvm-lto 1
-www_DATA = src/js/game.js src/js/singleplayer.js src/js/multiplayer.js src/web/gameSelection.css src/web/game.css src/web/singleplayer.html src/web/multiplayer.html src/web/index.html
+www_DATA = src/js/squarezUI.js src/js/singleplayer.js src/js/multiplayer.js src/web/gameSelection.css src/web/game.css src/web/singleplayer.html src/web/multiplayer.html src/web/index.html
 else
 
 bin_PROGRAMS = 

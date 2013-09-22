@@ -1,9 +1,10 @@
-function UserInterface(rootElement, scoreElement, timerCheat)
+function SquarezUI(rootElement, scoreElement, timerCheat, gameRules)
 {
 	this.root = rootElement;
 	this.selection = new Module.Selection();
 	this.scoreElement = scoreElement
-	this.score = 0;
+
+	this.rules = gameRules
 
 	this.timerEl = document.getElementById("timerInner");
 	// Amount of time in seconds that is hidden by the timer
@@ -17,12 +18,12 @@ function UserInterface(rootElement, scoreElement, timerCheat)
 		rootElement.style.fontSize = (Math.min(window.innerHeight, window.innerWidth)/8) + "px";
 	}
 
-	var size = this.board.size();
+	var size = gameRules.board.size();
 	for (var y = 0 ; y < size ; y++)
 	{
 		for (var x = 0 ; x < size ; x++)
 		{
-			this.addElement(x,y,this.board.get(x,y));
+			this.addElement(x,y,gameRules.board.get(x,y));
 		}
 	}
 
@@ -39,8 +40,20 @@ function UserInterface(rootElement, scoreElement, timerCheat)
 		else
 			clearButtons[i].ontouchstart = function() {that.clearSelection();};
 	}
+
+	var pauseButtons = document.getElementsByClassName("jsPause");
+	for (var i = 0 ; i < pauseButtons.length; i++)
+	{
+		if (this.root.ontouchstart === undefined)
+			pauseButtons[i].onclick = function() {that.pause();};
+		else
+			pauseButtons[i].ontouchstart = function() {that.pause();};
+	}
+
+	this.updateTimer();
+
 }
-UserInterface.prototype =
+SquarezUI.prototype =
 {
 	addElement: function(x,y,symbol)
 	{
@@ -88,7 +101,7 @@ UserInterface.prototype =
 		}
 	},
 
-	drawSelection: function(selection)
+	onSelectionAccepted: function(selection)
 	{
 		var removed = new Array();
 		var center = {x:0, y:0};
@@ -100,7 +113,7 @@ UserInterface.prototype =
 		}
 		center.x /=4;
 		center.y /=4;
-		var symbol = this.board.get(removed[0].x, removed[0].y);
+		var symbol = this.rules.board.get(removed[0].x, removed[0].y);
 
 		var squareSize = (removed[0].x - removed[1].x)*(removed[0].x - removed[1].x) + (removed[0].y - removed[1].y)*(removed[0].y - removed[1].y);
 		var side = 1;
@@ -142,7 +155,7 @@ UserInterface.prototype =
 
 	animateSelection: function(selection)
 	{
-		var n = this.drawSelection(selection);
+		var n = this.onSelectionAccepted(selection);
 		setTimeout(function() {n.classList.add("transition-removed");}, 100)
 		return n;
 	},
@@ -156,12 +169,14 @@ UserInterface.prototype =
 		}
 	},
 
-	animateTransition: function(transition)
+	onTransition: function(transition)
 	{
 
 		var transitionSize = transition.size();
 		if (transitionSize == 0)
 			return;
+
+		this.clearSelection();
 		
 		var moveTo = function(fromx, fromy, x, y, cell)
 		{
@@ -208,6 +223,10 @@ UserInterface.prototype =
 		{
 			moveTo.apply(null, moves[i]);
 		}
+		if (transition.selection)
+		{
+			this.animateSelection(transition.selection);
+		}
 	},
 	
 	updateTimer: function()
@@ -220,7 +239,7 @@ UserInterface.prototype =
 			this.timerFunc = setInterval(function() {that.updateTimer();}, 500);
 		}
 		
-		var timeLeft = this.timer.percentageLeft(0.5 - this.timerCheat);
+		var timeLeft = this.rules.timer.percentageLeft(0.5 - this.timerCheat);
 		this.timerEl.style.right = ""+((1-timeLeft)*100)+"%";
 		this.timerEl.style.top = this.timerEl.style.right;
 
@@ -236,6 +255,53 @@ UserInterface.prototype =
 		while (selected.length != 0)
 		{
 			selected[0].classList.remove("selected");
+		}
+	},
+
+	select: function(el)
+	{
+		var pos = this.getPosition(el);
+		var selected = this.selection.addPoint(pos.x, pos.y);
+		if (selected)
+		{
+			el.classList.add("selected");
+			this.rules.onSelect(this.selection);
+		}
+		else
+		{
+			el.classList.remove("selected");
+		}
+	},
+
+	onTimerEvent: function()
+	{
+		if (this.rules.gameOver())
+		{
+			clearInterval(this.timerFunc);
+			this.timerFunc = null;
+			this.gameOver();
+		}
+	},
+	
+	onScoreChanged: function(score)
+	{
+		this.scoreElement.innerHTML = score;
+	},
+
+	pause: function()
+	{
+		if (this.rules.timer.paused())
+		{
+			this.rules.unPause();
+			this.root.getElementsByClassName("pause")[0].style.display = "none";
+			this.updateTimer();
+		}
+		else
+		{
+			this.rules.pause();
+			clearInterval(this.timerFunc);
+			this.timerFunc = null;
+			this.root.getElementsByClassName("pause")[0].style.display = "";
 		}
 	}
 }

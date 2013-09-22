@@ -29,3 +29,9 @@ squarez::UI::~UI()
 {
 	rules->setUI(nullptr);
 }
+
+void squarez::UI::setRules(std::shared_ptr< squarez::Rules > rules_)
+{
+	rules = rules_;
+	rules->setUI(this);
+}
