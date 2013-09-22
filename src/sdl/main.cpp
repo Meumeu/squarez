@@ -32,15 +32,18 @@ int main(int argc, char *argv[])
 {
 	SDL_Init(SDL_INIT_VIDEO);
 	
+	try
 	{
-		squarez::Window w;
-// 		squarez::Demo g(w);
-// 		squarez::SinglePlayerGame g(w);
-// 		g.run();
+		squarez::Window win;
 		std::shared_ptr<squarez::SinglePlayerRules> rules(new squarez::SinglePlayerRules(8, 3, 10, 60, 180));
-		squarez::SdlUI ui(w, rules);
+		squarez::SdlUI ui(win, rules);
 		ui.run();
 	}
+	catch(std::exception& e)
+	{
+		std::cerr << "Caught exception: " << e.what() << std::endl;
+	}
+	
 	
 	SDL_Quit();
 	

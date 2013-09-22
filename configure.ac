@@ -15,6 +15,12 @@ AC_ARG_ENABLE([javascript],
 AC_MSG_RESULT($enable_javascript)
 AM_CONDITIONAL([JAVASCRIPT], [test "x$enable_javascript" = "xyes"])
 
+AC_MSG_CHECKING([whether to build test programs])
+AC_ARG_ENABLE([tests],
+	AS_HELP_STRING([--enable-tests], [build test programs]))
+AC_MSG_RESULT($enable_tests)
+AM_CONDITIONAL([TESTS], [test "x$enable_tests" = "xyes"])
+
 AC_ARG_VAR([wwwdir], [http server files directory])
 
 AC_MSG_CHECKING([whether to build server binary])
