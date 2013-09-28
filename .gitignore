@@ -42,3 +42,8 @@ m4/lt~obsolete.m4
 .kdev_include_paths
 
 /build*
+.dirstamp
+/install
+/squarez
+/squareztest
+/squareztest_bot
