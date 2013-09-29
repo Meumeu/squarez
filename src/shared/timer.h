@@ -1,6 +1,7 @@
 /*
  * Squarez puzzle game
  * Copyright (C) 2013  Patrick Nicolas <patricknicolas@laposte.net>
+ * Copyright (C) 2013  Guillaume Meunier <guillaume.meunier@centraliens.net>
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,7 +47,7 @@ public:
 	
 	void pause();
 	void unPause();
-	bool paused() const {return _paused;}
+	bool paused() const { return _paused; }
 private:
 	const std::chrono::seconds _longTerm;
 	const std::chrono::seconds _halfLife;

@@ -3,7 +3,7 @@ ACLOCAL_AMFLAGS = -I m4
 
 AM_CPPFLAGS = -I$(top_srcdir)/src -DDATADIR=\"$(datadir)\"
 
-shared_sources = src/shared/transition.cpp src/shared/gameboard.cpp src/shared/selection.cpp src/shared/rules/rules.cpp src/shared/rules/singleplayerrules.cpp src/shared/timer.cpp src/shared/ui.cpp
+shared_sources = src/shared/transition.cpp src/shared/gameboard.cpp src/shared/selection.cpp src/shared/rules/rules.cpp src/shared/rules/singleplayerrules.cpp src/shared/timer.cpp src/shared/ui.cpp src/shared/httprequest.cpp src/shared/serializer.cpp
 
 if JAVASCRIPT
 www_PROGRAMS = squarez.js
@@ -25,8 +25,8 @@ if SDLCLIENT
 bin_PROGRAMS += squarez
 squarez_SOURCES = $(shared_sources) src/sdl/main.cpp src/sdl/sdlui.cpp src/sdl/window.cpp src/sdl/shader.cpp src/sdl/animatable.cpp \
 	src/sdl/cell.cpp src/sdl/colour.cpp src/sdl/demo.cpp 
-squarez_CPPFLAGS = $(AM_CPPFLAGS) $(GLES_CFLAGS) -DGL_GLEXT_PROTOTYPES=1
-squarez_LDFLAGS = $(SDL2_LIBS) $(GLES_LIBS)
+squarez_CPPFLAGS = $(AM_CPPFLAGS) $(GLES_CFLAGS) $(CURL_CFLAGS) -DGL_GLEXT_PROTOTYPES=1
+squarez_LDFLAGS = $(SDL2_LIBS) $(GLES_LIBS) $(CURL_LIBS)
 if SDL2
 squarez_CPPFLAGS += $(SDL2_CFLAGS) -DUSE_SDL2
 squarez_LDFLAGS += $(SDL2_LIBS)
@@ -41,7 +41,11 @@ endif
 if TESTS
 bin_PROGRAMS += squareztest squareztest_bot
 squareztest_SOURCES = src/test/main.cpp $(shared_sources)
+squareztest_CPPFLAGS = $(AM_CPPFLAGS) $(CURL_CFLAGS)
+squareztest_LDFLAGS = $(CURL_LIBS)
 squareztest_bot_SOURCES = src/test/bot.cpp $(shared_sources)
+squareztest_bot_CPPFLAGS = $(AM_CPPFLAGS) $(CURL_CFLAGS)
+squareztest_bot_LDFLAGS = $(CURL_LIBS)
 endif
 
 endif

@@ -20,7 +20,12 @@
 #include <iostream>
 #include <stdexcept>
 #include <sstream>
+#include <future>
+#include <cmath>
+
 #include "shared/gameboard.h"
+#include "shared/httprequest.h"
+#include "shared/serializer.h"
 
 #define SIZE 8
 #define SYMBOLS 3
@@ -190,15 +195,59 @@ void testSquareFinding()
 	std::cout << "passed" << std::endl;
 }
 
-void testSerialization()
+void testSerialization1()
 {
-	std::cout << "Serialization validation testing... ";
+	std::cout << "Serialization validation 1 testing... ";
+	
+	squarez::Serializer s;
+	
+	s << 42;
+	s << "toto";
+	s << std::string("foobar");
+	s << "";
+	s << std::pair<int, float>(4156, 4168.48);
+// 	std::cout << "<" << s.get() << ">" << std::endl;
+	squarez::Serializer s2(s.get());
+	
+	int x;
+	std::string y;
+	std::pair<int, float> z;
+	
+	s2 >> x;
+	if (x != 42)
+		throw std::runtime_error("Bad deserialization 1");
+
+	s2 >> y;
+	if (y != "toto")
+		throw std::runtime_error("Bad deserialization 2");
+	
+	s2 >> y;
+	if (y != "foobar")
+		throw std::runtime_error("Bad deserialization 3");
+	
+	s2 >> y;
+	if (y != "")
+		throw std::runtime_error("Bad deserialization 4");
+	
+	s2 >> z;
+	if (z.first != 4156 || std::fabs(z.second - 4168.48) > 0.0001)
+		throw std::runtime_error("Bad deserialization 5");
+	
+	std::cout << "passed" << std::endl;
+}
+
+void testSerialization2()
+{
+	std::cout << "Serialization validation 2 testing... ";
+	
 	squarez::GameBoard board(SIZE, SYMBOLS);
 
-	std::stringstream stream;
-	board.serialize(stream);
+	squarez::Serializer stream;
+	stream << board;
 
-	squarez::GameBoard board1(stream);
+	squarez::Serializer stream2(stream.get());
+	
+	squarez::GameBoard board1(stream2);
 	bool sameCells = true;
 	for (unsigned int x = 0 ; x < board.size() ; ++x)
 		for (unsigned int y = 0 ; y < board.size() ; ++y)
@@ -212,6 +261,68 @@ void testSerialization()
 		text << "Board changed during serialization:" << board << std::endl << board1;
 		throw std::runtime_error(text.str());
 	}
+	
+	std::cout << "passed" << std::endl;
+}
+
+void testHttpRequest()
+{
+	std::cout << "XMLHttpRequest testing... ";
+	
+	std::promise<bool> p;
+	std::future<bool> f = p.get_future();
+	
+	squarez::HttpRequest xhr;
+	
+	xhr.request("http://www.google.com/",
+		[&p](std::string const&) { p.set_value(true); },
+		[&p]() { p.set_value(false); });
+	
+	if (f.wait_for(std::chrono::seconds(10)) != std::future_status::ready)
+	{
+		throw std::runtime_error("XMLHttpRequest timeout");
+	}
+	
+	if (!f.get())
+	{
+		throw std::runtime_error("XMLHttpRequest error");
+	}
+	
+	p = std::promise<bool>();
+	f = p.get_future();
+	
+	xhr.request("http://error.meumeu.org/",
+		[&p](std::string const&) {  p.set_value(true); },
+		[&p]() {  p.set_value(false); });
+	
+	if (f.wait_for(std::chrono::seconds(10)) != std::future_status::ready)
+	{
+		throw std::runtime_error("XMLHttpRequest timeout");
+	}
+	
+	if (f.get())
+	{
+		throw std::runtime_error("XMLHttpRequest missing error");
+	}
+	std::cout << "passed" << std::endl;
+}
+
+void testUrlEncode()
+{
+	std::cout << "urlencode testing... ";
+	
+	if (squarez::HttpRequest::urlencode("toto") != "toto")
+		throw std::runtime_error("urlencode error");
+	
+	if (squarez::HttpRequest::urlencode("to/to") != "to%2fto")
+		throw std::runtime_error("urlencode error");
+	
+	if (squarez::HttpRequest::urlencode("to\nto") != "to%0ato")
+		throw std::runtime_error("urlencode error");
+	
+	if (squarez::HttpRequest::urlencode("&é\"'(-è_çà)=+*!:;,") != "%26%c3%a9%22'(-%c3%a8_%c3%a7%c3%a0)%3d%2b*!%3a%3b%2c")
+		throw std::runtime_error("urlencode error");
+	
 	std::cout << "passed" << std::endl;
 }
 
@@ -221,7 +332,10 @@ int main() {
 		testSelection();
 		testScore();
 		testSquareFinding();
-		testSerialization();
+		testSerialization1();
+		testSerialization2();
+		testHttpRequest();
+		testUrlEncode();
 	}
 	catch (std::exception &e)
 	{

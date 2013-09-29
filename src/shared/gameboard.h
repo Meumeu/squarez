@@ -30,14 +30,15 @@ namespace squarez
 {
 
 class Selection;
+class Serializer;
 
 class GameBoard
 {
+	friend Serializer & operator<<(Serializer & out, GameBoard const& board);
 	
 public:
 	// Create a new gameboard from its serialized representation
-	GameBoard(std::istream & serialized);
-	GameBoard(std::string const& serialized);
+	GameBoard(Serializer & serialized);
 
 	// Create a new random gameboard with given size and possible different symbols
 	GameBoard(unsigned int size, unsigned int numberOfSymbols);
@@ -64,9 +65,7 @@ public:
 	unsigned int size() const { return _size;}
 	unsigned int symbol() const { return _symbols; }
 
-	void print() const ;
 	
-	void serialize(std::ostream&) const;
 private:
 	// Number of possible values for each cell
 	unsigned int _symbols;
@@ -77,6 +76,7 @@ private:
 
 };
 
+Serializer & operator<<(Serializer & out, GameBoard const& board);
 std::ostream & operator<<(std::ostream & out, GameBoard const& board);
 }
 

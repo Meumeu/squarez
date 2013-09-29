@@ -18,32 +18,28 @@
  *
  */
 
-#ifndef SQUAREZ_SINGLEPLAYERRULES_H
-#define SQUAREZ_SINGLEPLAYERRULES_H
+#ifndef SQUAREZ_HTTPREQUEST_H
+#define SQUAREZ_HTTPREQUEST_H
 
-#include "rules.h"
-#include "shared/timer.h"
+#include <string>
+#include <functional>
+
+namespace std { class mutex; }
 
 namespace squarez {
 
-class SinglePlayerRules : public squarez::Rules
+class HttpRequest
 {
-private:
-	Timer timer;
-	unsigned int score;
-	
+	std::mutex * const _mutex;
 public:
-	SinglePlayerRules(int board_size, int nb_symbols, int long_term, int short_term, int duration);
+	HttpRequest(std::mutex & mutex): _mutex(&mutex) {}
+	HttpRequest(): _mutex(nullptr) {}
 	
-	virtual void onSelect(Selection const& selection);
-	virtual Timer const& getTimer() const;
-	virtual bool gameOver() const;
-
-	unsigned int getScore() const { return score; }
-	
-	void pause();
-	void unpause();
+	void request(const std::string& url, std::function<void(std::string const&)> onload, std::function<void()> onerror);
+	std::string request(const std::string& url);
+	static std::string urlencode(std::string const& in);
 };
+
 }
 
-#endif // SQUAREZ_SINGLEPLAYERRULES_H
+#endif // SQUAREZ_XMLHTTPREQUEST_H

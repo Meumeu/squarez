@@ -96,6 +96,7 @@ AS_IF([test "x$enable_sdlclient" = "xyes"], [
 		PKG_CHECK_MODULES([SDL], [sdl])
 	])
 	PKG_CHECK_MODULES([GLES], glesv2)
+	PKG_CHECK_MODULES([CURL], libcurl)
 	BOOST_REQUIRE([])]
 )
 # Systemd

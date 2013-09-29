@@ -19,6 +19,7 @@
 
 #include "gameboard.h"
 #include "selection.h"
+#include "serializer.h"
 #include <stdexcept>
 #include <cstdlib>
 #include <ctime>
@@ -174,11 +175,6 @@ std::ostream& operator<<(std::ostream& out, GameBoard const& board)
 	return out;
 }
 
-void GameBoard::print() const
-{
-	std::cout << *this << std::endl;
-}
-
 std::vector<Transition> GameBoard::findTransitions() const
 {
 	std::vector<Transition> res;
@@ -246,37 +242,14 @@ bool GameBoard::hasTransition() const
 	return false;
 }
 
-namespace
+GameBoard::GameBoard(Serializer& serialized)
 {
-	void fill_from_stream(std::istream& serialized, unsigned int & _symbols, std::vector<unsigned int> &_cells,	unsigned int & _size)
-	{
-		serialized >> _symbols >> _size;
-		_cells.resize(_size * _size);
-		for (auto & c :  _cells)
-			serialized >> c;
-	}
+	serialized >> _symbols >> _size >> _cells;
 }
 
-GameBoard::GameBoard(std::istream& serialized)
+Serializer& operator<<(Serializer& out, const GameBoard& board)
 {
-	fill_from_stream(serialized, _symbols, _cells, _size);
-}
-
-GameBoard::GameBoard(const std::string& serialized)
-{
-	std::stringstream str(serialized);
-	fill_from_stream(str, _symbols, _cells, _size);
-}
-
-void GameBoard::serialize(std::ostream& serialized) const
-{
-	serialized <<  _symbols << " ";
-
-	// Cells array
-	serialized << _size << " ";
-	for (auto const& c :  _cells)
-		serialized << c << " ";
-
+	return out << board._symbols << board._size << board._cells;
 }
 
 }

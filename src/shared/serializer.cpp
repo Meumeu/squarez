@@ -1,7 +1,6 @@
 /*
  * Squarez puzzle game
  * Copyright (C) 2013  Guillaume Meunier <guillaume.meunier@centraliens.net>
- * Copyright (C) 2013  Patrick Nicolas <patricknicolas@laposte.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,32 +17,36 @@
  *
  */
 
-#ifndef SQUAREZ_SINGLEPLAYERRULES_H
-#define SQUAREZ_SINGLEPLAYERRULES_H
+#include "serializer.h"
+#include <array>
 
-#include "rules.h"
-#include "shared/timer.h"
-
-namespace squarez {
-
-class SinglePlayerRules : public squarez::Rules
+squarez::Serializer::Serializer(const std::string& str)
 {
-private:
-	Timer timer;
-	unsigned int score;
-	
-public:
-	SinglePlayerRules(int board_size, int nb_symbols, int long_term, int short_term, int duration);
-	
-	virtual void onSelect(Selection const& selection);
-	virtual Timer const& getTimer() const;
-	virtual bool gameOver() const;
-
-	unsigned int getScore() const { return score; }
-	
-	void pause();
-	void unpause();
-};
+	stream.str(str);
 }
 
-#endif // SQUAREZ_SINGLEPLAYERRULES_H
+namespace squarez {
+	
+Serializer& operator<<(Serializer& ser, std::string const& str)
+{
+	ser << str.size();
+	ser.stream.write(str.data(), str.size());
+	return ser;
+}
+
+Serializer& operator<<(Serializer& ser, char const * str)
+{
+	return ser << std::string(str);
+}
+
+Serializer& operator>>(Serializer& ser, std::string& str)
+{
+	int s;
+	ser >> s;
+	
+	str = std::move(std::string(&(ser.stream.str()[ser.stream.tellg()]) , s));
+	ser.stream.seekg(s, std::ios_base::cur);
+	
+	return ser;
+}
+}
