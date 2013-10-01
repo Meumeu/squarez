@@ -124,7 +124,7 @@ void squarez::HttpRequest::request(const std::string& url, std::function<void(st
 std::string squarez::HttpRequest::request(const std::string& url)
 {
 	std::string request("var xhr=new XMLHttpRequest();"
-	"xhr.open('get'," + url + ", false);"
+	"xhr.open('get','" + url + "',false);"
 	"xhr.send();"
 	"xhr.responseText;");
 

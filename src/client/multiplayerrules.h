@@ -43,6 +43,8 @@ private:
 	std::string _url;
 	std::string _username;
 	unsigned int _token;
+
+	//TODO: player scores
 	
 protected:
 	virtual void timeTick(std::chrono::duration<float>);

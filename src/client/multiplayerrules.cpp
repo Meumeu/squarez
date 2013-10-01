@@ -19,6 +19,7 @@
  */
 
 #include "multiplayerrules.h"
+#include "ui.h"
 
 #include "shared/network/methods.h"
 #include "shared/serializer.h"
@@ -61,7 +62,7 @@ _url(url), _username(username)
 		(gameinit._numberOfRounds - gameinit._currentRound - 1 + gameinit._roundProgress) / gameinit._numberOfRounds);
 
 	// Start the round polling loop
-	_xhr.request(url + TransitionPoll::encodeRequest(), std::bind(&MultiPlayerRules::onTransitionPoll, this, std::placeholders::_1), NOP);
+	_xhr.request(url + TransitionPoll::encodeRequest(_token), std::bind(&MultiPlayerRules::onTransitionPoll, this, std::placeholders::_1), NOP);
 
 }
 
@@ -70,8 +71,12 @@ void squarez::MultiPlayerRules::onTransitionPoll(const std::string& serializedTr
 	Serializer ser(serializedTransition);
 	TransitionPoll transitionPoll(ser);
 	board.applyTransition(transitionPoll._transition);
+	if (transitionPoll._round == 0)
+	{
+		ui->onScoreChanged(0);
+	}
 
-	_xhr.request(_url + TransitionPoll::encodeRequest(), std::bind(&MultiPlayerRules::onTransitionPoll, this, std::placeholders::_1), NOP);
+	_xhr.request(_url + TransitionPoll::encodeRequest(_token), std::bind(&MultiPlayerRules::onTransitionPoll, this, std::placeholders::_1), NOP);
 }
 
 void squarez::MultiPlayerRules::onSelectionPushed(const std::string& res)
@@ -79,6 +84,7 @@ void squarez::MultiPlayerRules::onSelectionPushed(const std::string& res)
 	Serializer ser(res);
 	unsigned int score;
 	ser >> score;
+	ui->onScoreChanged(score);
 }
 
 

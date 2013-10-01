@@ -21,6 +21,7 @@
 #include "shared/timer.h"
 #include "shared/selection.h"
 #include "client/singleplayerrules.h"
+#include "client/multiplayerrules.h"
 #include "client/ui.h"
 
 #ifndef EMSCRIPTEN
@@ -104,10 +105,11 @@ EMSCRIPTEN_BINDINGS(UI) {
 	;
 }
 
-EMSCRIPTEN_BINDINGS(SinglePlayerRules) {
+EMSCRIPTEN_BINDINGS(Rules) {
 	emscripten::class_<Rules>("Rules")
 	.smart_ptr<std::shared_ptr<Rules>>()
 	;
+
 	emscripten::class_<SinglePlayerRules, emscripten::base<Rules>>("SinglePlayerRules")
 	.smart_ptr_constructor(&std::make_shared<SinglePlayerRules,int,int,int,int,int>)
 	.function("onSelect", &SinglePlayerRules::onSelect)
@@ -118,5 +120,12 @@ EMSCRIPTEN_BINDINGS(SinglePlayerRules) {
 	.property("board", &SinglePlayerRules::getBoard)
 	.property("score", &SinglePlayerRules::getScore)
 	;
-}
 
+	emscripten::class_<MultiPlayerRules, emscripten::base<Rules>>("MultiPlayerRules")
+	.smart_ptr_constructor(&std::make_shared<MultiPlayerRules,std::string,std::string>)
+	.function("onSelect", &MultiPlayerRules::onSelect)
+	.function("gameOver", &MultiPlayerRules::gameOver)
+	.property("timer", &MultiPlayerRules::getTimer)
+	.property("board", &MultiPlayerRules::getBoard)
+	;
+}
