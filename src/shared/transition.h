@@ -28,11 +28,13 @@
 
 namespace squarez
 {
-	
+
 class GameBoard;
+class Serializer;
 
 class Transition
 {
+	friend Serializer & operator<<(Serializer & out, Transition const& transition);
 public:
 	struct CellTransition
 	{
@@ -40,7 +42,8 @@ public:
 			_fromx(fromx), _fromy(fromy), _tox(tox), _toy(toy), _symbol(symbol), _removed(false) {}
 		CellTransition(int16_t deletex, int16_t deletey):
 			_fromx(deletex), _fromy(deletey), _tox(deletex), _toy(deletey), _symbol(0xFF), _removed(true) {}
-		CellTransition(std::istream & serialized);
+
+		CellTransition() = default; //dummy for deserialization
 		
 		int16_t _fromx;
 		int16_t _fromy;
@@ -64,8 +67,7 @@ public:
 	//Creates a "shuffle" transition, by randomly moving elements
 	Transition(unsigned int size);
 
-	Transition(std::istream & serialized);
-	Transition(std::string const& serialized);
+	Transition(Serializer & serialized);
 
 	std::vector<CellTransition> const& getCellTransition() const { return _cells; }
 	std::size_t size() const { return _cells.size(); }
@@ -78,6 +80,10 @@ public:
 private:
 	std::vector<CellTransition> _cells;
 };
+
+Serializer & operator<<(Serializer & out, Transition const& transition);
+Serializer & operator<<(Serializer & out, Transition::CellTransition const& cellTransition);
+Serializer & operator>>(Serializer & in, Transition::CellTransition & cellTransition);
 
 }
 #endif

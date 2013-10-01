@@ -26,7 +26,7 @@ namespace squarez
 GameStatus* GameStatus::_instance = nullptr;
 
 GameStatus::GameStatus(const GameBoard& board, std::chrono::seconds roundDuration, unsigned int roundsPerGame):
-	_running(true), _board(board), _round(0), _roundsPerGame(roundsPerGame), _roundDuration(roundDuration)
+	_roundsPerGame(roundsPerGame), _running(true), _board(board), _round(0), _roundDuration(roundDuration)
 {
 	if (_instance)
 		throw std::runtime_error("GameStatus already initialized");

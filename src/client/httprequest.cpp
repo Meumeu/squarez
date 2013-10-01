@@ -22,21 +22,12 @@
 #include <stdexcept>
 #include "config.h"
 
-#ifdef EMSCRIPTEN
-
-void squarez::XMLHttpRequest::request(const std::string& url, std::function<void(std::string const&)> onload, std::function<void()> onerror) :
-	_onload(onload), _onerror(onerror)
-{
-
-}
-
-#else
+#ifndef EMSCRIPTEN
 
 #include <curl/curl.h>
 #include <boost/lexical_cast.hpp>
 #include <sstream>
 #include <thread>
-#include <iomanip>
 #include <mutex>
 
 namespace
@@ -75,7 +66,7 @@ void squarez::HttpRequest::request(const std::string& url, std::function<void(st
 			if (_mutex)
 				lock = std::unique_lock<std::mutex>(*_mutex);
 			
-			onload(std::move(response));
+			onload(response);
 		}
 		catch(...)
 		{
@@ -108,25 +99,37 @@ std::string squarez::HttpRequest::request(const std::string& url)
 		return strstr.str();
 }
 
-std::string squarez::HttpRequest::urlencode(const std::string& in)
+#else //EMSCRIPTEN
+typedef std::pair<std::function<void(std::string const&)>, std::function<void()>> callback_pair;
+
+namespace {
+void em_callback(callback_pair* callbacks, char* data, int size)
 {
-	std::stringstream out;
-	
-	for(unsigned char c: in)
-	{
-		if ((c >= 'a' and c <= 'z') or
-		    (c >= 'A' and c <= 'Z') or
-		    (c >= '0' and c <= '9') or
-		    c == '-' or c == '_' or c == '.' or c == '~' or c == '(' or c == ')' or c == '\'' or c == '*' or c == '!')
-			out << c;
-		else
-		{
-			out << '%' << std::hex << std::setfill('0') << std::setw(2) << (int)c;
-			
-		}
-	}
-	
-	return out.str();
+	std::string res(data, size);
+	callbacks->first(res);
+	delete callbacks;
+}
+void em_error(callback_pair* callbacks)
+{
+	callbacks->second();
+	delete callbacks;
+}
+}
+void squarez::HttpRequest::request(const std::string& url, std::function<void(std::string const&)> onload, std::function<void()> onerror)
+{
+	callback_pair * callbacks = new callback_pair(onload, onerror);
+	emscripten_async_wget_data(url.c_str(), callbacks, (void (*)(void*, void*, int))&em_callback, (void (*)(void*))&em_error);
+}
+
+std::string squarez::HttpRequest::request(const std::string& url)
+{
+	std::string request("var xhr=new XMLHttpRequest();"
+	"xhr.open('get'," + url + ", false);"
+	"xhr.send();"
+	"xhr.responseText;");
+
+	const char* data = emscripten_run_script_string(request.data());
+	return std::string(data);
 }
 
 #endif

@@ -19,7 +19,7 @@
 
 #include "sdlui.h"
 #include "window.h"
-#include <shared/rules/rules.h>
+#include <client/rules.h>
 #include <stdexcept>
 #include <chrono>
 #include <iostream>

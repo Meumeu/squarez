@@ -20,6 +20,10 @@
 #include "requesthandler.h"
 #include "gamestatus.h"
 
+#include "shared/serializer.h"
+
+#include "shared/network/methods.h"
+
 #include <boost/lexical_cast.hpp>
 
 namespace squarez
@@ -44,16 +48,16 @@ bool RequestHandler::response()
 			
 			out << "Content-Type: text/plain\r\n\r\n";
 
-			if (method == "/get_board")
+			if (method == "/" + GameInit::method())
 				return this->getBoard();
 
 			if (method == "/get_scores")
 				return this->getScores();
 
-			if (method == "/push_selection")
+			if (method == "/" + PushSelection::method())
 				return this->pushSelection();
 
-			if (method == "/get_transition")
+			if (method == "/" + TransitionPoll::method())
 			{
 				_state = GetTransition;
 				RWGameStatus()().registerWait(callback(), getToken(environment()));
@@ -74,27 +78,19 @@ bool RequestHandler::response()
 
 bool RequestHandler::getBoard()
 {
-	RWGameStatus status;
-	out << "{";
-
-	out << "\"board\":\"";
-	status().getBoard().serialize(out);
-
-	out << "\",\"timer\":";
-	out << status().getRoundDuration().count() << ",";
-
-	out << "\"progress\":" << status().getRoundTimeAdvancement() << ",";
-
-	out << "\"round\":" << status().getRound() << ",";
-	out << "\"gameRounds\":" << status()._roundsPerGame;
-
+	unsigned int token = 0;
 	std::string const& name = environment().findGet("name");
+
+	RWGameStatus status;
 	if (not name.empty())
 	{
-		auto token = status().registerPlayer(Player(name));
-		out << ",\"token\":" << token;
+		token = status().registerPlayer(Player(name));
 	}
-	out << "}";
+
+	Serializer ser;
+	GameInit::serialize(ser, status().getBoard(), token, status().getRoundDuration(), status().getRoundTimeAdvancement(), status()._roundsPerGame, status().getRound());
+
+	out << ser.get();
 	return true;
 }
 
@@ -102,8 +98,8 @@ bool RequestHandler::pushSelection()
 {
 	// Read the selection from parameters
 	std::string const& selectionString = environment().findGet("selection");
-	std::stringstream stream(selectionString);
-	Selection selection(stream);
+	Serializer ser(selectionString);
+	Selection selection(ser);
 
 	unsigned int token = getToken(environment());
 
@@ -130,10 +126,12 @@ bool RequestHandler::getScores()
 
 bool RequestHandler::getTransition()
 {
-	out << "{\"transition\":\"";
-	ROGameStatus status;
-	status().getLastRoundTransition().serialize(out);
-	out << "\",\"round\":" << status().getRound() << "}";
+	Serializer ser;
+	{
+		ROGameStatus status;
+		TransitionPoll::serialize(ser, status().getRound(), status().getLastRoundTransition());
+	}
+	out << ser.get();
 	return true;
 }
 

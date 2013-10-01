@@ -6,6 +6,7 @@ AC_INIT([Squarez], [1.0.1], [xytovl@laposte.net])
 AC_CONFIG_SRCDIR([src/shared/gameboard.cpp])
 AM_INIT_AUTOMAKE
 AC_CONFIG_HEADERS([src/config.h])
+AM_SILENT_RULES([yes])
 
 AC_CONFIG_MACRO_DIR([m4])
 

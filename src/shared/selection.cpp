@@ -19,6 +19,8 @@
 
 #include "selection.h"
 
+#include "shared/serializer.h"
+
 #include <sstream>
 #include <stdexcept>
 
@@ -61,34 +63,15 @@ unsigned int Selection::getY(unsigned int i) const
 	return getnth(i, _points).second;
 }
 
-Selection::Selection(std::istream& serialized)
+Serializer& operator<<(Serializer& out, const Selection& selection)
 {
-	size_t size;
-	serialized >> size;
-	if (size > 4)
-		throw std::out_of_range("Invalid serialized selection");
-	for (size_t i = 0 ; i < size ; ++i)
-	{
-		unsigned int x,y;
-		serialized >> x >> y;
-		_points.insert(std::pair<unsigned int, unsigned int>(x,y));
-	}
+	out << selection._points;
+	return out;
 }
 
-void Selection::serialize(std::ostream& serialized) const
+Selection::Selection(Serializer& serialized)
 {
-	serialized << _points.size() << " ";
-	for (auto const& p : _points)
-	{
-		serialized << p.first << " " << p.second << " ";
-	}
-}
-
-std::string Selection::serialize() const
-{
-	std::stringstream str;
-	this->serialize(str);
-	return str.str();
+	serialized >> _points;
 }
 
 }

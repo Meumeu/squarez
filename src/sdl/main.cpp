@@ -23,7 +23,7 @@
 #include <SDL/SDL.h>
 #endif
 
-#include "shared/rules/singleplayerrules.h"
+#include "client/singleplayerrules.h"
 #include "sdlui.h"
 #include "demo.h"
 #include "window.h"

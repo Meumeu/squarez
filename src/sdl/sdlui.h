@@ -34,7 +34,7 @@
 #include "animatable.h"
 #include "cell.h"
 #include "shared/gameboard.h"
-#include <shared/ui.h>
+#include "client/ui.h"
 
 namespace squarez
 {

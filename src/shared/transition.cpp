@@ -19,7 +19,8 @@
 
 #include "transition.h"
 
-#include "gameboard.h"
+#include "shared/gameboard.h"
+#include "shared/serializer.h"
 
 #include <cstdlib>
 #include <map>
@@ -87,53 +88,28 @@ Transition::Transition(unsigned int size): _score(0)
 			_cells.push_back(CellTransition(x, y, positions[x * size + y].first, positions[x * size + y].second));
 }
 
-namespace
-{
-	void fill_from_stream(std::istream& serialized, uint32_t &_score, Selection &_selection, std::vector<Transition::CellTransition> &_cells)
+Transition::Transition(Serializer & serialized)
 {
 	serialized >> _score;
 	_selection = Selection(serialized);
-
-	size_t numCells;
-	serialized >> numCells;
-	for (size_t x = 0; x < numCells; ++x)
-	{
-		_cells.push_back(Transition::CellTransition(serialized));
-	}
-}
+	serialized >> _cells;
 }
 
-Transition::Transition(std::istream& serialized)
+Serializer& operator<<(Serializer& out, const Transition& transition)
 {
-	fill_from_stream(serialized, _score, _selection, _cells);
+	out << transition._score << transition._selection << transition._cells;
+	return out;
 }
 
-Transition::Transition(const std::string& serialized)
+Serializer & operator<<(Serializer & out, Transition::CellTransition const& cellTransition)
 {
-	std::stringstream str(serialized);
-	fill_from_stream(str, _score, _selection, _cells);
+	out << cellTransition._fromx << cellTransition._fromy << cellTransition._tox << cellTransition._toy << cellTransition._symbol << cellTransition._removed;
+	return out;
 }
-
-void Transition::serialize(std::ostream& serialized) const
+Serializer & operator>>(Serializer & in, Transition::CellTransition & cellTransition)
 {
-	serialized <<  _score << " ";
-	_selection.serialize(serialized); serialized << " ";
-
-	serialized <<  _cells.size() <<  " ";
-	for (auto const& cell :  _cells)
-	{
-		cell.serialize(serialized);
-	}
+	in >> cellTransition._fromx >> cellTransition._fromy >> cellTransition._tox >> cellTransition._toy >> cellTransition._symbol >> cellTransition._removed;
+	return in;
 }
-
-Transition::CellTransition::CellTransition(std::istream& serialized)
-{
-	serialized >> _fromx >> _fromy >> _tox >> _toy >> _symbol >> _removed;
-}
-void Transition::CellTransition::serialize(std::ostream& serialized) const
-{
-	serialized << _fromx << " " << _fromy << " " << _tox << " " << _toy << " " << _symbol << " " << _removed << " ";
-}
-
 
 }

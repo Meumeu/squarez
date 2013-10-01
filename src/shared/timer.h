@@ -34,10 +34,10 @@ public:
 	// between the current duration and longTerm is divided by half
 	// You should have (shortTerm - longTerm) * e * ln(2) < halfLife
 	// ie halfLife > 1.9 (shortTerm - longTerm)
-	Timer(uint16_t longTerm, uint16_t shortTerm, uint16_t halfLife);
+	Timer(std::chrono::seconds longTerm, std::chrono::seconds shortTerm, std::chrono::seconds halfLife);
 
 	// Simple timer, with constant duration
-	Timer(uint16_t duration, float percentLeft = 1);
+	Timer(std::chrono::seconds duration, float percentLeft = 1);
 	
 	void refill(unsigned int percentage);
 	
@@ -49,8 +49,8 @@ public:
 	void unPause();
 	bool paused() const { return _paused; }
 private:
-	const std::chrono::seconds _longTerm;
-	const std::chrono::seconds _halfLife;
+	std::chrono::seconds _longTerm;
+	std::chrono::seconds _halfLife;
 	std::chrono::milliseconds _bonusDuration;
 	
 	std::chrono::steady_clock::time_point _begin;

@@ -49,6 +49,9 @@ template<class T1, class T2> Serializer& operator>>(Serializer& ser, std::pair<T
 template<class T> Serializer& operator<<(Serializer& ser, std::vector<T> const&);
 template<class T> Serializer& operator>>(Serializer& ser, std::vector<T>&);
 
+template<class T> Serializer& operator<<(Serializer& ser, std::set<T> const&);
+template<class T> Serializer& operator>>(Serializer& ser, std::set<T>&);
+
 
 template<class T> Serializer& operator<<(Serializer& ser, T const& x)
 {
@@ -96,6 +99,32 @@ template<class T> Serializer& operator>>(Serializer& ser, std::vector<T>& v)
 		v.push_back(std::move(x));
 	}
 	
+	return ser;
+}
+
+template<class T> Serializer& operator<<(Serializer& ser, std::set<T> const& v)
+{
+	ser << v.size();
+	for(T const& i: v)
+	{
+		ser << i;
+	}
+
+	return ser;
+}
+
+template<class T> Serializer& operator>>(Serializer& ser, std::set<T>& v)
+{
+	std::size_t s;
+	ser >> s;
+	T x;
+
+	while(s--)
+	{
+		ser >> x;
+		v.insert(std::move(x));
+	}
+
 	return ser;
 }
 

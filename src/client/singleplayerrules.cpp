@@ -19,12 +19,12 @@
  */
 
 #include "singleplayerrules.h"
-#include "shared/ui.h"
+#include "client/ui.h"
 #include "shared/timer.h"
 
 squarez::SinglePlayerRules::SinglePlayerRules(int board_size, int nb_symbols, int long_term, int short_term, int duration) :
 	Rules(board_size, nb_symbols),
-	timer(long_term, short_term, duration),
+	timer(std::chrono::seconds(long_term), std::chrono::seconds(short_term), std::chrono::seconds(duration)),
 	score(0)
 {
 }

@@ -27,11 +27,14 @@
 namespace squarez
 {
 
+class Serializer;
+
 class Selection
 {
+	friend Serializer & operator<<(Serializer & out, Selection const& selection);
 public:
 	Selection() {}
-	Selection(std::istream& serialized);
+	Selection(Serializer& serialized);
 
 	bool addPoint(unsigned int x, unsigned int y);
 
@@ -40,12 +43,11 @@ public:
 	unsigned int getY(unsigned int i) const;
 
 	std::set<std::pair<unsigned int, unsigned int>> const& getPoints() const {return _points;}
-
-	void serialize(std::ostream&) const;
-	std::string serialize() const;
 private:
 	std::set<std::pair<unsigned int, unsigned int>> _points;
 };
+
+Serializer & operator<<(Serializer & out, Selection const& selection);
 
 }
 

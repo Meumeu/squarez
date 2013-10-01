@@ -21,10 +21,13 @@
 #ifndef SQUAREZ_MULTIPLAYERRULES_H
 #define SQUAREZ_MULTIPLAYERRULES_H
 
-#include <shared/rules/rules.h>
-#include <shared/httprequest.h>
+#include <client/rules.h>
+#include <client/httprequest.h>
 #include <shared/timer.h>
-#include <mutex>
+
+#ifndef EMSCRIPTEN
+	#include <mutex>
+#endif
 
 namespace squarez {
 
@@ -32,37 +35,32 @@ class MultiPlayerRules : public squarez::Rules
 {
 private:
 	Timer _timer;
+#ifndef EMSCRIPTEN
 	std::mutex _mutex;
+#endif
 	HttpRequest _xhr;
 	
 	std::string _url;
 	std::string _username;
-	std::string _token;
+	unsigned int _token;
 	
 protected:
 	virtual void timeTick(std::chrono::duration<float>);
 	
 public:
-	virtual bool gameOver();
-	virtual const squarez::Timer& getTimer() { return _timer; }
+	virtual bool gameOver() const;
+	virtual const squarez::Timer& getTimer() const { return _timer; }
 	virtual void onSelect(const squarez::Selection& selection);
 	
 	MultiPlayerRules(const std::string& url, const std::string& username);
-	
-	struct Settings
-	{
-		Settings(squarez::Serializer & serialized);
-		
-		GameBoard _board;
-		std::string _token;
-		
-		uint16_t _roundDuration; // in seconds
-		float _roundProgress;
-		
-		unsigned int _numberOfRounds;
-		unsigned int _currentRound;
-	};
+
+	// Callback for transition polling mechanism
+	void onTransitionPoll(std::string const& serializedTransition);
+	// Callback for accepted selection
+	void onSelectionPushed(std::string const& res);
+
 };
+
 }
 
 #endif // SQUAREZ_MULTIPLAYERRULES_H

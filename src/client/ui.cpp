@@ -1,7 +1,6 @@
 /*
  * Squarez puzzle game
  * Copyright (C) 2013  Guillaume Meunier <guillaume.meunier@centraliens.net>
- * Copyright (C) 2013  Patrick Nicolas <patricknicolas@laposte.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,28 +17,21 @@
  *
  */
 
-#ifndef SQUAREZ_HTTPREQUEST_H
-#define SQUAREZ_HTTPREQUEST_H
+#include "ui.h"
+#include "client/rules.h"
 
-#include <string>
-#include <functional>
-
-namespace std { class mutex; }
-
-namespace squarez {
-
-class HttpRequest
+squarez::UI::UI(std::shared_ptr<squarez::Rules> rules) : rules(rules)
 {
-	std::mutex * const _mutex;
-public:
-	HttpRequest(std::mutex & mutex): _mutex(&mutex) {}
-	HttpRequest(): _mutex(nullptr) {}
-	
-	void request(const std::string& url, std::function<void(std::string const&)> onload, std::function<void()> onerror);
-	std::string request(const std::string& url);
-	static std::string urlencode(std::string const& in);
-};
-
+	rules->setUI(this);
 }
 
-#endif // SQUAREZ_XMLHTTPREQUEST_H
+squarez::UI::~UI()
+{
+	rules->setUI(nullptr);
+}
+
+void squarez::UI::setRules(std::shared_ptr< squarez::Rules > rules_)
+{
+	rules = rules_;
+	rules->setUI(this);
+}
