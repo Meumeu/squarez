@@ -78,7 +78,7 @@ const std::string& TransitionPoll::method()
 std::string TransitionPoll::encodeRequest(unsigned int token)
 {
 	std::stringstream str;
-	str << request_path << method() << "&token=" << token;
+	str << request_path << method() << "?token=" << token;
 	return str.str();
 }
 

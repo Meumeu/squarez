@@ -37,6 +37,7 @@ public:
 	virtual void onTransition(Transition const& transition) = 0; // Called before the board is modified
 	virtual void onScoreChanged(int new_score) = 0;
 	virtual void onSelectionAccepted(Selection const& selection) = 0;
+	virtual void onSelectionRejected(Selection const& selection) = 0;
 	UI() {} // Only for javascript, do not use
 	UI(std::shared_ptr<Rules> rules);
 	virtual ~UI();

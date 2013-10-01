@@ -38,6 +38,7 @@ EMSCRIPTEN_BINDINGS(Selection) {
 		.function("addPoint", &Selection::addPoint)
 		.function("getX", &Selection::getX)
 		.function("getY", &Selection::getY)
+		.property("valid", &Selection::isValid)
 		;
 }
 
@@ -93,6 +94,10 @@ struct UIWrapper: public emscripten::wrapper<UI>
 	{
 		return call<void>("onSelectionAccepted", selection);
 	}
+	void onSelectionRejected(Selection const& selection)
+	{
+		return call<void>("onSelectionRejected", selection);
+	}
 };
 
 EMSCRIPTEN_BINDINGS(UI) {
@@ -127,5 +132,6 @@ EMSCRIPTEN_BINDINGS(Rules) {
 	.function("gameOver", &MultiPlayerRules::gameOver)
 	.property("timer", &MultiPlayerRules::getTimer)
 	.property("board", &MultiPlayerRules::getBoard)
+	.property("numberOfRounds", &MultiPlayerRules::getNumberOfRounds)
 	;
 }

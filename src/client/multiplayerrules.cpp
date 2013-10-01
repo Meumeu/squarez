@@ -38,7 +38,7 @@ void squarez::MultiPlayerRules::onSelect(const squarez::Selection& selection)
 	if (tr._score == 0)
 		return;
 	
-	_xhr.request(_url + PushSelection::encodeRequest(selection, _token), std::bind(&MultiPlayerRules::onSelectionPushed, this, std::placeholders::_1), NOP);
+	_xhr.request(_url + PushSelection::encodeRequest(selection, _token), std::bind(&MultiPlayerRules::onSelectionPushed, this, selection, std::placeholders::_1), NOP);
 }
 
 void squarez::MultiPlayerRules::timeTick(std::chrono::duration<float>)
@@ -49,7 +49,7 @@ squarez::MultiPlayerRules::MultiPlayerRules(const std::string& url, const std::s
 #ifndef EMSCRIPTEN
 _xhr(_mutex),
 #endif
-_url(url), _username(username)
+_url(url), _username(username), _score(0)
 {
 	//Retrieve the game parameters
 	Serializer ser(_xhr.request(url + GameInit::encodeRequest(username)));
@@ -61,6 +61,8 @@ _url(url), _username(username)
 	_timer = squarez::Timer(gameinit._roundDuration * gameinit._numberOfRounds,
 		(gameinit._numberOfRounds - gameinit._currentRound - 1 + gameinit._roundProgress) / gameinit._numberOfRounds);
 
+	_numberOfRounds = gameinit._numberOfRounds;
+
 	// Start the round polling loop
 	_xhr.request(url + TransitionPoll::encodeRequest(_token), std::bind(&MultiPlayerRules::onTransitionPoll, this, std::placeholders::_1), NOP);
 
@@ -70,21 +72,29 @@ void squarez::MultiPlayerRules::onTransitionPoll(const std::string& serializedTr
 {
 	Serializer ser(serializedTransition);
 	TransitionPoll transitionPoll(ser);
+	ui->onTransition(transitionPoll._transition);
 	board.applyTransition(transitionPoll._transition);
 	if (transitionPoll._round == 0)
 	{
 		ui->onScoreChanged(0);
+		_score = 0;
+		_timer.refill(200);
 	}
 
 	_xhr.request(_url + TransitionPoll::encodeRequest(_token), std::bind(&MultiPlayerRules::onTransitionPoll, this, std::placeholders::_1), NOP);
 }
 
-void squarez::MultiPlayerRules::onSelectionPushed(const std::string& res)
+void squarez::MultiPlayerRules::onSelectionPushed(Selection const &selection, const std::string& res)
 {
 	Serializer ser(res);
 	unsigned int score;
 	ser >> score;
+	if (score > _score)
+		ui->onSelectionAccepted(selection);
+	else
+		ui->onSelectionRejected(selection);
 	ui->onScoreChanged(score);
+	_score = score;
 }
 
 

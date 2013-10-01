@@ -72,6 +72,7 @@ public:
 	virtual void onTransition(Transition const& transition); // Called before the board is modified
 	virtual void onScoreChanged(int new_score);
 	virtual void onSelectionAccepted(Selection const& selection);
+	virtual void onSelectionRejected(Selection const& selection);
 	
 	SdlUI(Window& w, std::shared_ptr<Rules> rules);
 	virtual ~SdlUI();

@@ -44,6 +44,9 @@ private:
 	std::string _username;
 	unsigned int _token;
 
+	unsigned int _numberOfRounds;
+
+	unsigned int _score;
 	//TODO: player scores
 	
 protected:
@@ -56,10 +59,12 @@ public:
 	
 	MultiPlayerRules(const std::string& url, const std::string& username);
 
+	unsigned int getNumberOfRounds() const { return _numberOfRounds; }
+
 	// Callback for transition polling mechanism
 	void onTransitionPoll(std::string const& serializedTransition);
 	// Callback for accepted selection
-	void onSelectionPushed(std::string const& res);
+	void onSelectionPushed(Selection const& selection, std::string const& res);
 
 };
 

@@ -42,6 +42,8 @@ public:
 	unsigned int getX(unsigned int i) const;
 	unsigned int getY(unsigned int i) const;
 
+	bool isValid() const { return _points.size() == 4; }
+
 	std::set<std::pair<unsigned int, unsigned int>> const& getPoints() const {return _points;}
 private:
 	std::set<std::pair<unsigned int, unsigned int>> _points;

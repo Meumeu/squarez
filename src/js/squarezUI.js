@@ -103,6 +103,19 @@ SquarezUI.prototype =
 
 	onSelectionAccepted: function(selection)
 	{
+		this.clearSelection();
+		this.clearAnimations();
+		var n = this.drawSelection(selection);
+		n.classList.add("userSelection");
+	},
+	
+	onSelectionRejected: function(selection)
+	{
+		this.clearSelection();
+	},
+
+	drawSelection: function(selection)
+	{
 		var removed = new Array();
 		var center = {x:0, y:0};
 		for (var i = 0 ; i < 4 ; i++)
@@ -155,7 +168,7 @@ SquarezUI.prototype =
 
 	animateSelection: function(selection)
 	{
-		var n = this.onSelectionAccepted(selection);
+		var n = this.drawSelection(selection);
 		setTimeout(function() {n.classList.add("transition-removed");}, 100)
 		return n;
 	},
@@ -177,6 +190,7 @@ SquarezUI.prototype =
 			return;
 
 		this.clearSelection();
+		this.clearAnimations();
 		
 		var moveTo = function(fromx, fromy, x, y, cell)
 		{
@@ -223,7 +237,7 @@ SquarezUI.prototype =
 		{
 			moveTo.apply(null, moves[i]);
 		}
-		if (transition.selection)
+		if (transition.selection.valid)
 		{
 			this.animateSelection(transition.selection);
 		}

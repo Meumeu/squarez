@@ -323,7 +323,10 @@ void squarez::SdlUI::onSelectionAccepted(const squarez::Selection& selection)
 {
 // TODO
 }
-
+void squarez::SdlUI::onSelectionRejected(const squarez::Selection& selection)
+{
+	current_selection = Selection();
+}
 
 void squarez::SdlUI::timeTick(std::chrono::duration<float>)
 {
