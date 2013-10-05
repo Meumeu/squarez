@@ -1,6 +1,7 @@
 /*
  * Squarez puzzle game
  * Copyright (C) 2013  Guillaume Meunier <guillaume.meunier@centraliens.net>
+ * Copyright (C) 2013  Patrick Nicolas <patricknicolas@laposte.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,20 +21,22 @@
 #ifndef SQUAREZ_SERIALIZER_H
 #define SQUAREZ_SERIALIZER_H
 
-#include <sstream>
-#include <vector>
+#include <iostream>
+#include <memory>
 #include <set>
+#include <vector>
 
 namespace squarez {
 
 class Serializer
 {
 public:
-	std::stringstream stream;
-	Serializer() = default;
+	std::unique_ptr<std::iostream> _stream;
+	Serializer();
 	Serializer(std::string const&);
+	Serializer(std::unique_ptr<std::iostream> & stream): _stream(std::move(stream)) {}
 	
-	std::string get() const { return stream.str(); }
+	std::string get();
 };
 
 Serializer& operator<<(Serializer& ser, std::string const&);
@@ -55,14 +58,14 @@ template<class T> Serializer& operator>>(Serializer& ser, std::set<T>&);
 
 template<class T> Serializer& operator<<(Serializer& ser, T const& x)
 {
-	ser.stream << x << " ";
+	*ser._stream << x << " ";
 	return ser;
 }
 
 template<class T> Serializer& operator>>(Serializer& ser, T& x)
 {
-	ser.stream >> x;
-	ser.stream.get();
+	*ser._stream >> x;
+	ser._stream->get();
 	return ser;
 }
 

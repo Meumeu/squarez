@@ -20,6 +20,8 @@
 
 #include "methods.h"
 
+#include <sstream>
+
 #include "shared/network/urltools.h"
 #include "shared/selection.h"
 #include "shared/serializer.h"
