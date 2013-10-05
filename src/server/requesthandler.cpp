@@ -25,6 +25,7 @@
 #include "shared/network/methods.h"
 
 #include <boost/lexical_cast.hpp>
+#include <functional>
 
 namespace squarez
 {
@@ -51,7 +52,7 @@ bool RequestHandler::response()
 			if (method == "/" + GameInit::method())
 				return this->getBoard();
 
-			if (method == "/get_scores")
+			if (method == "/" + ScoreList::method())
 				return this->getScores();
 
 			if (method == "/" + PushSelection::method())
@@ -87,18 +88,17 @@ bool RequestHandler::getBoard()
 		token = status().registerPlayer(Player(name));
 	}
 
-	Serializer ser;
+	Serializer ser(out);
 	GameInit::serialize(ser, status().getBoard(), token, status().getRoundDuration(), status().getRoundTimeAdvancement(), status()._roundsPerGame, status().getRound());
 
-	out << ser.get();
 	return true;
 }
 
 bool RequestHandler::pushSelection()
 {
 	// Read the selection from parameters
-	std::string const& selectionString = environment().findGet("selection");
-	Serializer ser(selectionString);
+	std::stringstream selectionString(environment().findGet("selection"));
+	DeSerializer ser(selectionString);
 	Selection selection(ser);
 
 	unsigned int token = getToken(environment());
@@ -111,27 +111,23 @@ bool RequestHandler::getScores()
 {
 	ROGameStatus status;
 	auto const& players = status().getPlayersByScore();
-	out << "{\"scores\":[";
-	bool first = true;
-	for (auto const & player: players)
+	ScoreList scores;
+	for (Player const & player: players)
 	{
-		if (first) first = false;
-		else out << ",";
-		out << "{\"name\":\"" << player.get().getName() << "\",";
-		out << "\"score\":" << player.get().getScore() << "}";
+		scores._scores.push_back(std::make_pair(player.getScore(), player.getName()));
 	}
-	out << "]}";
+	Serializer ser(out);
+	ser << scores;
 	return true;
 }
 
 bool RequestHandler::getTransition()
 {
-	Serializer ser;
+	Serializer ser(out);
 	{
 		ROGameStatus status;
 		TransitionPoll::serialize(ser, status().getRound(), status().getLastRoundTransition());
 	}
-	out << ser.get();
 	return true;
 }
 

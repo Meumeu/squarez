@@ -27,6 +27,7 @@
 namespace squarez
 {
 
+class DeSerializer;
 class Serializer;
 
 class Selection
@@ -34,7 +35,7 @@ class Selection
 	friend Serializer & operator<<(Serializer & out, Selection const& selection);
 public:
 	Selection() {}
-	Selection(Serializer& serialized);
+	Selection(DeSerializer& serialized);
 
 	bool addPoint(unsigned int x, unsigned int y);
 

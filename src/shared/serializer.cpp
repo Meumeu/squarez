@@ -25,14 +25,12 @@
 
 namespace squarez {
 
-Serializer::Serializer(): _stream(new std::stringstream()){}
-
-Serializer::Serializer(const std::string& str): _stream(new std::stringstream(str)) {}
+DeSerializer::DeSerializer(const std::string& str): _strstream(new std::stringstream(str)), _stream(*_strstream) {}
 	
 Serializer& operator<<(Serializer& ser, std::string const& str)
 {
 	ser << str.size();
-	ser._stream->write(str.data(), str.size());
+	ser._stream.write(str.data(), str.size());
 	return ser;
 }
 
@@ -41,31 +39,19 @@ Serializer& operator<<(Serializer& ser, char const * str)
 	return ser << std::string(str);
 }
 
-Serializer& operator>>(Serializer& ser, std::string& str)
+DeSerializer& operator>>(DeSerializer& ser, std::string& str)
 {
 	std::size_t s;
 	ser >> s;
 
 	std::vector<char> buffer(s);
 
-	ser._stream->read(buffer.data(), s);
+	ser._stream.read(buffer.data(), s);
 	str.assign(buffer.data(), s);
 
-	ser._stream->seekg(s, std::ios_base::cur);
+	ser._stream.seekg(s, std::ios_base::cur);
 	
 	return ser;
-}
-
-std::string Serializer::get()
-{
-	auto strstream = dynamic_cast<std::stringstream *>(_stream.get());
-	if (strstream)
-		return strstream->str();
-
-	_stream->seekg(0);
-	std::istream_iterator<char> begin(*_stream), eos;
-	std::string res(begin, eos);
-	return res;
 }
 
 }

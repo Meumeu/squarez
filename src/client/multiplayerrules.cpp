@@ -52,7 +52,7 @@ _xhr(_mutex),
 _url(url), _username(username), _score(0)
 {
 	//Retrieve the game parameters
-	Serializer ser(_xhr.request(url + GameInit::encodeRequest(username)));
+	StringDeSerializer ser(_xhr.request(url + GameInit::encodeRequest(username)));
 	GameInit gameinit(ser);
 	
 	_token = std::move(gameinit._token);
@@ -70,7 +70,7 @@ _url(url), _username(username), _score(0)
 
 void squarez::MultiPlayerRules::onTransitionPoll(const std::string& serializedTransition)
 {
-	Serializer ser(serializedTransition);
+	StringDeSerializer ser(serializedTransition);
 	TransitionPoll transitionPoll(ser);
 	ui->onTransition(transitionPoll._transition);
 	board.applyTransition(transitionPoll._transition);
@@ -86,7 +86,7 @@ void squarez::MultiPlayerRules::onTransitionPoll(const std::string& serializedTr
 
 void squarez::MultiPlayerRules::onSelectionPushed(Selection const &selection, const std::string& res)
 {
-	Serializer ser(res);
+	StringDeSerializer ser(res);
 	unsigned int score;
 	ser >> score;
 	if (score > _score)

@@ -242,7 +242,7 @@ bool GameBoard::hasTransition() const
 	return false;
 }
 
-GameBoard::GameBoard(Serializer& serialized)
+GameBoard::GameBoard(DeSerializer& serialized)
 {
 	serialized >> _symbols >> _size >> _cells;
 }

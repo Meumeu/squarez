@@ -34,7 +34,7 @@ class RequestHandler: public Fastcgipp::Request<char>
 	{
 		Init,
 		GetTransition
-	} state;
+	};
 public:
 	RequestHandler(): _state(Init) {}
 	// Process the request

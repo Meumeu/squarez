@@ -88,7 +88,7 @@ Transition::Transition(unsigned int size): _score(0)
 			_cells.push_back(CellTransition(x, y, positions[x * size + y].first, positions[x * size + y].second));
 }
 
-Transition::Transition(Serializer & serialized)
+Transition::Transition(DeSerializer & serialized)
 {
 	serialized >> _score;
 	_selection = Selection(serialized);
@@ -106,7 +106,7 @@ Serializer & operator<<(Serializer & out, Transition::CellTransition const& cell
 	out << cellTransition._fromx << cellTransition._fromy << cellTransition._tox << cellTransition._toy << cellTransition._symbol << cellTransition._removed;
 	return out;
 }
-Serializer & operator>>(Serializer & in, Transition::CellTransition & cellTransition)
+DeSerializer & operator>>(DeSerializer & in, Transition::CellTransition & cellTransition)
 {
 	in >> cellTransition._fromx >> cellTransition._fromy >> cellTransition._tox >> cellTransition._toy >> cellTransition._symbol >> cellTransition._removed;
 	return in;

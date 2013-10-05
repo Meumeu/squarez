@@ -69,7 +69,7 @@ Serializer& operator<<(Serializer& out, const Selection& selection)
 	return out;
 }
 
-Selection::Selection(Serializer& serialized)
+Selection::Selection(DeSerializer& serialized)
 {
 	serialized >> _points;
 }

@@ -29,6 +29,7 @@
 namespace squarez
 {
 
+class DeSerializer;
 class Selection;
 class Serializer;
 
@@ -38,7 +39,7 @@ class GameBoard
 	
 public:
 	// Create a new gameboard from its serialized representation
-	GameBoard(Serializer & serialized);
+	GameBoard(DeSerializer & serialized);
 
 	// Create a new random gameboard with given size and possible different symbols
 	GameBoard(unsigned int size, unsigned int numberOfSymbols);

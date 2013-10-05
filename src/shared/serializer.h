@@ -24,6 +24,7 @@
 #include <iostream>
 #include <memory>
 #include <set>
+#include <sstream>
 #include <vector>
 
 namespace squarez {
@@ -31,41 +32,63 @@ namespace squarez {
 class Serializer
 {
 public:
-	std::unique_ptr<std::iostream> _stream;
-	Serializer();
-	Serializer(std::string const&);
-	Serializer(std::unique_ptr<std::iostream> & stream): _stream(std::move(stream)) {}
-	
-	std::string get();
+	std::ostream & _stream;
+	Serializer(std::ostream & stream): _stream(stream) {}
+};
+
+class StringSerializer : public Serializer
+{
+public:
+	StringSerializer(): Serializer(_strstream) {}
+	std::string get() const { return _strstream.str(); }
+private:
+	std::stringstream _strstream;
+};
+
+class DeSerializer
+{
+public:
+	std::unique_ptr<std::stringstream> _strstream;
+	std::istream& _stream;
+	DeSerializer(std::string const&);
+	DeSerializer(std::istream& stream): _stream(stream) {}
+};
+
+class StringDeSerializer : public DeSerializer
+{
+public:
+	StringDeSerializer(std::string const& str): DeSerializer(_strstream), _strstream(str) {}
+private:
+	std::stringstream _strstream;
 };
 
 Serializer& operator<<(Serializer& ser, std::string const&);
 Serializer& operator<<(Serializer& ser, char const *);
-Serializer& operator>>(Serializer& ser, std::string&);
+DeSerializer& operator>>(DeSerializer& ser, std::string&);
 
 template<class T> Serializer& operator<<(Serializer& ser, T const&);
-template<class T> Serializer& operator>>(Serializer& ser, T&);
+template<class T> DeSerializer& operator>>(DeSerializer& ser, T&);
 
 template<class T1, class T2> Serializer& operator<<(Serializer& ser, std::pair<T1, T2> const&);
-template<class T1, class T2> Serializer& operator>>(Serializer& ser, std::pair<T1, T2>&);
+template<class T1, class T2> DeSerializer& operator>>(DeSerializer& ser, std::pair<T1, T2>&);
 
 template<class T> Serializer& operator<<(Serializer& ser, std::vector<T> const&);
-template<class T> Serializer& operator>>(Serializer& ser, std::vector<T>&);
+template<class T> DeSerializer& operator>>(DeSerializer& ser, std::vector<T>&);
 
 template<class T> Serializer& operator<<(Serializer& ser, std::set<T> const&);
-template<class T> Serializer& operator>>(Serializer& ser, std::set<T>&);
+template<class T> DeSerializer& operator>>(DeSerializer& ser, std::set<T>&);
 
 
 template<class T> Serializer& operator<<(Serializer& ser, T const& x)
 {
-	*ser._stream << x << " ";
+	ser._stream << x << " ";
 	return ser;
 }
 
-template<class T> Serializer& operator>>(Serializer& ser, T& x)
+template<class T> DeSerializer& operator>>(DeSerializer& ser, T& x)
 {
-	*ser._stream >> x;
-	ser._stream->get();
+	ser._stream >> x;
+	ser._stream.get();
 	return ser;
 }
 
@@ -74,7 +97,7 @@ template<typename T1, typename T2> Serializer& operator<<(Serializer& ser, std::
 	return ser << t.first << t.second;
 }
 
-template<typename T1, typename T2> Serializer& operator>>(Serializer& ser, std::pair<T1, T2>& t)
+template<typename T1, typename T2> DeSerializer& operator>>(DeSerializer& ser, std::pair<T1, T2>& t)
 {
 	return ser >> t.first >> t.second;
 }
@@ -90,7 +113,7 @@ template<class T> Serializer& operator<<(Serializer& ser, std::vector<T> const& 
 	return ser;
 }
 
-template<class T> Serializer& operator>>(Serializer& ser, std::vector<T>& v)
+template<class T> DeSerializer& operator>>(DeSerializer& ser, std::vector<T>& v)
 {
 	std::size_t s;
 	ser >> s;
@@ -116,7 +139,7 @@ template<class T> Serializer& operator<<(Serializer& ser, std::set<T> const& v)
 	return ser;
 }
 
-template<class T> Serializer& operator>>(Serializer& ser, std::set<T>& v)
+template<class T> DeSerializer& operator>>(DeSerializer& ser, std::set<T>& v)
 {
 	std::size_t s;
 	ser >> s;

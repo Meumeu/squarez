@@ -45,9 +45,13 @@ std::string getFileName()
 squarez::HighScores::HighScores(unsigned int maxScores) : _maxScores(maxScores)
 {
 	// Try to deserialize scores from "file"
-	std::fstream f(getFileName());
-	if (f)
+	std::fstream * f = new std::fstream(getFileName());
+	if (*f)
 	{
+	}
+	else
+	{
+		delete f;
 	}
 
 }

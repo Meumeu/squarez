@@ -31,6 +31,7 @@ static const std::string request_path = "squarez/";
 static const std::string gameinit_method = "game_init";
 static const std::string pushselection_method = "push_selection";
 static const std::string transitionpoll_method = "transition_poll";
+static const std::string scorelist_method = "get_scores";
 
 namespace squarez
 {
@@ -50,7 +51,7 @@ void GameInit::serialize(Serializer& serialized, const GameBoard& board, unsigne
 	serialized << board << token << roundDuration.count() << roundProgress << numberOfRounds << currentRound;
 }
 
-GameInit::GameInit(Serializer& serialized): _board(serialized)
+GameInit::GameInit(DeSerializer& serialized): _board(serialized)
 {
 	std::int64_t roundDuration;
 	serialized >> _token >> roundDuration >> _roundProgress >> _numberOfRounds >> _currentRound;
@@ -60,7 +61,7 @@ GameInit::GameInit(Serializer& serialized): _board(serialized)
 std::string PushSelection::encodeRequest(const Selection& selection, unsigned int token)
 {
 	std::stringstream str;
-	Serializer ser;
+	StringSerializer ser;
 	ser << selection;
 
 	str << request_path << method() << "?selection=" << ser.get() << "&token=" << token;
@@ -84,7 +85,7 @@ std::string TransitionPoll::encodeRequest(unsigned int token)
 	return str.str();
 }
 
-TransitionPoll::TransitionPoll(Serializer& serialized): _transition(serialized)
+TransitionPoll::TransitionPoll(DeSerializer& serialized): _transition(serialized)
 {
 	serialized >> _round;
 }
@@ -93,5 +94,27 @@ void TransitionPoll::serialize(Serializer& serialized, unsigned int round, const
 {
 	serialized << transition << round;
 }
+
+const std::string& ScoreList::method()
+{
+	return scorelist_method;
+}
+
+std::string ScoreList::encodeRequest()
+{
+	std::stringstream str;
+	str << request_path << method();
+	return str.str();
+}
+ScoreList::ScoreList(DeSerializer& serialized)
+{
+	serialized >> _scores;
+}
+Serializer& operator<<(Serializer& out, const ScoreList& scoreList)
+{
+	out << scoreList._scores;
+	return out;
+}
+
 
 }

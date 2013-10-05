@@ -21,13 +21,16 @@
 #ifndef SQUAREZ_METHODS_H
 #define SQUAREZ_METHODS_H
 
-#include <string>
 #include <chrono>
+#include <string>
+#include <utility>
+#include <vector>
 
 #include "shared/gameboard.h"
 
 namespace squarez
 {
+	class DeSerializer;
 	class Serializer;
 	class Selection;
 
@@ -37,7 +40,7 @@ namespace squarez
 		static std::string const& method();
 		static std::string encodeRequest(std::string const& playerName);
 
-		GameInit(Serializer & serialized);
+		GameInit(DeSerializer & serialized);
 
 		// Serialize the setting elements into a valid object
 		static void serialize(Serializer & serialized,
@@ -64,7 +67,7 @@ namespace squarez
 		static std::string const& method();
 		static std::string encodeRequest(unsigned int token);
 
-		TransitionPoll(Serializer & serialized);
+		TransitionPoll(DeSerializer & serialized);
 
 		static void serialize(Serializer & serialized, unsigned int round, Transition const& transition);
 
@@ -77,6 +80,18 @@ namespace squarez
 		std::string const& method();
 		std::string encodeRequest(Selection const& selection, unsigned int token);
 	};
+
+	struct ScoreList
+	{
+		static std::string const& method();
+		static std::string encodeRequest();
+
+		ScoreList(DeSerializer & serialized);
+		ScoreList() = default;
+
+		std::vector<std::pair<unsigned int, std::string>> _scores;
+	};
+	Serializer & operator<<(Serializer & out, ScoreList const& scoreList);
 }
 
 #endif // SQUAREZ_METHODS_H
