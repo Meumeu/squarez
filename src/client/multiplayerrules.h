@@ -41,7 +41,6 @@ private:
 	HttpRequest _xhr;
 	
 	std::string _url;
-	std::string _username;
 	unsigned int _token;
 
 	unsigned int _numberOfRounds;
@@ -53,11 +52,14 @@ protected:
 	virtual void timeTick(std::chrono::duration<float>);
 	
 public:
-	virtual bool gameOver() const;
+	virtual bool gameOver();
 	virtual const squarez::Timer& getTimer() const { return _timer; }
 	virtual void onSelect(const squarez::Selection& selection);
 	
 	MultiPlayerRules(const std::string& url, const std::string& username);
+
+	// Action not authorized (throws)
+	virtual void setPlayerName(std::string const& name);
 
 	unsigned int getNumberOfRounds() const { return _numberOfRounds; }
 

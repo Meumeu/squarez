@@ -78,6 +78,9 @@ template<class T> DeSerializer& operator>>(DeSerializer& ser, std::vector<T>&);
 template<class T> Serializer& operator<<(Serializer& ser, std::set<T> const&);
 template<class T> DeSerializer& operator>>(DeSerializer& ser, std::set<T>&);
 
+template<class T> Serializer& operator<<(Serializer& ser, std::multiset<T> const&);
+template<class T> DeSerializer& operator>>(DeSerializer& ser, std::multiset<T>&);
+
 
 template<class T> Serializer& operator<<(Serializer& ser, T const& x)
 {
@@ -140,6 +143,32 @@ template<class T> Serializer& operator<<(Serializer& ser, std::set<T> const& v)
 }
 
 template<class T> DeSerializer& operator>>(DeSerializer& ser, std::set<T>& v)
+{
+	std::size_t s;
+	ser >> s;
+	T x;
+
+	while(s--)
+	{
+		ser >> x;
+		v.insert(std::move(x));
+	}
+
+	return ser;
+}
+
+template<class T> Serializer& operator<<(Serializer& ser, std::multiset<T> const& v)
+{
+	ser << v.size();
+	for(T const& i: v)
+	{
+		ser << i;
+	}
+
+	return ser;
+}
+
+template<class T> DeSerializer& operator>>(DeSerializer& ser, std::multiset<T>& v)
 {
 	std::size_t s;
 	ser >> s;

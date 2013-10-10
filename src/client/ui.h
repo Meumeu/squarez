@@ -1,6 +1,7 @@
 /*
  * Squarez puzzle game
  * Copyright (C) 2013  Guillaume Meunier <guillaume.meunier@centraliens.net>
+ * Copyright (C) 2013  Patrick Nicolas <patricknicolas@laposte.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,10 +22,12 @@
 #define SQUAREZ_UI_H
 
 #include <memory>
+#include <vector>
 
 namespace squarez {
 
 class Rules;
+class Score;
 class Selection;
 class Transition;
 
@@ -36,8 +39,13 @@ protected:
 public:
 	virtual void onTransition(Transition const& transition) = 0; // Called before the board is modified
 	virtual void onScoreChanged(int new_score) = 0;
+	virtual void onScoreListChanged(std::vector<Score> const& scores) = 0;
 	virtual void onSelectionAccepted(Selection const& selection) = 0;
 	virtual void onSelectionRejected(Selection const& selection) = 0;
+
+	// Called to notify the user interface that rules need the player name
+	virtual void nameRequired(std::string const& lastName) = 0 ;
+
 	UI() {} // Only for javascript, do not use
 	UI(std::shared_ptr<Rules> rules);
 	virtual ~UI();

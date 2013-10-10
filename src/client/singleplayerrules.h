@@ -22,6 +22,7 @@
 #define SQUAREZ_SINGLEPLAYERRULES_H
 
 #include "rules.h"
+#include "highscores.h"
 #include "shared/timer.h"
 
 namespace squarez {
@@ -31,13 +32,19 @@ class SinglePlayerRules : public squarez::Rules
 private:
 	Timer timer;
 	unsigned int score;
+	HighScores _highScores;
+	bool _scoreSaved;
+
+protected:
+	virtual void setUI(UI * ui);
 	
 public:
 	SinglePlayerRules(int board_size, int nb_symbols, int long_term, int short_term, int duration);
 	
 	virtual void onSelect(Selection const& selection);
 	virtual Timer const& getTimer() const;
-	virtual bool gameOver() const;
+	virtual bool gameOver();
+	virtual void setPlayerName(std::string const& name);
 
 	unsigned int getScore() const { return score; }
 	

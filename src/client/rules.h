@@ -1,6 +1,7 @@
 /*
  * Squarez puzzle game
  * Copyright (C) 2013  Guillaume Meunier <guillaume.meunier@centraliens.net>
+ * Copyright (C) 2013  Patrick Nicolas <patricknicolas@laposte.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +22,7 @@
 #define SQUAREZ_RULES_H
 
 #include <chrono>
+#include <string>
 #include "shared/gameboard.h"
 
 namespace squarez {
@@ -31,21 +33,24 @@ class Timer;
 class Rules
 {
 	friend class UI;
-private:
-	void setUI(UI * ui);
 	
 protected:
+	virtual void setUI(UI * ui);
+
 	GameBoard board;
 	UI * ui;
+	std::string _playerName;
 	virtual void timeTick(std::chrono::duration<float> /* t */) { }
 	
 public:
 	virtual void onSelect(Selection const& selection) = 0;
-	virtual bool gameOver() const = 0;
+	virtual bool gameOver() = 0;
 	virtual Timer const& getTimer() const = 0;
 	GameBoard const& getBoard() const { return board; }
-	Rules(int board_size, int nb_symbols);
-	Rules(GameBoard const& board);
+	virtual void setPlayerName(std::string const& name) = 0;
+
+	Rules(int board_size, int nb_symbols, std::string const& name = "");
+	Rules(GameBoard const& board, std::string const& name = "");
 	
 	virtual ~Rules() {}
 };

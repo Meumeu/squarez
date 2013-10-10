@@ -5,7 +5,7 @@ AM_CPPFLAGS = -I$(top_srcdir)/src -DDATADIR=\"$(datadir)\"
 
 shared_sources = src/shared/transition.cpp src/shared/gameboard.cpp src/shared/selection.cpp src/shared/timer.cpp src/shared/serializer.cpp src/shared/network/methods.cpp src/shared/network/urltools.cpp
 
-client_sources = src/client/httprequest.cpp src/client/rules.cpp src/client/multiplayerrules.cpp src/client/singleplayerrules.cpp src/client/ui.cpp
+client_sources = src/client/httprequest.cpp src/client/rules.cpp src/client/multiplayerrules.cpp src/client/singleplayerrules.cpp src/client/ui.cpp src/client/highscores.cpp src/client/score.cpp
 
 if JAVASCRIPT
 www_PROGRAMS = squarez.js

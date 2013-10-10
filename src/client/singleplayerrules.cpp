@@ -25,13 +25,48 @@
 squarez::SinglePlayerRules::SinglePlayerRules(int board_size, int nb_symbols, int long_term, int short_term, int duration) :
 	Rules(board_size, nb_symbols),
 	timer(std::chrono::seconds(long_term), std::chrono::seconds(short_term), std::chrono::seconds(duration)),
-	score(0)
+	score(0),
+	_highScores(10), _scoreSaved(false)
+{}
+
+void squarez::SinglePlayerRules::setUI(squarez::UI* ui)
 {
+	squarez::Rules::setUI(ui);
+
+	auto const& scores = _highScores.getScores();
+	if (ui and not scores.empty())
+	{
+		ui->onScoreListChanged(std::vector<Score>(scores.begin(), scores.end()));
+	}
 }
 
-bool squarez::SinglePlayerRules::gameOver() const
+bool squarez::SinglePlayerRules::gameOver()
 {
-	return timer.percentageLeft() == 0;
+	bool gameOver = timer.percentageLeft() == 0;
+	if (gameOver and not _scoreSaved and _highScores.mayBeSaved(score))
+	{
+		if (_playerName.empty())
+			ui->nameRequired("");
+		else
+		{
+			if (_highScores.save(score, _playerName))
+			{
+				auto const& scores = _highScores.getScores();
+				ui->onScoreListChanged(std::vector<Score>(scores.begin(), scores.end()));
+			}
+			_scoreSaved = true;
+		}
+	}
+	return gameOver;
+}
+
+void squarez::SinglePlayerRules::setPlayerName(const std::string& name)
+{
+	if (not name.empty())
+	{
+		_playerName = name;
+		this->gameOver();
+	}
 }
 
 void squarez::SinglePlayerRules::onSelect(const squarez::Selection& selection)

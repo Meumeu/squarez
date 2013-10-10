@@ -23,6 +23,7 @@
 #include "client/singleplayerrules.h"
 #include "client/multiplayerrules.h"
 #include "client/ui.h"
+#include "client/score.h"
 
 #ifndef EMSCRIPTEN
 #error this file should be compiled with emscripten
@@ -79,6 +80,16 @@ EMSCRIPTEN_BINDINGS(Timer) {
 	;
 }
 
+EMSCRIPTEN_BINDINGS(Score) {
+	emscripten::class_<Score>("Score")
+	.property("score", &Score::_score)
+	.property("name", &Score::_name)
+	.property("date", &Score::getDate)
+	;
+
+	emscripten::register_vector<Score>("VectorScore");
+}
+
 struct UIWrapper: public emscripten::wrapper<UI>
 {
 	EMSCRIPTEN_WRAPPER(UIWrapper);
@@ -90,6 +101,10 @@ struct UIWrapper: public emscripten::wrapper<UI>
 	{
 		return call<void>("onScoreChanged", new_score);
 	}
+	void onScoreListChanged(std::vector<Score> const& scoreList)
+	{
+		return call<void>("onScoreListChanged", scoreList);
+	}
 	void onSelectionAccepted(Selection const& selection)
 	{
 		return call<void>("onSelectionAccepted", selection);
@@ -97,6 +112,10 @@ struct UIWrapper: public emscripten::wrapper<UI>
 	void onSelectionRejected(Selection const& selection)
 	{
 		return call<void>("onSelectionRejected", selection);
+	}
+	void nameRequired(std::string const& lastName)
+	{
+		return call<void>("nameRequired", lastName);
 	}
 };
 
@@ -121,6 +140,7 @@ EMSCRIPTEN_BINDINGS(Rules) {
 	.function("gameOver", &SinglePlayerRules::gameOver)
 	.function("pause", &SinglePlayerRules::pause)
 	.function("unPause", &SinglePlayerRules::unpause)
+	.function("setPlayerName", &SinglePlayerRules::setPlayerName)
 	.property("timer", &SinglePlayerRules::getTimer)
 	.property("board", &SinglePlayerRules::getBoard)
 	.property("score", &SinglePlayerRules::getScore)
@@ -130,6 +150,7 @@ EMSCRIPTEN_BINDINGS(Rules) {
 	.smart_ptr_constructor(&std::make_shared<MultiPlayerRules,std::string,std::string>)
 	.function("onSelect", &MultiPlayerRules::onSelect)
 	.function("gameOver", &MultiPlayerRules::gameOver)
+	.function("setPlayerName", &MultiPlayerRules::setPlayerName)
 	.property("timer", &MultiPlayerRules::getTimer)
 	.property("board", &MultiPlayerRules::getBoard)
 	.property("numberOfRounds", &MultiPlayerRules::getNumberOfRounds)

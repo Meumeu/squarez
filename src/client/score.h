@@ -1,6 +1,6 @@
 /*
  * Squarez puzzle game
- * Copyright (C) 2013  Guillaume Meunier <guillaume.meunier@centraliens.net>
+ * Copyright (C) 2013  Patrick Nicolas <patricknicolas@laposte.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,19 +17,35 @@
  *
  */
 
-#include "rules.h"
+#ifndef SQUAREZ_SCORE_H
+#define SQUAREZ_SCORE_H
 
-squarez::Rules::Rules(int board_size, int nb_symbols, std::string const& name) : board(board_size, nb_symbols), _playerName(name)
+#include <chrono>
+#include <string>
+
+namespace squarez {
+
+class DeSerializer;
+class Serializer;
+
+class Score
 {
+public:
+	Score(unsigned int score, std::string const& name);
+	Score() = default;
+
+	unsigned int _score;
+	std::string _name;
+	std::chrono::system_clock::time_point _date;
+
+	std::time_t getDate() const;
+
+	bool operator<(Score const& other) const { return _score < other._score; }
+};
+
+Serializer & operator<<(Serializer & out, Score const& score);
+DeSerializer & operator>>(DeSerializer & in, Score & score);
 
 }
 
-squarez::Rules::Rules(const squarez::GameBoard& board, std::string const& name) : board(board), _playerName(name)
-{
-
-}
-
-void squarez::Rules::setUI(squarez::UI * _ui)
-{
-	ui = _ui;
-}
+#endif // SQUAREZ_SCORE_H

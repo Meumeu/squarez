@@ -293,7 +293,7 @@ SquarezUI.prototype =
 		{
 			clearInterval(this.timerFunc);
 			this.timerFunc = null;
-			this.gameOver();
+			this.root.getElementsByClassName("gameOver")[0].style.display = "";
 		}
 	},
 	
@@ -316,6 +316,37 @@ SquarezUI.prototype =
 			clearInterval(this.timerFunc);
 			this.timerFunc = null;
 			this.root.getElementsByClassName("pause")[0].style.display = "";
+		}
+	},
+
+	nameRequired: function(lastName)
+	{
+		var form = document.getElementById("nameForm");
+		form.style.display = "";
+		document.getElementById("nameInput").value = lastName;
+		var that = this;
+		form.onsubmit = function()
+		{
+			var name = document.getElementById("nameInput").value;
+			if (! name)
+				return false;
+			form.style.display = "none";
+			that.rules.setPlayerName(name);
+			return false;
+		}
+	},
+
+	onScoreListChanged: function(scoreList)
+	{
+		var scoreListEl = document.getElementById("scoreList");
+		scoreListEl.innerHTML = "";
+		for (var i = 0 ; i < scoreList.size() ; i++)
+		{
+			document.getElementById("highScores").style.display="";
+			var n = document.createElement("tr");
+			var d = new Date(scoreList.get(i).date * 1000);
+			n.innerHTML='<td class="name">'+scoreList.get(i).name+ '</td><td class="date">'+ d.toLocaleDateString() + '</td><td class="score">' + scoreList.get(i).score + "</td>";
+			scoreListEl.appendChild(n);
 		}
 	}
 }

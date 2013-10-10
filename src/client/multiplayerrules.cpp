@@ -26,7 +26,7 @@
 
 #define NOP [](){}
 
-bool squarez::MultiPlayerRules::gameOver() const
+bool squarez::MultiPlayerRules::gameOver()
 {
 	return false;
 }
@@ -45,11 +45,11 @@ void squarez::MultiPlayerRules::timeTick(std::chrono::duration<float>)
 {
 }
 
-squarez::MultiPlayerRules::MultiPlayerRules(const std::string& url, const std::string& username): Rules(0,0), _timer(std::chrono::seconds(0)),
+squarez::MultiPlayerRules::MultiPlayerRules(const std::string& url, const std::string& username): Rules(0,0, username), _timer(std::chrono::seconds(0)),
 #ifndef EMSCRIPTEN
 _xhr(_mutex),
 #endif
-_url(url), _username(username), _score(0)
+_url(url), _score(0)
 {
 	//Retrieve the game parameters
 	StringDeSerializer ser(_xhr.request(url + GameInit::encodeRequest(username)));
@@ -97,5 +97,7 @@ void squarez::MultiPlayerRules::onSelectionPushed(Selection const &selection, co
 	_score = score;
 }
 
-
-
+void squarez::MultiPlayerRules::setPlayerName(const std::string& /*name*/)
+{
+	throw std::runtime_error("Name can not be changed in multiplayer mode");
+}

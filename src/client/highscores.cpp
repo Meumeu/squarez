@@ -18,13 +18,13 @@
  */
 
 #include "highscores.h"
+#include <shared/serializer.h>
 #include <cstdlib>
 #include <fstream>
 
-static const std::string fileName = "scores";
+#include "config.h"
 
-squarez::HighScores::Score::Score(unsigned int score, const std::string& name):
-	_score(score), _name(name), _date(std::chrono::system_clock::now()) {}
+static const std::string fileName = "scores";
 
 namespace {
 std::string getenv(const char * variable, std::string const& defaultValue)
@@ -37,7 +37,7 @@ std::string getenv(const char * variable, std::string const& defaultValue)
 
 std::string getFileName()
 {
-	return getenv("XDG_DATA_HOME", getenv("HOME", "") + "/.local/share") + "/"PACKAGE"/" + fileName;
+	return getenv("XDG_DATA_HOME", getenv("HOME", "") + "/.local/share") + "/" PACKAGE "/" + fileName;
 }
 
 }
@@ -45,23 +45,40 @@ std::string getFileName()
 squarez::HighScores::HighScores(unsigned int maxScores) : _maxScores(maxScores)
 {
 	// Try to deserialize scores from "file"
-	std::fstream * f = new std::fstream(getFileName());
-	if (*f)
+	std::fstream f(getFileName(), std::ios::in);
+	try
 	{
+		DeSerializer ser(f);
+		ser >> _scores;
 	}
-	else
+	catch (...)
 	{
-		delete f;
+		_scores.clear();
 	}
 
 }
 
 bool squarez::HighScores::save(unsigned int score, const std::string& name)
 {
-	if (_scores.size() >= _maxScores and score < _scores.rbegin()->_score)
+	if (not mayBeSaved(score))
 		return false;
 
 	_scores.insert(Score(score, name));
 
+	std::fstream f(getFileName(), std::ios_base::out | std::ios_base::trunc);
+	try
+	{
+		Serializer ser(f);
+		ser << _scores;
+	}
+	catch (...)
+	{
+		std::cerr << "Failed to save high scores" << std::endl;
+	}
 	return true;
+}
+
+bool squarez::HighScores::mayBeSaved(unsigned int score)
+{
+	return score > 0 and (_scores.size() < _maxScores or score > _scores.rbegin()->_score);
 }

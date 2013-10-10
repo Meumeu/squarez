@@ -17,32 +17,32 @@
  *
  */
 
-#ifndef SQUAREZ_HIGHSCORES_H
-#define SQUAREZ_HIGHSCORES_H
+#include "score.h"
 
-#include <set>
-#include <string>
+#include "shared/serializer.h"
 
-#include "client/score.h"
+namespace squarez{
 
-namespace squarez {
+Score::Score(unsigned int score, const std::string& name):
+_score(score), _name(name), _date(std::chrono::system_clock::now()) {}
 
-class HighScores
+std::time_t Score::getDate() const
 {
-public:
-	HighScores(unsigned int maxScores);
-
-	bool save(unsigned int score, std::string const& name);
-	// Return true if the score is eligible to be a new high score
-	bool mayBeSaved(unsigned int score);
-
-	std::multiset<Score> const& getScores() const { return _scores; }
-
-private:
-	unsigned int _maxScores;
-	std::multiset<Score> _scores;
-};
-
+	return std::chrono::system_clock::to_time_t(_date);
 }
 
-#endif // SQUAREZ_HIGHSCORES_H
+DeSerializer& operator>>(DeSerializer& in, Score& score)
+{
+	std::time_t date;
+	in >> date >> score._name >> score._score;
+	score._date = std::chrono::system_clock::from_time_t(date);
+	return in;
+}
+Serializer& operator<<(Serializer& out, const Score& score)
+{
+	out << std::chrono::system_clock::to_time_t(score._date) << score._name << score._score;
+	return out;
+}
+
+
+}
