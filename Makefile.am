@@ -42,7 +42,7 @@ endif
 
 if TESTS
 bin_PROGRAMS += squareztest squareztest_bot
-squareztest_SOURCES = src/test/main.cpp $(shared_sources)
+squareztest_SOURCES = src/test/main.cpp $(shared_sources) $(client_sources)
 squareztest_CPPFLAGS = $(AM_CPPFLAGS) $(CURL_CFLAGS)
 squareztest_LDFLAGS = $(CURL_LIBS)
 squareztest_bot_SOURCES = src/test/bot.cpp $(shared_sources)

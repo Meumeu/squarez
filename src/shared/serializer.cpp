@@ -48,8 +48,6 @@ DeSerializer& operator>>(DeSerializer& ser, std::string& str)
 
 	ser._stream.read(buffer.data(), s);
 	str.assign(buffer.data(), s);
-
-	ser._stream.seekg(s, std::ios_base::cur);
 	
 	return ser;
 }

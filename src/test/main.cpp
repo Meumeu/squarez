@@ -24,7 +24,8 @@
 #include <cmath>
 
 #include "shared/gameboard.h"
-#include "shared/httprequest.h"
+#include "client/httprequest.h"
+#include "shared/network/urltools.h"
 #include "shared/serializer.h"
 
 #define SIZE 8
@@ -199,7 +200,7 @@ void testSerialization1()
 {
 	std::cout << "Serialization validation 1 testing... ";
 	
-	squarez::Serializer s;
+	squarez::StringSerializer s;
 	
 	s << 42;
 	s << "toto";
@@ -207,7 +208,7 @@ void testSerialization1()
 	s << "";
 	s << std::pair<int, float>(4156, 4168.48);
 // 	std::cout << "<" << s.get() << ">" << std::endl;
-	squarez::Serializer s2(s.get());
+	squarez::StringDeSerializer s2(s.get());
 	
 	int x;
 	std::string y;
@@ -242,10 +243,10 @@ void testSerialization2()
 	
 	squarez::GameBoard board(SIZE, SYMBOLS);
 
-	squarez::Serializer stream;
+	squarez::StringSerializer stream;
 	stream << board;
 
-	squarez::Serializer stream2(stream.get());
+	squarez::StringDeSerializer stream2(stream.get());
 	
 	squarez::GameBoard board1(stream2);
 	bool sameCells = true;
@@ -311,16 +312,16 @@ void testUrlEncode()
 {
 	std::cout << "urlencode testing... ";
 	
-	if (squarez::HttpRequest::urlencode("toto") != "toto")
+	if (squarez::urlTools::urlencode("toto") != "toto")
 		throw std::runtime_error("urlencode error");
 	
-	if (squarez::HttpRequest::urlencode("to/to") != "to%2fto")
+	if (squarez::urlTools::urlencode("to/to") != "to%2fto")
 		throw std::runtime_error("urlencode error");
 	
-	if (squarez::HttpRequest::urlencode("to\nto") != "to%0ato")
+	if (squarez::urlTools::urlencode("to\nto") != "to%0ato")
 		throw std::runtime_error("urlencode error");
 	
-	if (squarez::HttpRequest::urlencode("&é\"'(-è_çà)=+*!:;,") != "%26%c3%a9%22'(-%c3%a8_%c3%a7%c3%a0)%3d%2b*!%3a%3b%2c")
+	if (squarez::urlTools::urlencode("&é\"'(-è_çà)=+*!:;,") != "%26%c3%a9%22'(-%c3%a8_%c3%a7%c3%a0)%3d%2b*!%3a%3b%2c")
 		throw std::runtime_error("urlencode error");
 	
 	std::cout << "passed" << std::endl;
