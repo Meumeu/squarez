@@ -20,7 +20,47 @@
 #include "highscores.h"
 #include <shared/serializer.h>
 #include <cstdlib>
+
+#ifdef EMSCRIPTEN
+#include <sstream>
+#include <emscripten/val.h>
+class LocalStorage
+{
+public:
+	LocalStorage(std::string const& fileName, std::ios_base::openmode mode):
+		_fileName(fileName), _mode(mode)
+	{
+		if (_mode | std::ios_base::in)
+		{
+			emscripten::val localStorage = emscripten::val::global("localStorage");
+			auto const & file = localStorage.call<emscripten::val>("getItem", fileName);
+			if (file.as<bool>())
+			{
+				_stream = std::stringstream(file.as<std::string>());
+			}
+		}
+	}
+
+	~LocalStorage()
+	{
+		if (_mode | std::ios_base::out)
+		{
+			emscripten::val localStorage = emscripten::val::global("localStorage");
+			localStorage.call<void>("setItem", _fileName, _stream.str());
+		}
+	}
+
+	operator std::stringstream& () { return _stream; }
+private:
+	std::string _fileName;
+	std::ios_base::openmode _mode;
+	std::stringstream _stream;
+};
+typedef LocalStorage persistent_t;
+#else
 #include <fstream>
+typedef std::fstream persistent_t;
+#endif
 
 #include "config.h"
 
@@ -45,7 +85,7 @@ std::string getFileName()
 squarez::HighScores::HighScores(unsigned int maxScores) : _maxScores(maxScores)
 {
 	// Try to deserialize scores from "file"
-	std::fstream f(getFileName(), std::ios::in);
+	persistent_t f(getFileName(), std::ios::in);
 	try
 	{
 		DeSerializer ser(f);
@@ -65,7 +105,7 @@ bool squarez::HighScores::save(unsigned int score, const std::string& name)
 
 	_scores.insert(Score(score, name));
 
-	std::fstream f(getFileName(), std::ios_base::out | std::ios_base::trunc);
+	persistent_t f(getFileName(), std::ios_base::out | std::ios_base::trunc);
 	try
 	{
 		Serializer ser(f);

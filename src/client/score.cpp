@@ -40,9 +40,8 @@ DeSerializer& operator>>(DeSerializer& in, Score& score)
 }
 Serializer& operator<<(Serializer& out, const Score& score)
 {
-	out << std::chrono::system_clock::to_time_t(score._date) << score._name << score._score;
+	out << score.getDate() << score._name << score._score;
 	return out;
 }
-
 
 }

@@ -36,7 +36,7 @@ void squarez::SinglePlayerRules::setUI(squarez::UI* ui)
 	auto const& scores = _highScores.getScores();
 	if (ui and not scores.empty())
 	{
-		ui->onScoreListChanged(std::vector<Score>(scores.begin(), scores.end()));
+		ui->onScoreListChanged(std::vector<Score>(scores.rbegin(), scores.rend()));
 	}
 }
 
