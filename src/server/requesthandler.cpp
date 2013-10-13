@@ -61,8 +61,16 @@ bool RequestHandler::response()
 			if (method == "/" + TransitionPoll::method())
 			{
 				_state = GetTransition;
-				RWGameStatus()().registerWait(callback(), getToken(environment()));
+				RWGameStatus status;
+				status().registerWait(callback(), getToken(environment()));
 				return false;
+			}
+
+			if (method == "/num_players")
+			{
+				ROGameStatus status;
+				out << status().getPlayersByScore().size();
+				return true;
 			}
 
 			//FIXME: Unkown method, return something ?

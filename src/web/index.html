@@ -19,17 +19,17 @@
 		</div>
 		<script>
 			var r = new XMLHttpRequest();
-			r.open("get", "squarez/get_scores");
+			r.open("get", "squarez/num_players");
 			r.onreadystatechange = function()
 			{
 				if (r.readyState == 4 && r.status == 200)
 					{
-						scores = JSON.parse(r.responseText);
+						players = r.responseText;
 
-						if (scores.scores.length == 0)
+						if (players == 0)
 							document.getElementById("playerInfo").style.display = "none";
 
-						document.getElementById("numPlayers").innerHTML = scores.scores.length;
+						document.getElementById("numPlayers").innerHTML = players;
 						document.getElementById("multiplayerChoice").style.display = "";
 					}
 			};
