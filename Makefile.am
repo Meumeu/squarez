@@ -3,9 +3,9 @@ ACLOCAL_AMFLAGS = -I m4
 
 AM_CPPFLAGS = -I$(top_srcdir)/src -DDATADIR=\"$(datadir)\"
 
-shared_sources = src/shared/transition.cpp src/shared/gameboard.cpp src/shared/selection.cpp src/shared/timer.cpp src/shared/serializer.cpp src/shared/network/methods.cpp src/shared/network/urltools.cpp
+shared_sources = src/shared/transition.cpp src/shared/gameboard.cpp src/shared/selection.cpp src/shared/timer.cpp src/shared/serializer.cpp src/shared/network/methods.cpp src/shared/network/urltools.cpp src/shared/score.cpp
 
-client_sources = src/client/httprequest.cpp src/client/rules.cpp src/client/multiplayerrules.cpp src/client/singleplayerrules.cpp src/client/ui.cpp src/client/highscores.cpp src/client/score.cpp
+client_sources = src/client/httprequest.cpp src/client/rules.cpp src/client/multiplayerrules.cpp src/client/singleplayerrules.cpp src/client/ui.cpp src/client/highscores.cpp
 
 if JAVASCRIPT
 www_PROGRAMS = squarez.js

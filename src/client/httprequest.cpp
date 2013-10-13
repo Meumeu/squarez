@@ -20,7 +20,6 @@
 #include "httprequest.h"
 #include <string>
 #include <stdexcept>
-#include "config.h"
 
 #ifndef EMSCRIPTEN
 
@@ -29,6 +28,8 @@
 #include <sstream>
 #include <thread>
 #include <mutex>
+
+#include "config.h"
 
 namespace
 {
@@ -100,19 +101,21 @@ std::string squarez::HttpRequest::request(const std::string& url)
 }
 
 #else //EMSCRIPTEN
+#include <emscripten/val.h>
+
 typedef std::pair<std::function<void(std::string const&)>, std::function<void()>> callback_pair;
 
 namespace {
 void em_callback(callback_pair* callbacks, char* data, int size)
 {
+	std::unique_ptr<callback_pair> callbacks_ptr(callbacks);
 	std::string res(data, size);
-	callbacks->first(res);
-	delete callbacks;
+	callbacks_ptr->first(res);
 }
 void em_error(callback_pair* callbacks)
 {
-	callbacks->second();
-	delete callbacks;
+	std::unique_ptr<callback_pair> callbacks_ptr(callbacks);
+	callbacks_ptr->second();
 }
 }
 void squarez::HttpRequest::request(const std::string& url, std::function<void(std::string const&)> onload, std::function<void()> onerror)
@@ -123,13 +126,10 @@ void squarez::HttpRequest::request(const std::string& url, std::function<void(st
 
 std::string squarez::HttpRequest::request(const std::string& url)
 {
-	std::string request("var xhr=new XMLHttpRequest();"
-	"xhr.open('get','" + url + "',false);"
-	"xhr.send();"
-	"xhr.responseText;");
-
-	const char* data = emscripten_run_script_string(request.data());
-	return std::string(data);
+	emscripten::val xhr = emscripten::val::global("XMLHttpRequest").new_();
+	xhr.call<void>("open", std::string("get"), url, false);
+	xhr.call<void>("send");
+	return xhr["responseText"].as<std::string>();
 }
 
 #endif

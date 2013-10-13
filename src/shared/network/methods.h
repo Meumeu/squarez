@@ -27,6 +27,7 @@
 #include <vector>
 
 #include "shared/gameboard.h"
+#include "shared/score.h"
 
 namespace squarez
 {
@@ -89,7 +90,7 @@ namespace squarez
 		ScoreList(DeSerializer & serialized);
 		ScoreList() = default;
 
-		std::vector<std::pair<unsigned int, std::string>> _scores;
+		std::vector<Score> _scores;
 	};
 	Serializer & operator<<(Serializer & out, ScoreList const& scoreList);
 }

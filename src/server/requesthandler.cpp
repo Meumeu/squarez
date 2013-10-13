@@ -114,7 +114,7 @@ bool RequestHandler::getScores()
 	ScoreList scores;
 	for (Player const & player: players)
 	{
-		scores._scores.push_back(std::make_pair(player.getScore(), player.getName()));
+		scores._scores.push_back(Score(player.getScore(), player.getName()));
 	}
 	Serializer ser(out);
 	ser << scores;

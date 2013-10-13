@@ -218,7 +218,7 @@ SquarezUI.prototype =
 			{
 				var e = this.getCell(cell.fromx, cell.fromy);
 				e.classList.add("removed");
-				e.classList.add("transient");//FIXME: Firefox does not support add with multiple arguments
+				e.classList.add("transient");
 			}
 			else
 			{

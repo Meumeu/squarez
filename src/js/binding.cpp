@@ -17,13 +17,13 @@
  *
  */
 
+#include "client/multiplayerrules.h"
+#include "client/singleplayerrules.h"
+#include "client/ui.h"
 #include "shared/gameboard.h"
 #include "shared/timer.h"
 #include "shared/selection.h"
-#include "client/singleplayerrules.h"
-#include "client/multiplayerrules.h"
-#include "client/ui.h"
-#include "client/score.h"
+#include "shared/score.h"
 
 #ifndef EMSCRIPTEN
 #error this file should be compiled with emscripten

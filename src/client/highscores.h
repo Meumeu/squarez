@@ -23,7 +23,7 @@
 #include <set>
 #include <string>
 
-#include "client/score.h"
+#include "shared/score.h"
 
 namespace squarez {
 
