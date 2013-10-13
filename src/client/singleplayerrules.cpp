@@ -52,7 +52,7 @@ bool squarez::SinglePlayerRules::gameOver()
 			if (_highScores.save(score, _playerName))
 			{
 				auto const& scores = _highScores.getScores();
-				ui->onScoreListChanged(std::vector<Score>(scores.begin(), scores.end()));
+				ui->onScoreListChanged(std::vector<Score>(scores.rbegin(), scores.rend()));
 			}
 			_scoreSaved = true;
 		}
