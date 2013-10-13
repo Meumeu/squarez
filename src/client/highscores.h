@@ -39,6 +39,9 @@ public:
 	std::multiset<Score> const& getScores() const { return _scores; }
 
 private:
+	// Store the score list to deserialize later
+	void persist();
+
 	unsigned int _maxScores;
 	std::multiset<Score> _scores;
 };

@@ -32,6 +32,7 @@ class Score
 {
 public:
 	Score(unsigned int score, std::string const& name);
+	Score(unsigned int score, std::string const& name, std::time_t date);
 	Score() = default;
 
 	unsigned int _score;

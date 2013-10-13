@@ -26,6 +26,9 @@ namespace squarez{
 Score::Score(unsigned int score, const std::string& name):
 _score(score), _name(name), _date(std::chrono::system_clock::now()) {}
 
+Score::Score(unsigned int score, const std::string& name, std::time_t date):
+_score(score), _name(name), _date(std::chrono::system_clock::from_time_t(date)) {}
+
 std::time_t Score::getDate() const
 {
 	return std::chrono::system_clock::to_time_t(_date);

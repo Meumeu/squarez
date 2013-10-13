@@ -85,16 +85,58 @@ std::string getFileName()
 squarez::HighScores::HighScores(unsigned int maxScores) : _maxScores(maxScores)
 {
 	// Try to deserialize scores from "file"
-	persistent_t f(getFileName(), std::ios::in);
-	try
 	{
-		DeSerializer ser(f);
-		ser >> _scores;
+		persistent_t f(getFileName(), std::ios::in);
+		try
+		{
+			DeSerializer ser(f);
+			ser >> _scores;
+		}
+		catch (...)
+		{
+			_scores.clear();
+		}
 	}
-	catch (...)
+
+#ifdef EMSCRIPTEN
+// Migrate old score format
+	emscripten::val localStorage = emscripten::val::global("localStorage");
+	unsigned int i = 0;
+	while (true)
 	{
-		_scores.clear();
+		std::stringstream i_;
+		i_ << i++;
+		std::string i_string = i_.str();
+
+		emscripten::val date_val = localStorage.call<emscripten::val>("getItem", "score_date_" + i_string);
+		emscripten::val name_val = localStorage.call<emscripten::val>("getItem", "score_name_" + i_string);
+		emscripten::val score_val = localStorage.call<emscripten::val>("getItem", "score_val_" + i_string);
+
+		localStorage.call<void>("removeItem", "score_date_" + i_string);
+		localStorage.call<void>("removeItem", "score_name_" + i_string);
+		localStorage.call<void>("removeItem", "score_val_" + i_string);
+
+		if (not date_val.as<bool>() or not name_val.as<bool>() or not score_val.as<bool>())
+			break;
+
+		unsigned long long date;
+		unsigned int score;
+		{
+			std::stringstream s;
+			s << date_val.as<std::string>();
+			s >> date;
+		}
+
+		{
+			std::stringstream s;
+			s << score_val.as<std::string>();
+			s >> score;
+		}
+
+		_scores.insert(Score(score, name_val.as<std::string>(), date/1000));
 	}
+	this->persist();
+#endif
 
 }
 
@@ -105,6 +147,18 @@ bool squarez::HighScores::save(unsigned int score, const std::string& name)
 
 	_scores.insert(Score(score, name));
 
+	this->persist();
+
+	return true;
+}
+
+bool squarez::HighScores::mayBeSaved(unsigned int score)
+{
+	return score > 0 and (_scores.size() < _maxScores or score > _scores.rbegin()->_score);
+}
+
+void squarez::HighScores::persist()
+{
 	persistent_t f(getFileName(), std::ios_base::out | std::ios_base::trunc);
 	try
 	{
@@ -115,10 +169,5 @@ bool squarez::HighScores::save(unsigned int score, const std::string& name)
 	{
 		std::cerr << "Failed to save high scores" << std::endl;
 	}
-	return true;
 }
 
-bool squarez::HighScores::mayBeSaved(unsigned int score)
-{
-	return score > 0 and (_scores.size() < _maxScores or score > _scores.rbegin()->_score);
-}
