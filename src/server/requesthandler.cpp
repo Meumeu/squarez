@@ -53,7 +53,12 @@ bool RequestHandler::response()
 				return this->getBoard();
 
 			if (method == "/" + ScoreList::method())
-				return this->getScores();
+			{
+				_state = GetScore;
+				RWGameStatus status;
+				status().registerWaitScore(callback());
+				return false;
+			}
 
 			if (method == "/" + PushSelection::method())
 				return this->pushSelection();
@@ -62,7 +67,7 @@ bool RequestHandler::response()
 			{
 				_state = GetTransition;
 				RWGameStatus status;
-				status().registerWait(callback(), getToken(environment()));
+				status().registerWaitTransition(callback(), getToken(environment()));
 				return false;
 			}
 
@@ -78,9 +83,9 @@ bool RequestHandler::response()
 			return true;
 		}
 		case GetTransition:
-		{
 			return this->getTransition();
-		}
+		case GetScore:
+			return this->getScores();
 	}
 	return true;
 }

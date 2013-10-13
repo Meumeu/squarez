@@ -67,6 +67,8 @@ public:
 	void onTransitionPoll(std::string const& serializedTransition);
 	// Callback for accepted selection
 	void onSelectionPushed(Selection const& selection, std::string const& res);
+	// Callback when new scores have been returned
+	void onScoreListPoll(std::string const& scoreList);
 
 };
 

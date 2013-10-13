@@ -54,7 +54,16 @@ uint16_t GameStatus::pushSelection(const Selection& selection, unsigned int toke
 
 	// Add the score to the player
 	auto & player = _players.at(token);
+	auto score = player.getScore();
 	player.setRoundScore(transition._score);
+
+	if (score != player.getScore())
+	{
+		// Return the updated scores
+		for (auto const& callback: _pendingScoreList)
+			callback(Fastcgipp::Message(1));
+		_pendingScoreList.clear();
+	}
 
 	return player.getScore();
 }
@@ -97,6 +106,11 @@ void GameStatus::run()
 
 				// Shuffle the board
 				_lastRoundTransition = Transition(_board.size());
+
+				// Return the updated scores
+				for (auto const& callback: _pendingScoreList)
+					callback(Fastcgipp::Message(1));
+				_pendingScoreList.clear();
 			}
 			else
 			{
@@ -116,12 +130,10 @@ void GameStatus::run()
 			_board.applyTransition(_lastRoundTransition);
 
 			// Wake all waiting threads
-			for (auto const& callback: _pending)
-			{
+			for (auto const& callback: _pendingTransition)
 				callback(Fastcgipp::Message(1));
-			}
+			_pendingTransition.clear();
 
-			_pending.clear();
 			_round = (_round + 1)% _roundsPerGame;
 			_nextRound += _roundDuration;
 		}
@@ -169,10 +181,15 @@ std::vector<std::reference_wrapper<const Player>> GameStatus::getPlayersByScore(
 	return res;
 }
 
-void GameStatus::registerWait(boost::function<void(Fastcgipp::Message)> const& callback, unsigned int token)
+void GameStatus::registerWaitTransition(boost::function<void(Fastcgipp::Message)> const& callback, unsigned int token)
 {
 	_players.at(token).setActive();
-	_pending.push_back(callback);
+	_pendingTransition.push_back(callback);
+}
+
+void GameStatus::registerWaitScore(boost::function<void(Fastcgipp::Message)> const& callback)
+{
+	_pendingScoreList.push_back(callback);
 }
 
 ROGameStatus::ROGameStatus(): _gameStatus(GameStatus::instance()), _lock(_gameStatus._mutex) {}

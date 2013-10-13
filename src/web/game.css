@@ -181,6 +181,10 @@ a
 	font-size: 2em;
 	font-weight: bold;
 }
+.multiplayer #highScores .date
+{
+	display: none;
+}
 
 .timeLeftOuter,
 .timeLeftInner,

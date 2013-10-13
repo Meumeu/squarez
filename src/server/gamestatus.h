@@ -78,7 +78,10 @@ public:
 	// And stores the transition if it is better
 	uint16_t pushSelection(Selection const& selection, unsigned int token);
 
-	void registerWait(boost::function<void(Fastcgipp::Message)> const& callback, unsigned int token);
+	// Wait for a transition to be available
+	void registerWaitTransition(boost::function<void(Fastcgipp::Message)> const& callback, unsigned int token);
+	// Wait for a change in score list
+	void registerWaitScore(boost::function<void(Fastcgipp::Message)> const& callback);
 
 	Transition const& getLastRoundTransition() const { return _lastRoundTransition;}
 
@@ -122,7 +125,9 @@ private:
 	std::chrono::seconds _roundDuration;
 
 	// Request waiting for a new round
-	std::vector<boost::function<void(Fastcgipp::Message)>> _pending;
+	std::vector<boost::function<void(Fastcgipp::Message)>> _pendingTransition;
+	// Request waiting for a change on score list
+	std::vector<boost::function<void(Fastcgipp::Message)>> _pendingScoreList;
 
 	std::chrono::steady_clock::time_point _nextRound;
 

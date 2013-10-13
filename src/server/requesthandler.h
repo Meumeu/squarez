@@ -33,7 +33,8 @@ class RequestHandler: public Fastcgipp::Request<char>
 	enum State
 	{
 		Init,
-		GetTransition
+		GetTransition,
+		GetScore
 	};
 public:
 	RequestHandler(): _state(Init) {}

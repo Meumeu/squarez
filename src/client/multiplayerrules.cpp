@@ -64,21 +64,29 @@ _url(url), _score(0)
 	_numberOfRounds = gameinit._numberOfRounds;
 
 	// Start the round polling loop
-	_xhr.request(url + TransitionPoll::encodeRequest(_token), std::bind(&MultiPlayerRules::onTransitionPoll, this, std::placeholders::_1), NOP);
+	onTransitionPoll("");
+
+	// Start the score polling loop
+	onScoreListPoll("");
 
 }
 
 void squarez::MultiPlayerRules::onTransitionPoll(const std::string& serializedTransition)
 {
-	StringDeSerializer ser(serializedTransition);
-	TransitionPoll transitionPoll(ser);
-	ui->onTransition(transitionPoll._transition);
-	board.applyTransition(transitionPoll._transition);
-	if (transitionPoll._round == 0)
+	if (not serializedTransition.empty())
 	{
-		ui->onScoreChanged(0);
-		_score = 0;
-		_timer.refill(200);
+		StringDeSerializer ser(serializedTransition);
+		TransitionPoll transitionPoll(ser);
+		if (ui)
+			ui->onTransition(transitionPoll._transition);
+		board.applyTransition(transitionPoll._transition);
+		if (transitionPoll._round == 0)
+		{
+			if (ui)
+				ui->onScoreChanged(0);
+			_score = 0;
+			_timer.refill(200);
+		}
 	}
 
 	_xhr.request(_url + TransitionPoll::encodeRequest(_token), std::bind(&MultiPlayerRules::onTransitionPoll, this, std::placeholders::_1), NOP);
@@ -100,4 +108,19 @@ void squarez::MultiPlayerRules::onSelectionPushed(Selection const &selection, co
 void squarez::MultiPlayerRules::setPlayerName(const std::string& /*name*/)
 {
 	throw std::runtime_error("Name can not be changed in multiplayer mode");
+}
+
+void squarez::MultiPlayerRules::onScoreListPoll(const std::string& scoreList)
+{
+	if (not scoreList.empty())
+	{
+		StringDeSerializer ser(scoreList);
+		ScoreList scores(ser);
+		if (ui)
+			ui->onScoreListChanged(scores._scores);
+	}
+
+	_xhr.request(_url + ScoreList::encodeRequest(),
+		std::bind(&MultiPlayerRules::onScoreListPoll, this, std::placeholders::_1),
+		std::bind(&MultiPlayerRules::onScoreListPoll, this, ""));
 }
