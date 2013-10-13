@@ -119,7 +119,11 @@ template<class T> Serializer& operator<<(Serializer& ser, std::vector<T> const& 
 template<class T> DeSerializer& operator>>(DeSerializer& ser, std::vector<T>& v)
 {
 	std::size_t s;
+	v.clear();
+
 	ser >> s;
+	if (ser._stream.eof())
+		return ser;
 	T x;
 	
 	while(s--)
@@ -145,7 +149,11 @@ template<class T> Serializer& operator<<(Serializer& ser, std::set<T> const& v)
 template<class T> DeSerializer& operator>>(DeSerializer& ser, std::set<T>& v)
 {
 	std::size_t s;
+	v.clear();
+
 	ser >> s;
+	if (ser._stream.eof())
+		return ser;
 	T x;
 
 	while(s--)
@@ -171,7 +179,11 @@ template<class T> Serializer& operator<<(Serializer& ser, std::multiset<T> const
 template<class T> DeSerializer& operator>>(DeSerializer& ser, std::multiset<T>& v)
 {
 	std::size_t s;
+	v.clear();
 	ser >> s;
+
+	if (ser._stream.eof())
+		return ser;
 	T x;
 
 	while(s--)
