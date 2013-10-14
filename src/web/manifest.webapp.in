@@ -1,0 +1,18 @@
+{
+	"version": "@VERSION@",
+	"name": "@PACKAGE_NAME@",
+	"description": "Squarez puzzle game",
+	"launch_path": "/index.html",
+	"developer": {
+		"name": "Xytovl",
+		"url": "http://squarez.meumeu.org"
+		},
+	"icons": {
+		"30": "/img/icon30.png",
+		"60": "/img/icon60.png",
+		"64": "/img/icon64.png",
+		"90": "/img/icon90.png",
+		"120": "/img/icon120.png",
+		"128": "/img/icon128.png"
+	}
+}

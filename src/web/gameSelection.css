@@ -6,9 +6,14 @@ a
 .modeSelection
 {
 	display: table;
-	text-align: center;
 	width: 100%;
 	min-height: 300px;
+}
+
+#install,
+.modeSelection
+{
+	text-align: center;
 }
 
 .modeSelection > *
@@ -19,13 +24,23 @@ a
 }
 
 .singleplayerChoice:hover,
-.multiplayerChoice:hover
+.multiplayerChoice:hover,
+#install:hover
 {
 	background-color: rgba(255,255,255, 0.1);
 }
 
 .singleplayerChoice,
-.multiplayerChoice
+.multiplayerChoice,
+#install
 {
 	padding: 10px;
+}
+
+#install
+{
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
 }

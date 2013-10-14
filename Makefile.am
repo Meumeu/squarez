@@ -16,7 +16,7 @@ www_script_PROGRAMS = squarez.js
 www_script_DATA = src/js/squarezUI.js src/js/singleplayer.js src/js/multiplayer.js 
 
 www_imgdir = $(wwwdir)/img
-www_img_DATA = data/img/icon30.png data/img/icon60.png data/img/icon128.png
+www_img_DATA = data/img/icon30.png data/img/icon60.png data/img/icon64.png data/img/icon90.png data/img/icon120.png data/img/icon128.png
 
 www_DATA = src/web/singleplayer.html src/web/multiplayer.html src/web/index.html manifest.webapp src/web/game.css src/web/gameSelection.css 
 else

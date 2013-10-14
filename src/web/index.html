@@ -18,6 +18,7 @@
 				</div>
 			</a>
 		</div>
+		<a id="install" style="display:none">Install the game</a>
 		<script>
 			var r = new XMLHttpRequest();
 			r.open("get", "squarez/num_players");
@@ -35,6 +36,16 @@
 					}
 			};
 			r.send();
+
+			if (window.navigator.mozApps && window.navigator.mozApps.install)
+			{
+				var i = document.getElementById("install");
+				i.style.display = "";
+				i.onclick = function()
+				{
+					window.navigator.mozApps.install("http://" + window.location.host + "/manifest.webapp");
+				}
+			}
 		</script>
 	</body>
 </html>
