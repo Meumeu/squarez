@@ -8,10 +8,17 @@ shared_sources = src/shared/transition.cpp src/shared/gameboard.cpp src/shared/s
 client_sources = src/client/httprequest.cpp src/client/rules.cpp src/client/multiplayerrules.cpp src/client/singleplayerrules.cpp src/client/ui.cpp src/client/highscores.cpp
 
 if JAVASCRIPT
-www_PROGRAMS = squarez.js
 squarez_js_SOURCES =  $(shared_sources) $(client_sources) src/js/binding.cpp
 squarez_js_LDFLAGS = --bind --closure 1 --llvm-lto 1
-www_DATA = src/js/squarezUI.js src/js/singleplayer.js src/js/multiplayer.js src/web/gameSelection.css src/web/game.css src/web/singleplayer.html src/web/multiplayer.html src/web/index.html
+
+www_scriptdir = $(wwwdir)/script
+www_script_PROGRAMS = squarez.js
+www_script_DATA = src/js/squarezUI.js src/js/singleplayer.js src/js/multiplayer.js 
+
+www_imgdir = $(wwwdir)/img
+www_img_DATA = data/img/icon30.png data/img/icon60.png data/img/icon128.png
+
+www_DATA = src/web/singleplayer.html src/web/multiplayer.html src/web/index.html manifest.webapp src/web/game.css src/web/gameSelection.css 
 else
 
 bin_PROGRAMS = 
