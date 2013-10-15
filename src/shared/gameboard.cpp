@@ -66,44 +66,54 @@ void GameBoard::set(unsigned int x, unsigned int y, unsigned int symbol)
 	_cells[x * _size + y] = symbol;
 }
 
-static uint16_t norm(std::pair<unsigned int, unsigned int> p0, std::pair<unsigned int, unsigned int> p1)
+typedef std::pair<unsigned int, unsigned int> point_t;
+
+static unsigned int norm(point_t p0, point_t p1)
 {
 	return (p1.first - p0.first)*(p1.first - p0.first) + (p1.second - p0.second)*(p1.second - p0.second);
 }
 
 // Check if the angle p0p1,p1p2 is a square angle
-static bool isSquareAngle(std::pair<unsigned int, unsigned int> p0, std::pair<unsigned int, unsigned int> p1, std::pair<unsigned int, unsigned int> p2)
+static bool isSquareAngle(point_t p0, point_t p1, point_t p2)
 {
 	return ((p1.first - p0.first) * (p1.first - p2.first) + (p1.second - p0.second) * (p1.second- p2.second)) == 0;
 }
 
-
-Transition GameBoard::selectSquare(const Selection& selection, bool allowDefeat) const
+static unsigned int computeScore(GameBoard const& board, Selection const& selection)
 {
 	auto const& points = selection.getPoints();
-	
+
 	// Check that we are actually selecting 4 points
 	if (points.size() != 4)
-		return Transition();
-	
+		return 0;
+
 	auto it = points.begin();
 	auto p0 = *(it++);
 	auto p1 = *(it++);
 	auto p2 = *(it++);
 	auto p3 = *it;
-	
+
 	// Check that symbols are all the same
-	if (this->get(p0) != this->get(p1) or this->get(p2) != this->get(p3) or this->get(p0) != this->get(p2))
-		return Transition();
-	
+	if (board.get(p0) != board.get(p1) or board.get(p2) != board.get(p3) or board.get(p0) != board.get(p2))
+		return 0;
+
 	// Now verify that it is a square: 4 edges with the same length and a square angle
 	auto score = norm(p0,p1);
 	if (norm(p0,p2) != score or norm(p2,p3) != score or norm(p1,p3) != score or not isSquareAngle(p0,p1,p3) or score == 0)
-		return Transition();
+		return 0;
 
 	// Simple score calculation: surface of the square, with a x2 bonus if it is not parallel to the edge nor 45 degrees
 	if (p0.first != p1.first and p0.second != p1.second and p0.first != p3.first and p0.second != p3.second)
-		score *= 2;
+		return 2*score;
+
+	return score;
+}
+
+Transition GameBoard::selectSquare(const Selection& selection, bool allowDefeat) const
+{
+	auto score = computeScore(*this, selection);
+	if (score == 0)
+		return Transition();
 
 	if (allowDefeat)
 		return Transition(*this, selection, score);
@@ -122,31 +132,6 @@ Transition GameBoard::selectSquare(const Selection& selection, bool allowDefeat)
 	res._selection = selection;
 	return res;
 }
-#if 0
-namespace
-{
-	struct Range
-	{
-		struct const_iterator
-		{
-			unsigned int _val;
-			int _increment;
-			unsigned int operator*() const { return _val;}
-			const_iterator operator++() { _val += _increment; return *this;}
-			bool operator!=(const_iterator const& other) const
-			{ return _val != other._val;}
-			const_iterator(unsigned int val, int increment): _val(val), _increment(increment) {}
-		};
-		Range(unsigned int from, unsigned int to):
-			_begin(from, (to > from) ? 1 : -1),
-			_end(to + ((to > from) ? 1 : -1), 1) {}
-		const_iterator begin() const { return _begin; }
-		const_iterator end() const { return _end;}
-		const_iterator _begin;
-		const_iterator _end;
-	};
-}
-#endif
 
 void GameBoard::applyTransition(const Transition& transition)
 {
@@ -233,10 +218,8 @@ bool GameBoard::hasTransition() const
 					s.addPoint(x2, y2);
 					s.addPoint(x3, y3);
 					s.addPoint(x4, y4);
-					
-					squarez::Transition const& t = this->selectSquare(s, true);
-					
-					if (t._score)
+
+					if (computeScore(*this, s) != 0)
 						return true;
 				}
 	return false;

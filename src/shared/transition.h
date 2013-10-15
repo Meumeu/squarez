@@ -39,15 +39,15 @@ class Transition
 public:
 	struct CellTransition
 	{
-		CellTransition(int16_t fromx, int16_t fromy, unsigned int tox, unsigned int toy, unsigned int symbol = 0xFF):
+		CellTransition(int fromx, int fromy, unsigned int tox, unsigned int toy, unsigned int symbol = 0xFF):
 			_fromx(fromx), _fromy(fromy), _tox(tox), _toy(toy), _symbol(symbol), _removed(false) {}
-		CellTransition(int16_t deletex, int16_t deletey):
+			CellTransition(int deletex, int deletey):
 			_fromx(deletex), _fromy(deletey), _tox(deletex), _toy(deletey), _symbol(0xFF), _removed(true) {}
 
 		CellTransition() = default; //dummy for deserialization
 		
-		int16_t _fromx;
-		int16_t _fromy;
+		int _fromx;
+		int _fromy;
 		
 		unsigned int _tox;
 		unsigned int _toy;
@@ -63,7 +63,7 @@ public:
 	Transition() : _score(0) {}
 	
 	//Create a "move" transition, by removing the selection and pushing down the elements
-	Transition(GameBoard const& board, Selection const& selection, uint32_t score);
+	Transition(GameBoard const& board, Selection const& selection, unsigned int score);
 	
 	//Creates a "shuffle" transition, by randomly moving elements
 	Transition(unsigned int size);
@@ -76,7 +76,7 @@ public:
 
 	void serialize(std::ostream & serialized) const;
 	
-	uint32_t _score;
+	unsigned int _score;
 	Selection _selection;
 private:
 	std::vector<CellTransition> _cells;

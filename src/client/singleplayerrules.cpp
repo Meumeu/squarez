@@ -71,7 +71,7 @@ void squarez::SinglePlayerRules::setPlayerName(const std::string& name)
 
 void squarez::SinglePlayerRules::onSelect(const squarez::Selection& selection)
 {
-	Transition tr = board.selectSquare(selection, false);
+	Transition const& tr = board.selectSquare(selection, false);
 	if (tr._score)
 	{
 		score += tr._score;
