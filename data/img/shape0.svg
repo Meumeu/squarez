@@ -1,0 +1,39 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 20010904//EN" "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="90" height="90">
+<defs>
+	<style type="text/css"><![CDATA[
+	#front
+	{
+		fill: hsl(282, 78%, 70%);
+	}
+	#shadow
+	{
+		fill: hsl(282, 78%, 50%);
+	}
+	#shape-back
+	{
+		fill: hsl(282, 78%, 65%);
+	}
+	#contour
+	{
+		fill: none;
+		stroke: hsl(282, 78%, 30%);
+		stroke-width: 2;
+	}
+	]]></style>
+  <rect id="box" width="90" height="90" rx="20" ry="20"/>
+  <circle id="shape" r="32" cx="45" cy="45"/>
+	<clipPath id="shape-clip">
+		<use xlink:href="#shape" />
+	</clipPath>
+</defs>
+
+<use id="front" xlink:href="#box" />
+
+<use id="shadow" xlink:href="#shape" />
+<g clip-path="url(#shape-clip)" >
+	<use id="shape-back" xlink:href="#shape" transform="translate(5,5)"/>
+</g>
+<use id="contour" xlink:href="#shape" />
+</svg>
