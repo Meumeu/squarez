@@ -37,14 +37,22 @@
 			};
 			r.send();
 
-			if (window.navigator.mozApps && window.navigator.mozApps.install)
+			if (window.navigator.mozApps)
 			{
-				var i = document.getElementById("install");
-				i.style.display = "";
-				i.onclick = function()
-				{
-					window.navigator.mozApps.install("http://" + window.location.host + "/manifest.webapp");
-				}
+				var manifest = "http://" + window.location.host+ "/manifest.webapp";
+				var appR = window.navigator.mozApps.checkInstalled(manifest);
+				appR.onsuccess = function() {
+					if (! appR.result)
+					{
+						var i = document.getElementById("install");
+						i.style.display = "";
+						i.onclick = function()
+						{
+							window.navigator.mozApps.install(manifest);
+							i.style.display = "none";
+						}
+					}
+				};
 			}
 		</script>
 	</body>
