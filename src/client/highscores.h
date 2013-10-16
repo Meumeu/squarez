@@ -22,6 +22,7 @@
 
 #include <set>
 #include <string>
+#include <vector>
 
 #include "shared/score.h"
 
@@ -37,6 +38,8 @@ public:
 	bool mayBeSaved(unsigned int score);
 
 	std::multiset<Score> const& getScores() const { return _scores; }
+	// Get high scores sorted from highest to lowest
+	std::vector<Score> getScoreVector() const;
 
 private:
 	// Store the score list to deserialize later

@@ -5,6 +5,7 @@ a
 
 .modeSelection
 {
+	table-layout: fixed;
 	display: table;
 	width: 100%;
 	min-height: 300px;
@@ -39,8 +40,18 @@ a
 
 #install
 {
+	background: #000000;
 	position: fixed;
 	bottom: 0;
 	left: 0;
 	right: 0;
+}
+
+.homeScoreList
+{
+	text-align: center;
+}
+#highScores
+{
+	display: inline-block;
 }

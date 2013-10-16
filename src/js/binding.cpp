@@ -19,6 +19,7 @@
 
 #include "client/multiplayerrules.h"
 #include "client/singleplayerrules.h"
+#include "client/highscores.h"
 #include "client/ui.h"
 #include "shared/gameboard.h"
 #include "shared/timer.h"
@@ -88,6 +89,11 @@ EMSCRIPTEN_BINDINGS(Score) {
 	;
 
 	emscripten::register_vector<Score>("VectorScore");
+
+	emscripten::class_<HighScores>("HighScores")
+	.constructor<unsigned int>()
+	.property("scores", &HighScores::getScoreVector)
+	;
 }
 
 struct UIWrapper: public emscripten::wrapper<UI>

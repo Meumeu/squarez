@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html>
 	<head>
+		<script src="script/squarez.js"></script>
+		<script src="script/squarezUI.js"></script>
 		<link rel="stylesheet" type="text/css" href="game.css">
 		<link rel="stylesheet" type="text/css" href="gameSelection.css">
 		<link rel="icon" type="image/png" href="img/icon30.png">
@@ -17,6 +19,14 @@
 					<span id="numPlayers"></span> players currently online
 				</div>
 			</a>
+		</div>
+		<div class="homeScoreList">
+			<div id="highScores" style="display:none">
+				<h1>High Scores</h1>
+				<table>
+					<tbody id="scoreList"></tbody>
+				</table>
+			</div>
 		</div>
 		<a id="install" style="display:none">Install the game</a>
 		<script>
@@ -54,6 +64,12 @@
 					}
 				};
 			}
+
+			var scores = new Module.HighScores(0);
+			var scoreVector = scores.scores;
+			drawScoreList(scoreVector);
+			scoreVector.delete();
+			scores.delete();
 		</script>
 	</body>
 </html>

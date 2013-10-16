@@ -157,6 +157,11 @@ bool squarez::HighScores::mayBeSaved(unsigned int score)
 	return score > 0 and (_scores.size() < _maxScores or score > _scores.rbegin()->_score);
 }
 
+std::vector<squarez::Score> squarez::HighScores::getScoreVector() const
+{
+	return std::vector<Score>(_scores.rbegin(), _scores.rend());
+}
+
 void squarez::HighScores::persist()
 {
 	persistent_t f(getFileName(), std::ios_base::out | std::ios_base::trunc);

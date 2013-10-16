@@ -53,6 +53,21 @@ function SquarezUI(rootElement, scoreElement, timerCheat, gameRules)
 	this.updateTimer();
 
 }
+
+function drawScoreList(scoreList)
+{
+	var scoreListEl = document.getElementById("scoreList");
+	scoreListEl.innerHTML = "";
+	for (var i = 0 ; i < scoreList.size() ; i++)
+	{
+		document.getElementById("highScores").style.display="";
+		var n = document.createElement("tr");
+		var d = new Date(scoreList.get(i).date * 1000);
+		n.innerHTML='<td class="name">'+scoreList.get(i).name+ '</td><td class="date">'+ d.toLocaleDateString() + '</td><td class="score">' + scoreList.get(i).score + "</td>";
+		scoreListEl.appendChild(n);
+	}
+};
+
 SquarezUI.prototype =
 {
 	addElement: function(x,y,symbol)
@@ -343,17 +358,5 @@ SquarezUI.prototype =
 		}
 	},
 
-	onScoreListChanged: function(scoreList)
-	{
-		var scoreListEl = document.getElementById("scoreList");
-		scoreListEl.innerHTML = "";
-		for (var i = 0 ; i < scoreList.size() ; i++)
-		{
-			document.getElementById("highScores").style.display="";
-			var n = document.createElement("tr");
-			var d = new Date(scoreList.get(i).date * 1000);
-			n.innerHTML='<td class="name">'+scoreList.get(i).name+ '</td><td class="date">'+ d.toLocaleDateString() + '</td><td class="score">' + scoreList.get(i).score + "</td>";
-			scoreListEl.appendChild(n);
-		}
-	}
+	onScoreListChanged: drawScoreList
 }

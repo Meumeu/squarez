@@ -33,10 +33,10 @@ void squarez::SinglePlayerRules::setUI(squarez::UI* ui)
 {
 	squarez::Rules::setUI(ui);
 
-	auto const& scores = _highScores.getScores();
+	auto const& scores = _highScores.getScoreVector();
 	if (ui and not scores.empty())
 	{
-		ui->onScoreListChanged(std::vector<Score>(scores.rbegin(), scores.rend()));
+		ui->onScoreListChanged(scores);
 	}
 }
 
@@ -51,8 +51,7 @@ bool squarez::SinglePlayerRules::gameOver()
 		{
 			if (_highScores.save(score, _playerName))
 			{
-				auto const& scores = _highScores.getScores();
-				ui->onScoreListChanged(std::vector<Score>(scores.rbegin(), scores.rend()));
+				ui->onScoreListChanged(_highScores.getScoreVector());
 			}
 			_scoreSaved = true;
 		}
