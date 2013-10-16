@@ -58,7 +58,8 @@ AM_INIT_AUTOMAKE([subdir-objects])
 
 AS_IF([test "x$enable_javascript" = "xyes"], [
 	CXXFLAGS=-O2
-	AC_CONFIG_FILES([manifest.webapp:src/web/manifest.webapp.in])
+	AC_CONFIG_FILES([manifest.webapp:src/web/manifest.webapp.in]
+		[manifest.appcache:src/web/manifest.appcache.in])
 	AS_IF([test "x$wwwdir" = "x"], [
 		AC_MSG_ERROR("wwwdir must be set")])
 	])
