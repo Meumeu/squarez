@@ -7,6 +7,10 @@
 	{
 		fill: hsl(60, 100%, 50%);
 	}
+	#border
+	{
+		fill: hsl(60, 50%, 80%);
+	}
 	#shadow
 	{
 		fill: hsl(60, 100%, 40%);
@@ -29,7 +33,8 @@
 	</clipPath>
 </defs>
 
-<use id="front" xlink:href="#box" />
+<use id="border" xlink:href="#box"/>
+<use id="front" xlink:href="#box" transform="translate(45, 45) scale(0.85) translate(-45, -45)"/>
 
 <use id="shadow" xlink:href="#shape" />
 <g clip-path="url(#shape-clip)" >

@@ -5,31 +5,36 @@
 	<style type="text/css"><![CDATA[
 	#front
 	{
-		fill: hsl(60, 100%, 50%);
+		fill: hsl(240, 100%, 50%);
+	}
+	#border
+	{
+		fill: hsl(240, 50%, 80%)
 	}
 	#shadow
 	{
-		fill: hsl(60, 100%, 40%);
+		fill: hsl(240, 100%, 40%);
 	}
 	#shape-back
 	{
-		fill: hsl(60, 100%, 45%);
+		fill: hsl(240, 100%, 45%);
 	}
 	#contour
 	{
 		fill: none;
-		stroke: hsl(60, 100%, 30%);
+		stroke: hsl(240, 100%, 30%);
 		stroke-width: 2;
 	}
 	]]></style>
   <rect id="box" width="90" height="90" rx="20" ry="20"/>
-	<path id="shape" d="m -0.08928486,-31.961687 c 3.39534766,0 29.47182286,18.945669 30.52104286,22.1748366 1.04922,3.2291675 -8.911108,33.8839034 -11.658002,35.8796384 -2.746894,1.995735 -34.979191,1.995734 -37.726085,-10e-7 -2.746894,-1.995735 -12.70722,-32.6504716 -11.658,-35.8796391 1.04922,-3.2291679 27.1256965,-22.1748359 30.52104414,-22.1748349 z" transform="translate(45,45)" />
+  <rect id="shape" width="52" height="52" x="-26" y="-26" rx="4" ry="4" transform="translate(45,45) rotate(45)"/>
 	<clipPath id="shape-clip">
 		<use xlink:href="#shape" />
 	</clipPath>
 </defs>
 
-<use id="front" xlink:href="#box" />
+<use id="border" xlink:href="#box"/>
+<use id="front" xlink:href="#box" transform="translate(45, 45) scale(0.85) translate(-45, -45)"/>
 
 <use id="shadow" xlink:href="#shape" />
 <g clip-path="url(#shape-clip)" >
@@ -37,3 +42,4 @@
 </g>
 <use id="contour" xlink:href="#shape" />
 </svg>
+

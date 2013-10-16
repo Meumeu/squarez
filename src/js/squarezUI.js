@@ -58,16 +58,10 @@ SquarezUI.prototype =
 	addElement: function(x,y,symbol)
 	{
 		var n = document.createElement("div");
-		var n1 = document.createElement("div");
-		var n2 = document.createElement("div");
 		n.classList.add("cell");
 		n.classList.add("x"+x);
 		n.classList.add("y"+y);
 		n.classList.add("symbol"+symbol);
-		n1.classList.add("cellShape");
-		n2.classList.add("inner");
-		n.appendChild(n1);
-		n1.appendChild(n2);
 		var that = this;
 		if (n.ontouchstart !== undefined)
 		{
@@ -75,7 +69,7 @@ SquarezUI.prototype =
 		}
 		else
 		{
-			n1.onclick = function() {that.select(n);}
+			n.onclick = function() {that.select(n);}
 		}
 		this.root.appendChild(n);
 		return n;

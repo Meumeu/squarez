@@ -5,20 +5,20 @@
 	<style type="text/css"><![CDATA[
 	#front
 	{
-		fill: hsl(0, 78%, 60%);
+		fill: hsl(240, 100%, 50%);
 	}
 	#shadow
 	{
-		fill: hsl(0, 78%, 50%);
+		fill: hsl(240, 100%, 40%);
 	}
 	#shape-back
 	{
-		fill: hsl(0, 78%, 58%);
+		fill: hsl(240, 100%, 45%);
 	}
 	#contour
 	{
 		fill: none;
-		stroke: hsl(0, 78%, 30%);
+		stroke: hsl(240, 100%, 30%);
 		stroke-width: 2;
 	}
 	]]></style>
