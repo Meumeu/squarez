@@ -59,8 +59,10 @@ SquarezUI.prototype =
 	{
 		var n = document.createElement("div");
 		n.classList.add("cell");
-		n.classList.add("x"+x);
-		n.classList.add("y"+y);
+		n.dataset.x = x;
+		n.dataset.y = y;
+		n.style.left=x+"em";
+		n.style.top=y+"em";
 		n.classList.add("symbol"+symbol);
 		var that = this;
 		if (n.ontouchstart !== undefined)
@@ -77,22 +79,15 @@ SquarezUI.prototype =
 
 	getPosition: function(el)
 	{
-		var rx = /x([0-9]+)/;
-		var ry = /y([0-9]+)/;
 		return {
-			x: parseInt(el.className.match(rx)[1]),
-			y: parseInt(el.className.match(ry)[1])
+			x: parseInt(el.dataset.x),
+			y: parseInt(el.dataset.y)
 		};
 	},
 
 	getCell: function(x, y)
 	{
-		var cells = this.root.getElementsByClassName("x"+x+" y"+y);
-		for (var i = 0 ; i < cells.length ; i++)
-		{
-			if (! cells[i].classList.contains("transient"))
-				return cells[i];
-		}
+		return this.root.querySelector('[data-x="'+x+'"][data-y="'+y+'"]');
 	},
 
 	onSelectionAccepted: function(selection)
@@ -185,22 +180,38 @@ SquarezUI.prototype =
 
 		this.clearSelection();
 		this.clearAnimations();
+
+		var packed = this.root.getElementsByClassName("packed-move");
+		while(packed.length != 0)
+		{
+			// Reparent the inner elements
+			for (var i = 0 ; i < packed[0].children.length ; i++)
+				this.root.appendChild(packed[0].children[i]);
+			packed[0].parentNode.removeChild(packed[0]);
+		}
+
+		var pack = {
+			1: document.createElement("div"),
+			2: document.createElement("div")};
+
+		pack[1].classList.add("move-1");
+		pack[2].classList.add("move-2");
+
+		this.root.appendChild(pack[1]);
+		this.root.appendChild(pack[2]);
 		
 		var moveTo = function(fromx, fromy, x, y, cell)
 		{
-			cell.classList.remove("x"+fromx);
-			cell.classList.remove("y"+fromy);
-			cell.classList.add("x"+x);
-			cell.classList.add("y"+y);
-			if ((fromx - x) * (fromx - x) + (fromy - y) * (fromy - y) == 4)
-			{
-				cell.classList.add("doubleMove");
-			}
-			else
-			{
-				cell.classList.remove("doubleMove");
-			}
+			cell.dataset.x = x;
+			cell.dataset.y = y;
+			cell.style.left=x+"em";
+			cell.style.top=y+"em";
+			if (fromx == x && fromy == y - 1)
+				pack[1].appendChild(cell);
+			else if (fromx == x && fromy == y - 2)
+				pack[2].appendChild(cell);
 		};
+
 		var moves = new Array();
 		
 		this.root.classList.remove("resizing");
@@ -213,6 +224,8 @@ SquarezUI.prototype =
 				var e = this.getCell(cell.fromx, cell.fromy);
 				e.classList.add("removed");
 				e.classList.add("transient");
+				e.dataset.x = "";
+				e.dataset.y = "";
 			}
 			else
 			{
