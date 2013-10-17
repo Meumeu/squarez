@@ -351,8 +351,8 @@ a
 
 .resizing .cell
 {
-	transition: top 0s;
-	-webkit-transition: top 0s;
+	transition: top 0s, left 0s;
+	-webkit-transition: top 0s, left 0s;
 }
 
 .multiplayer #highScores
