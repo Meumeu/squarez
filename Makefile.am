@@ -21,7 +21,7 @@ www_img_DATA = data/img/icon30.png data/img/icon60.png data/img/icon64.png data/
 www_DATA = src/web/singleplayer.html src/web/multiplayer.html src/web/index.html manifest.webapp manifest.appcache src/web/game.css src/web/gameSelection.css 
 
 install-data-hook:
-	cd $(DESTDIR)$(wwwdir) && find * -type f| grep -v manifest >> manifest.appcache
+	cd $(DESTDIR)$(wwwdir) && (date "+# %s" && echo "CACHE:" && find * -type f) | grep -v manifest >> manifest.appcache
 else
 
 bin_PROGRAMS = 
