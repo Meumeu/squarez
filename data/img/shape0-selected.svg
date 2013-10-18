@@ -5,7 +5,7 @@
 	<style type="text/css"><![CDATA[
 	#front
 	{
-		fill: hsl(0, 100%, 50%);
+		fill: hsl(0, 100%, 40%);
 	}
 	#border
 	{
@@ -13,16 +13,16 @@
 	}
 	#shadow
 	{
-		fill: hsl(0, 100%, 40%);
+		fill: hsl(0, 100%, 30%);
 	}
 	#shape-back
 	{
-		fill: hsl(0, 100%, 45%);
+		fill: hsl(0, 100%, 35%);
 	}
 	#contour
 	{
 		fill: none;
-		stroke: hsl(0, 100%, 30%);
+		stroke: hsl(0, 100%, 20%);
 		stroke-width: 2;
 	}
 	]]></style>
