@@ -32,47 +32,31 @@ namespace squarez
 
 Transition::Transition(const GameBoard& board, const Selection& selection, uint32_t score): _score(score), _selection(selection)
 {
-	std::map<std::pair<int16_t, int16_t>, CellTransition> cellTransition;
-	
-	for (std::pair<int16_t, int16_t> point: selection.getPoints())
+	auto it1 = selection.getPoints().begin();
+	auto it2 = it1; it2++;
+	auto end = selection.getPoints().end();
+	while (it1 != end)
 	{
-		cellTransition.insert(std::make_pair(point, CellTransition(point.first, point.second)));
-		while (point.second > 0)
+		const auto x = it1->first;
+		_cells.push_back(CellTransition(x, it1->second));
+		if (it2 != end and x == it2->first)
 		{
-			--point.second;
-			auto it = cellTransition.find(point);
-			if  (it != cellTransition.end())
-			{
-				if (not it->second._removed)
-				{
-					it->second._toy++;
-				}
-			}
-			else
-			{
-				cellTransition.insert(std::make_pair(point, CellTransition(point.first, point.second, point.first, point.second+1)));
-			}
-		}
-		--point.second;
-		
-		unsigned int symbol = std::rand() % board.symbol();
-		auto it = cellTransition.find(point);
-		if (it != cellTransition.end())
-		{
-			it->second._toy++;
-			--point.second;
-			cellTransition.insert(std::make_pair(point, CellTransition(point.first, point.second, point.first, point.second+2, symbol)));
+			_cells.push_back(CellTransition(x, it2->second));
+			_cells.push_back(CellTransition(x, -2, x, 0, std::rand() % board.symbol()));
+			_cells.push_back(CellTransition(x, -1, x, 1, std::rand() % board.symbol()));
+			for (unsigned int y = 0; y < it1->second ; y++)
+				_cells.push_back(CellTransition(x, y, x, y+2));
+			for (unsigned int y = it1->second + 1 ; y < it2->second ; y ++)
+				_cells.push_back(CellTransition(x, y, x, y+1));
+			it1++; it2++;
 		}
 		else
 		{
-			cellTransition.insert(std::make_pair(point, CellTransition(point.first, point.second, point.first, point.second+1, symbol)));
+			_cells.push_back(CellTransition(x, -1, x, 0, std::rand() % board.symbol()));
+			for (unsigned int y = 0; y < it1->second ; y++)
+				_cells.push_back(CellTransition(x, y, x, y+1));
 		}
-	}
-
-	_cells.reserve(cellTransition.size());
-	for (auto const& cell : cellTransition)
-	{
-		_cells.push_back(std::move(cell.second));
+		it1++; it2++;
 	}
 }
 
