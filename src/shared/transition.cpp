@@ -56,9 +56,10 @@ Transition::Transition(const GameBoard& board, const Selection& selection, uint3
 		--point.second;
 		
 		unsigned int symbol = std::rand() % board.symbol();
-		if (cellTransition.find(point) != cellTransition.end())
+		auto it = cellTransition.find(point);
+		if (it != cellTransition.end())
 		{
-			cellTransition.find(point)->second._toy++;
+			it->second._toy++;
 			--point.second;
 			cellTransition.insert(std::make_pair(point, CellTransition(point.first, point.second, point.first, point.second+2, symbol)));
 		}
@@ -67,10 +68,11 @@ Transition::Transition(const GameBoard& board, const Selection& selection, uint3
 			cellTransition.insert(std::make_pair(point, CellTransition(point.first, point.second, point.first, point.second+1, symbol)));
 		}
 	}
-	
+
+	_cells.reserve(cellTransition.size());
 	for (auto const& cell : cellTransition)
 	{
-		_cells.push_back(cell.second);
+		_cells.push_back(std::move(cell.second));
 	}
 }
 
