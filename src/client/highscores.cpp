@@ -146,6 +146,9 @@ bool squarez::HighScores::save(unsigned int score, const std::string& name)
 		return false;
 
 	_scores.insert(Score(score, name));
+	// If we have reached the maximum number of elements, erase the lowest score
+	while(_scores.size() > _maxScores)
+		_scores.erase(_scores.begin());
 
 	this->persist();
 
@@ -154,7 +157,7 @@ bool squarez::HighScores::save(unsigned int score, const std::string& name)
 
 bool squarez::HighScores::mayBeSaved(unsigned int score)
 {
-	return score > 0 and (_scores.size() < _maxScores or score > _scores.rbegin()->_score);
+	return score > 0 and (_scores.size() < _maxScores or score > _scores.begin()->_score);
 }
 
 std::vector<squarez::Score> squarez::HighScores::getScoreVector() const
