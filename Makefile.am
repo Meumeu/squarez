@@ -9,7 +9,12 @@ client_sources = src/client/httprequest.cpp src/client/rules.cpp src/client/mult
 
 if JAVASCRIPT
 squarez_js_SOURCES =  $(shared_sources) $(client_sources) src/js/binding.cpp
-squarez_js_LDFLAGS = --bind --closure 1 --llvm-lto 1
+squarez_js_LDFLAGS = --bind
+if RELEASE
+squarez_js_LDFLAGS += --closure 1 --llvm-lto 1
+squarez_js_LDFLAGS += --closure 0 --llvm-lto 0
+else
+endif
 
 www_scriptdir = $(wwwdir)/script
 www_script_PROGRAMS = squarez.js

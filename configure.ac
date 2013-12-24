@@ -10,6 +10,11 @@ AM_SILENT_RULES([yes])
 
 AC_CONFIG_MACRO_DIR([m4])
 
+AC_ARG_ENABLE([release],
+	AS_HELP_STRING([--enable-release], [build in release mode]))
+AC_MSG_RESULT($enable_release)
+AM_CONDITIONAL([RELEASE], [test "x$enable_release" = "xyes"])
+
 AC_MSG_CHECKING([whether to build javascript library])
 AC_ARG_ENABLE([javascript],
 	AS_HELP_STRING([--enable-javascript], [build javascript library]))
@@ -57,7 +62,8 @@ AM_CONDITIONAL([WERROR], [test "x$enable_werror" = "xyes"])
 AM_INIT_AUTOMAKE([subdir-objects])
 
 AS_IF([test "x$enable_javascript" = "xyes"], [
-	CXXFLAGS=-O2
+	AS_IF([test "x$enable_release" = "xyes"], [
+		CXXFLAGS=-O2])
 	AC_CONFIG_FILES([manifest.webapp:src/web/manifest.webapp.in]
 		[manifest.appcache:src/web/manifest.appcache.in])
 	AS_IF([test "x$wwwdir" = "x"], [
