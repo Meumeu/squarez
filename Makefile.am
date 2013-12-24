@@ -12,8 +12,8 @@ squarez_js_SOURCES =  $(shared_sources) $(client_sources) src/js/binding.cpp
 squarez_js_LDFLAGS = --bind
 if RELEASE
 squarez_js_LDFLAGS += --closure 1 --llvm-lto 1
-squarez_js_LDFLAGS += --closure 0 --llvm-lto 0
 else
+squarez_js_LDFLAGS += --closure 0 --llvm-lto 0
 endif
 
 www_scriptdir = $(wwwdir)/script
