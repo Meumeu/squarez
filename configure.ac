@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT([Squarez], [2.1.1], [xytovl@laposte.net])
+AC_INIT([Squarez], [2.2.0], [xytovl@laposte.net])
 AC_CONFIG_SRCDIR([src/shared/gameboard.cpp])
 AM_INIT_AUTOMAKE
 AC_CONFIG_HEADERS([src/config.h])
