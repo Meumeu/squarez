@@ -22,6 +22,7 @@
 #define SQUAREZ_UI_H
 
 #include <memory>
+#include <string>
 #include <vector>
 
 namespace squarez {
@@ -42,6 +43,7 @@ public:
 	virtual void onScoreListChanged(std::vector<Score> const& scores) = 0;
 	virtual void onSelectionAccepted(Selection const& selection) = 0;
 	virtual void onSelectionRejected(Selection const& selection) = 0;
+	virtual void onMessage(std::string const& message) = 0;
 
 	// Called to notify the user interface that rules need the player name
 	virtual void nameRequired(std::string const& lastName) = 0 ;

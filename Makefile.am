@@ -5,7 +5,7 @@ AM_CPPFLAGS = -I$(top_srcdir)/src -DDATADIR=\"$(datadir)\"
 
 shared_sources = src/shared/transition.cpp src/shared/gameboard.cpp src/shared/selection.cpp src/shared/timer.cpp src/shared/serializer.cpp src/shared/network/methods.cpp src/shared/network/urltools.cpp src/shared/score.cpp
 
-client_sources = src/client/httprequest.cpp src/client/rules.cpp src/client/multiplayerrules.cpp src/client/singleplayerrules.cpp src/client/ui.cpp src/client/highscores.cpp
+client_sources = src/client/httprequest.cpp src/client/rules.cpp src/client/multiplayerrules.cpp src/client/singleplayerrules.cpp src/client/tutorialrules.cpp src/client/ui.cpp src/client/highscores.cpp
 
 if JAVASCRIPT
 squarez_js_SOURCES =  $(shared_sources) $(client_sources) src/js/binding.cpp
@@ -18,18 +18,18 @@ endif
 
 www_scriptdir = $(wwwdir)/script
 www_script_PROGRAMS = squarez.js
-www_script_DATA = src/js/squarezUI.js src/js/singleplayer.js src/js/multiplayer.js 
+www_script_DATA = src/js/squarezUI.js src/js/singleplayer.js src/js/multiplayer.js src/js/tutorial.js
 
 www_imgdir = $(wwwdir)/img
 www_img_DATA = data/img/icon30.png data/img/icon60.png data/img/icon64.png data/img/icon90.png data/img/icon120.png data/img/icon128.png data/img/shape0.svg data/img/shape1.svg data/img/shape2.svg data/img/shape0-selected.svg data/img/shape1-selected.svg data/img/shape2-selected.svg
 
-www_DATA = src/web/singleplayer.html src/web/multiplayer.html src/web/index.html manifest.webapp manifest.appcache src/web/game.css src/web/gameSelection.css 
+www_DATA = src/web/singleplayer.html src/web/multiplayer.html src/web/tutorial.html src/web/index.html manifest.webapp manifest.appcache src/web/game.css src/web/gameSelection.css
 
 install-data-hook:
 	cd $(DESTDIR)$(wwwdir) && (date "+# %s" && echo "CACHE:" && find * -type f) | grep -v manifest >> manifest.appcache
 else
 
-bin_PROGRAMS = 
+bin_PROGRAMS =
 
 if SERVER
 bin_PROGRAMS += squarezd
@@ -41,7 +41,7 @@ endif
 if SDLCLIENT
 bin_PROGRAMS += squarez
 squarez_SOURCES = $(shared_sources) $(client_sources) src/sdl/main.cpp src/sdl/sdlui.cpp src/sdl/window.cpp src/sdl/shader.cpp src/sdl/animatable.cpp \
-	src/sdl/cell.cpp src/sdl/colour.cpp src/sdl/demo.cpp 
+	src/sdl/cell.cpp src/sdl/colour.cpp src/sdl/demo.cpp
 squarez_CPPFLAGS = $(AM_CPPFLAGS) $(GLES_CFLAGS) $(CURL_CFLAGS) -DGL_GLEXT_PROTOTYPES=1
 squarez_LDFLAGS = $(SDL2_LIBS) $(GLES_LIBS) $(CURL_LIBS)
 if SDL2

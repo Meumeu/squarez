@@ -80,7 +80,8 @@ a
 }
 .gameOver,
 .pause,
-#nameForm
+#nameForm,
+.tutorialOverlay
 {
 	position: absolute;
 	top: 0;
@@ -315,8 +316,20 @@ a
 	font-size: 1em;
 }
 
+#messageContainer
+{
+	text-shadow: 0 0 0.2em black;
+	font-size: 0.4em;
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 0.7em;
+	background-color: rgba(0,0,0,0.3);
+}
+
 .pause,
-.gameOver
+.gameOver,
+.tutorialOverlay
 {
 	z-index: 1;
 	text-align: center;

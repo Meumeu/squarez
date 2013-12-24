@@ -19,6 +19,7 @@
 
 #include "client/multiplayerrules.h"
 #include "client/singleplayerrules.h"
+#include "client/tutorialrules.h"
 #include "client/highscores.h"
 #include "client/ui.h"
 #include "shared/gameboard.h"
@@ -119,6 +120,10 @@ struct UIWrapper: public emscripten::wrapper<UI>
 	{
 		return call<void>("onSelectionRejected", selection);
 	}
+	void onMessage(std::string const& message)
+	{
+		return call<void>("onMessage", message);
+	}
 	void nameRequired(std::string const& lastName)
 	{
 		return call<void>("nameRequired", lastName);
@@ -160,5 +165,15 @@ EMSCRIPTEN_BINDINGS(Rules) {
 	.property("timer", &MultiPlayerRules::getTimer)
 	.property("board", &MultiPlayerRules::getBoard)
 	.property("numberOfRounds", &MultiPlayerRules::getNumberOfRounds)
+	;
+
+	emscripten::class_<TutorialRules, emscripten::base<Rules>>("TutorialRules")
+	.smart_ptr_constructor(&std::make_shared<TutorialRules,int,int>)
+	.function("next", &TutorialRules::next)
+	.function("onSelect", &TutorialRules::onSelect)
+	.function("gameOver", &TutorialRules::gameOver)
+	.function("setPlayerName", &TutorialRules::setPlayerName)
+	.property("timer", &TutorialRules::getTimer)
+	.property("board", &TutorialRules::getBoard)
 	;
 }

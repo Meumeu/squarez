@@ -50,6 +50,16 @@ function SquarezUI(rootElement, scoreElement, timerCheat, gameRules)
 			pauseButtons[i].ontouchstart = function() {that.pause();};
 	}
 
+	var tutorialOverlay = document.getElementsByClassName("tutorialOverlay");
+	for (var i = 0 ; i < tutorialOverlay.length; i++)
+	{
+		if (this.root.ontouchstart === undefined)
+			tutorialOverlay[i].onclick = function() {that.rules.next();};
+		else
+			tutorialOverlay[i].ontouchstart= function() {that.rules.next();};
+	}
+
+
 	this.updateTimer();
 
 }
@@ -356,6 +366,16 @@ SquarezUI.prototype =
 			that.rules.setPlayerName(name);
 			return false;
 		}
+	},
+
+	onMessage: function(message)
+	{
+		var container = document.getElementById("messageContainer");
+		container.innerHTML = message.replace(/\n/g, "<br>");
+		if (message.length == 0)
+			container.style.display = "none";
+		else
+			container.style.display = "";
 	},
 
 	onScoreListChanged: drawScoreList

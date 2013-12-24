@@ -1,16 +1,19 @@
 <!DOCTYPE html>
 <html manifest="manifest.appcache">
 	<head>
-		<title>Squarez</title>
+		<title>Squarez tutorial</title>
 		<script src="script/squarez.js"></script>
 		<script src="script/squarezUI.js"></script>
-		<script src="script/singleplayer.js"></script>
+		<script src="script/tutorial.js"></script>
 		<link rel="stylesheet" type="text/css" href="game.css">
 		<link rel="icon" type="image/png" href="img/icon30.png">
 		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
 	</head>
 	<body class="singleplayer">
 		<div id="gameArea">
+			<div class="tutorialOverlay">
+				<div id="messageContainer" style="display:none"></div>
+			</div>
 			<div id="timerOuter" class="timeLeftOuter">
 				<div id="timerInner" class="timeLeftInner">
 				</div>
@@ -38,7 +41,7 @@
 			</div>
 		</div>
 		<script>
-		var game = new SinglePlayerRulesUI(document.getElementById("gameArea"),  document.getElementById("score"));
+		var game = new TutorialRulesUI(document.getElementById("gameArea"),  document.getElementById("score"));
 		</script>
 	</body>
 </html>
