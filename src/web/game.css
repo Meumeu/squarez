@@ -339,7 +339,8 @@ a
 .pauseButton,
 .clearButton,
 .restartButton,
-#nameForm input[type=submit]
+#nameForm input[type=submit],
+.backButton
 {
 	border: none;
 	display: inline-block;
@@ -397,4 +398,8 @@ table
 #highScores tr:nth-child(2n)
 {
 	background: rgba(0,0,0, 0.2);
+}
+a
+{
+	text-decoration: none;
 }

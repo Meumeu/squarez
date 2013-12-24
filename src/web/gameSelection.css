@@ -24,8 +24,7 @@ a
 	height: 100%;
 }
 
-.singleplayerChoice:hover,
-.multiplayerChoice:hover,
+.modeSelection > *:hover,
 #install:hover
 {
 	background-color: rgba(255,255,255, 0.1);
