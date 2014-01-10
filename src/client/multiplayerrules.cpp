@@ -41,10 +41,6 @@ void squarez::MultiPlayerRules::onSelect(const squarez::Selection& selection)
 	_xhr.request(_url + PushSelection::encodeRequest(selection, _token), std::bind(&MultiPlayerRules::onSelectionPushed, this, selection, std::placeholders::_1), NOP);
 }
 
-void squarez::MultiPlayerRules::timeTick(std::chrono::duration<float>)
-{
-}
-
 squarez::MultiPlayerRules::MultiPlayerRules(const std::string& url, const std::string& username): Rules(0,0, username), _timer(std::chrono::seconds(0)),
 #ifndef EMSCRIPTEN
 _xhr(_mutex),
@@ -77,13 +73,21 @@ void squarez::MultiPlayerRules::onTransitionPoll(const std::string& serializedTr
 	{
 		StringDeSerializer ser(serializedTransition);
 		TransitionPoll transitionPoll(ser);
-		if (ui)
-			ui->onTransition(transitionPoll._transition);
+#ifdef SQUAREZ_QT
+		emit transition(transitionPoll._transition);
+#else
+		if (_ui)
+			_ui->onTransition(transitionPoll._transition);
+#endif
 		board.applyTransition(transitionPoll._transition);
 		if (transitionPoll._round == 0)
 		{
-			if (ui)
-				ui->onScoreChanged(0);
+#ifdef SQUAREZ_QT
+			emit scoreChanged(0);
+#else
+			if (_ui)
+				_ui->onScoreChanged(0);
+#endif
 			_score = 0;
 			_timer.refill(200);
 		}
@@ -97,11 +101,20 @@ void squarez::MultiPlayerRules::onSelectionPushed(Selection const &selection, co
 	StringDeSerializer ser(res);
 	unsigned int score;
 	ser >> score;
+
+#ifdef SQUAREZ_QT
 	if (score > _score)
-		ui->onSelectionAccepted(selection);
+		emit selectionAccepted(selection);
 	else
-		ui->onSelectionRejected(selection);
-	ui->onScoreChanged(score);
+		emit selectionRejected(selection);
+	emit scoreChanged(score);
+#else
+	if (score > _score)
+		_ui->onSelectionAccepted(selection);
+	else
+		_ui->onSelectionRejected(selection);
+	_ui->onScoreChanged(score);
+#endif
 	_score = score;
 }
 
@@ -116,8 +129,12 @@ void squarez::MultiPlayerRules::onScoreListPoll(const std::string& scoreList)
 	{
 		StringDeSerializer ser(scoreList);
 		ScoreList scores(ser);
+#ifdef SQUAREZ_QT
+		emit scoreListChanged(scores._scores);
+#else
 		if (ui)
-			ui->onScoreListChanged(scores._scores);
+			_ui->onScoreListChanged(scores._scores);
+#endif
 	}
 
 	_xhr.request(_url + ScoreList::encodeRequest(),

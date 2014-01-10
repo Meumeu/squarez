@@ -35,11 +35,13 @@ private:
 	HighScores _highScores;
 	bool _scoreSaved;
 
+#ifndef SQUAREZ_QT
 protected:
 	virtual void setUI(UI * ui);
+#endif
 	
 public:
-	SinglePlayerRules(int board_size, int nb_symbols, int long_term, int short_term, int duration);
+	SinglePlayerRules(int board_size = 8, int nb_symbols = 3, int long_term = 10, int short_term = 60, int duration = 180);
 	
 	virtual void onSelect(Selection const& selection);
 	virtual Timer const& getTimer() const;

@@ -29,6 +29,7 @@ squarez::SinglePlayerRules::SinglePlayerRules(int board_size, int nb_symbols, in
 	_highScores(10), _scoreSaved(false)
 {}
 
+#ifndef SQUAREZ_QT
 void squarez::SinglePlayerRules::setUI(squarez::UI* ui)
 {
 	squarez::Rules::setUI(ui);
@@ -39,6 +40,7 @@ void squarez::SinglePlayerRules::setUI(squarez::UI* ui)
 		ui->onScoreListChanged(scores);
 	}
 }
+#endif
 
 bool squarez::SinglePlayerRules::gameOver()
 {
@@ -46,12 +48,20 @@ bool squarez::SinglePlayerRules::gameOver()
 	if (gameOver and not _scoreSaved and _highScores.mayBeSaved(score))
 	{
 		if (_playerName.empty())
-			ui->nameRequired("");
+#ifdef SQUAREZ_QT
+			emit nameRequired("");
+#else
+			_ui->nameRequired("");
+#endif
 		else
 		{
 			if (_highScores.save(score, _playerName))
 			{
-				ui->onScoreListChanged(_highScores.getScoreVector());
+#ifdef SQUAREZ_QT
+				emit scoreListChanged(_highScores.getScoreVector());
+#else
+				_ui->onScoreListChanged(_highScores.getScoreVector());
+#endif
 			}
 			_scoreSaved = true;
 		}
@@ -75,9 +85,14 @@ void squarez::SinglePlayerRules::onSelect(const squarez::Selection& selection)
 	{
 		score += tr._score;
 		timer.refill(tr._score * 2);
-		
-		ui->onScoreChanged(score);
-		ui->onTransition(tr);
+
+#ifdef SQUAREZ_QT
+		emit scoreChanged(score);
+		emit transition(tr);
+#else
+		_ui->onScoreChanged(score);
+		_ui->onTransition(tr);
+#endif
 		
 		board.applyTransition(tr);
 	}

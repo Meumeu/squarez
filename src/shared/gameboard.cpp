@@ -26,6 +26,10 @@
 #include <iostream>
 #include <sstream>
 
+#ifdef SQUAREZ_QT
+#include "qt/cell.h"
+#endif
+
 namespace squarez
 {
 
@@ -37,7 +41,19 @@ GameBoard::GameBoard(unsigned int size, unsigned int numberOfSymbols): _symbols(
 	{
 		cell = std::rand() % numberOfSymbols;
 	}
+#ifdef SQUAREZ_QT
+	for (unsigned int x = 0 ; x < _size ; ++x)
+		for (unsigned int y = 0 ; y < _size ; ++y)
+			_qtCells.append(new qt::Cell(x, y, this->get(x, y)));
+#endif
+}
 
+GameBoard::~GameBoard()
+{
+#ifdef SQUAREZ_QT
+	while (not _qtCells.empty())
+		delete _qtCells.takeLast();
+#endif
 }
 
 unsigned int GameBoard::get(unsigned int x, unsigned int y) const
@@ -115,29 +131,32 @@ Transition GameBoard::selectSquare(const Selection& selection, bool allowDefeat)
 	if (score == 0)
 		return Transition();
 
-	if (allowDefeat)
+	//if (allowDefeat)
 		return Transition(*this, selection, score);
 	
 	// We do not allow defeat, test if the transition leads to a defeat scenario
-	GameBoard after(*this);
+
+	/*
+	GameBoard after(_cells);
 	Transition res(*this, selection, score);
 	after.applyTransition(res);
 	while (not after.hasTransition())
 	{
 		res = Transition(_size);
-		after = GameBoard(*this);
+		after._cells = _cells; // The model will be out of sync but who cares
 		after.applyTransition(res);
 	}
 	res._score = score;
 	res._selection = selection;
 	return res;
+	*/
 }
 
 void GameBoard::applyTransition(const Transition& transition)
 {
 	if (transition.getCellTransition().empty())
 		return;
-	
+
 	auto oldCells = _cells;
 	for (auto const& cellTransition: transition.getCellTransition())
 	{
@@ -147,6 +166,47 @@ void GameBoard::applyTransition(const Transition& transition)
 			this->set(cellTransition._tox, cellTransition._toy, symbol);
 		}
 	}
+#ifdef SQUAREZ_QT
+	// We will need to get the qt cell by position, so build the mapping
+	std::vector<unsigned int> qtCellIndexes(0, _cells.size());
+	std::set<unsigned int, std::greater<unsigned int>> removed;
+	for (int index = 0 ; index < _qtCells.size() ; ++index)
+	{
+		qt::Cell * qtCell = _qtCells[index];
+		qtCellIndexes[qtCell->getX() * _size + qtCell->getY()];
+	}
+	for (auto const& cellTransition: transition.getCellTransition())
+	{
+		if (not cellTransition._removed)
+		{
+			if (cellTransition._fromx >= 0 and cellTransition._fromy >= 0)
+			{
+				qt::Cell * cell = _qtCells[cellTransition._fromx * _size + cellTransition._fromy];
+				cell->setX(cellTransition._tox);
+				cell->setY(cellTransition._toy);
+			}
+		}
+		else
+		{
+			removed.insert(cellTransition._fromx * _size + cellTransition._fromy);
+		}
+	}
+	for (unsigned int index : removed)
+	{
+		delete _qtCells.takeAt(index);
+	}
+	for (auto const& cellTransition: transition.getCellTransition())
+	{
+		if (not cellTransition._removed and (cellTransition._fromx < 0 or cellTransition._fromy < 0))
+		{
+			qt::Cell * newCell = new qt::Cell(cellTransition._fromx, cellTransition._fromy, cellTransition._symbol);
+			_qtCells.append(newCell);
+			newCell->setX(cellTransition._tox);
+			newCell->setY(cellTransition._toy);
+		}
+	}
+
+#endif
 }
 
 std::ostream& operator<<(std::ostream& out, GameBoard const& board)
@@ -234,5 +294,12 @@ Serializer& operator<<(Serializer& out, const GameBoard& board)
 {
 	return out << board._symbols << board._size << board._cells;
 }
+
+#ifdef SQUAREZ_QT
+QQmlListProperty<qt::Cell> GameBoard::getModel(QObject * object)
+{
+	return QQmlListProperty<qt::Cell>(object, _qtCells);
+}
+#endif
 
 }

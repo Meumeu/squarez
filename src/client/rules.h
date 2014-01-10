@@ -25,23 +25,60 @@
 #include <string>
 #include "shared/gameboard.h"
 
+#ifdef SQUAREZ_QT
+#include <QObject>
+#include <QList>
+#include <QPoint>
+#include "qt/cell.h"
+
+namespace squarez {
+class Score;
+class Selection;
+class Transition;
+}
+#else
+namespace squarez {
+class UI;
+}
+#endif
+
 namespace squarez {
 
-class UI;
 class Timer;
 
 class Rules
+#ifdef SQUAREZ_QT
+		:public QObject
+{
+	Q_OBJECT
+	Q_PROPERTY(QQmlListProperty<squarez::qt::Cell> board READ getBoardModel)
+signals:
+	void transition(const Transition & transition);
+	void scoreChanged(int new_score);
+	void scoreListChanged(std::vector<Score> const& scores);
+	void selectionAccepted(Selection const& selection);
+	void selectionRejected(Selection const& selection);
+	void message(std::string const& message);
+	void nameRequired(std::string const& previousName);
+
+public slots:
+	void select(const QList<QPoint>&);
+
+public:
+	QQmlListProperty<qt::Cell> getBoardModel();
+
+#else
 {
 	friend class UI;
-	
 protected:
-	virtual void setUI(UI * ui);
+	UI * _ui;
+	virtual void setUI(UI * ui) { _ui = ui;}
+#endif
 
+protected:
 	GameBoard board;
-	UI * ui;
 	std::string _playerName;
-	virtual void timeTick(std::chrono::duration<float> /* t */) { }
-	
+
 public:
 	virtual void onSelect(Selection const& selection) = 0;
 	virtual bool gameOver() = 0;

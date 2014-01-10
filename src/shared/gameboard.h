@@ -26,6 +26,12 @@
 
 #include "transition.h"
 
+#ifdef SQUAREZ_QT
+#include <QList>
+#include <QQmlListProperty>
+#include "qt/cell.h"
+#endif
+
 namespace squarez
 {
 
@@ -33,9 +39,16 @@ class DeSerializer;
 class Selection;
 class Serializer;
 
-class GameBoard
+class GameBoard final
 {
 	friend Serializer & operator<<(Serializer & out, GameBoard const& board);
+
+#ifdef SQUAREZ_QT
+private:
+	QList<qt::Cell*> _qtCells;
+public:
+	QQmlListProperty<qt::Cell> getModel(QObject * object);
+#endif
 	
 public:
 	// Create a new gameboard from its serialized representation
@@ -43,6 +56,8 @@ public:
 
 	// Create a new random gameboard with given size and possible different symbols
 	GameBoard(unsigned int size, unsigned int numberOfSymbols);
+
+	~GameBoard();
 	
 	// Attempt to remove the selected cells from the board, return the score.
 	// Score is 0 only if selection is invalid
@@ -65,7 +80,6 @@ public:
 	
 	unsigned int size() const { return _size;}
 	unsigned int symbol() const { return _symbols; }
-
 	
 private:
 	// Number of possible values for each cell

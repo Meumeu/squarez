@@ -18,6 +18,7 @@
  */
 
 #include "rules.h"
+#include "shared/selection.h"
 
 squarez::Rules::Rules(int board_size, int nb_symbols, std::string const& name) : board(board_size, nb_symbols), _playerName(name)
 {
@@ -29,7 +30,20 @@ squarez::Rules::Rules(const squarez::GameBoard& board, std::string const& name) 
 
 }
 
-void squarez::Rules::setUI(squarez::UI * _ui)
+#ifdef SQUAREZ_QT
+QQmlListProperty<squarez::qt::Cell> squarez::Rules::getBoardModel()
 {
-	ui = _ui;
+	return board.getModel(this);
 }
+
+
+void squarez::Rules::select(const QList<QPoint> & qSelection)
+{
+	squarez::Selection selection;
+	for (const auto & point : qSelection)
+		selection.addPoint(point.x(), point.y());
+
+	this->onSelect(selection);
+}
+
+#endif

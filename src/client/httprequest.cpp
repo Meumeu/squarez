@@ -23,6 +23,21 @@
 
 #ifndef EMSCRIPTEN
 
+#if 1
+
+std::string squarez::HttpRequest::request(const std::string &/*url*/)
+{
+	//FIXME: implement
+	return "";
+}
+
+void squarez::HttpRequest::request(const std::string &/*url*/, std::function<void (const std::string &)> onload, std::function<void ()> /*onerror*/)
+{
+	onload("");
+}
+
+#else
+
 #include <curl/curl.h>
 #include <boost/lexical_cast.hpp>
 #include <sstream>
@@ -99,6 +114,8 @@ std::string squarez::HttpRequest::request(const std::string& url)
 	else
 		return strstr.str();
 }
+
+#endif // curl
 
 #else //EMSCRIPTEN
 #include <emscripten/val.h>

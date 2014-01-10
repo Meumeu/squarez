@@ -62,9 +62,8 @@ typedef LocalStorage persistent_t;
 typedef std::fstream persistent_t;
 #endif
 
-#include "config.h"
-
 static const std::string fileName = "scores";
+static const std::string directory = "Squarez";
 
 namespace {
 std::string getenv(const char * variable, std::string const& defaultValue)
@@ -77,7 +76,7 @@ std::string getenv(const char * variable, std::string const& defaultValue)
 
 std::string getFileName()
 {
-	return getenv("XDG_DATA_HOME", getenv("HOME", "") + "/.local/share") + "/" PACKAGE "/" + fileName;
+	return getenv("XDG_DATA_HOME", getenv("HOME", "") + "/.local/share") + "/" + directory + "/" + fileName;
 }
 
 }

@@ -21,9 +21,9 @@
 #ifndef SQUAREZ_MULTIPLAYERRULES_H
 #define SQUAREZ_MULTIPLAYERRULES_H
 
-#include <client/rules.h>
-#include <client/httprequest.h>
-#include <shared/timer.h>
+#include "rules.h"
+#include "httprequest.h"
+#include "shared/timer.h"
 
 #ifndef EMSCRIPTEN
 	#include <mutex>
@@ -47,10 +47,7 @@ private:
 
 	unsigned int _score;
 	//TODO: player scores
-	
-protected:
-	virtual void timeTick(std::chrono::duration<float>);
-	
+
 public:
 	virtual bool gameOver();
 	virtual const squarez::Timer& getTimer() const { return _timer; }
