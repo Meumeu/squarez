@@ -28,6 +28,8 @@
 
 #ifdef SQUAREZ_QT
 #include <QList>
+#include <QObject>
+#include <QAbstractListModel>
 #include <QQmlListProperty>
 #include "qt/cell.h"
 #endif
@@ -39,16 +41,23 @@ class DeSerializer;
 class Selection;
 class Serializer;
 
-class GameBoard final
-{
-	friend Serializer & operator<<(Serializer & out, GameBoard const& board);
-
+class GameBoard
 #ifdef SQUAREZ_QT
+	: public QAbstractListModel
+{
+	Q_OBJECT
+	Q_PROPERTY(int size READ size CONSTANT)
 private:
 	QList<qt::Cell*> _qtCells;
 public:
-	QQmlListProperty<qt::Cell> getModel(QObject * object);
+	int rowCount(const QModelIndex &) const;
+	QVariant data(const QModelIndex &index, int role) const;
+	QHash<int, QByteArray> roleNames() const;
+
+#else
+{
 #endif
+	friend Serializer & operator<<(Serializer & out, GameBoard const& board);
 	
 public:
 	// Create a new gameboard from its serialized representation

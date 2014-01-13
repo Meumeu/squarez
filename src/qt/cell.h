@@ -11,7 +11,7 @@ class Cell : public QObject
 	Q_OBJECT
 	Q_PROPERTY(int x READ getX NOTIFY xChanged)
 	Q_PROPERTY(int y READ getY NOTIFY yChanged)
-	Q_PROPERTY(unsigned int symbol READ getSymbol)
+	Q_PROPERTY(unsigned int symbol READ getSymbol CONSTANT)
 public:
 	Cell(int x, int y, unsigned int symbol, QObject *parent = 0);
 

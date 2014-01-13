@@ -22,6 +22,7 @@
 #define SQUAREZ_RULES_H
 
 #include <chrono>
+#include <memory>
 #include <string>
 #include "shared/gameboard.h"
 
@@ -51,21 +52,17 @@ class Rules
 		:public QObject
 {
 	Q_OBJECT
-	Q_PROPERTY(QQmlListProperty<squarez::qt::Cell> board READ getBoardModel)
+	Q_PROPERTY(squarez::GameBoard* board READ getBoard CONSTANT)
 signals:
-	void transition(const Transition & transition);
 	void scoreChanged(int new_score);
 	void scoreListChanged(std::vector<Score> const& scores);
-	void selectionAccepted(Selection const& selection);
-	void selectionRejected(Selection const& selection);
+	void selectionAccepted(const QVariantList& selection);
+	void selectionRejected(const QVariantList& selection);
 	void message(std::string const& message);
 	void nameRequired(std::string const& previousName);
 
 public slots:
-	void select(const QList<QPoint>&);
-
-public:
-	QQmlListProperty<qt::Cell> getBoardModel();
+	void select(const QVariantList &);
 
 #else
 {
@@ -76,18 +73,19 @@ protected:
 #endif
 
 protected:
-	GameBoard board;
+	std::unique_ptr<GameBoard> _board;
 	std::string _playerName;
 
 public:
 	virtual void onSelect(Selection const& selection) = 0;
 	virtual bool gameOver() = 0;
 	virtual Timer const& getTimer() const = 0;
-	GameBoard const& getBoard() const { return board; }
+	GameBoard const* getBoard() const { return _board.get(); }
+	GameBoard * getBoard() { return _board.get(); }
 	virtual void setPlayerName(std::string const& name) = 0;
 
-	Rules(int board_size, int nb_symbols, std::string const& name = "");
-	Rules(GameBoard const& board, std::string const& name = "");
+	Rules(int board_size, int nb_symbols, std::string name = "");
+	Rules(std::unique_ptr<GameBoard> && _board, std::string name = "");
 	
 	virtual ~Rules() {}
 };

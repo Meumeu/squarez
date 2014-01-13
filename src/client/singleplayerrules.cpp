@@ -80,7 +80,7 @@ void squarez::SinglePlayerRules::setPlayerName(const std::string& name)
 
 void squarez::SinglePlayerRules::onSelect(const squarez::Selection& selection)
 {
-	Transition const& tr = board.selectSquare(selection, false);
+	Transition const& tr = _board->selectSquare(selection, false);
 	if (tr._score)
 	{
 		score += tr._score;
@@ -88,13 +88,16 @@ void squarez::SinglePlayerRules::onSelect(const squarez::Selection& selection)
 
 #ifdef SQUAREZ_QT
 		emit scoreChanged(score);
-		emit transition(tr);
+		QVariantList qtSelection;
+		for (auto const & point: selection.getPoints())
+			qtSelection.append(QPoint(point.first, point.second));
+		emit selectionAccepted(qtSelection);
 #else
 		_ui->onScoreChanged(score);
 		_ui->onTransition(tr);
 #endif
 		
-		board.applyTransition(tr);
+		_board->applyTransition(tr);
 	}
 }
 

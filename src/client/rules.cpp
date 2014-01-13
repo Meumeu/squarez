@@ -20,28 +20,28 @@
 #include "rules.h"
 #include "shared/selection.h"
 
-squarez::Rules::Rules(int board_size, int nb_symbols, std::string const& name) : board(board_size, nb_symbols), _playerName(name)
+squarez::Rules::Rules(int board_size, int nb_symbols, std::string name) :
+	_board(new squarez::GameBoard(board_size, nb_symbols)), _playerName(name)
 {
 
 }
 
-squarez::Rules::Rules(const squarez::GameBoard& board, std::string const& name) : board(board), _playerName(name)
+squarez::Rules::Rules(std::unique_ptr<GameBoard> &&board, std::string name) :
+	_board(std::move(board)), _playerName(name)
 {
 
 }
 
 #ifdef SQUAREZ_QT
-QQmlListProperty<squarez::qt::Cell> squarez::Rules::getBoardModel()
-{
-	return board.getModel(this);
-}
 
-
-void squarez::Rules::select(const QList<QPoint> & qSelection)
+void squarez::Rules::select(const QVariantList & qSelection)
 {
 	squarez::Selection selection;
-	for (const auto & point : qSelection)
+	for (const QVariant & pointVariant : qSelection)
+	{
+		QPoint point = pointVariant.toPoint();
 		selection.addPoint(point.x(), point.y());
+	}
 
 	this->onSelect(selection);
 }

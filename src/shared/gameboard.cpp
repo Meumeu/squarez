@@ -168,39 +168,45 @@ void GameBoard::applyTransition(const Transition& transition)
 	}
 #ifdef SQUAREZ_QT
 	// We will need to get the qt cell by position, so build the mapping
-	std::vector<unsigned int> qtCellIndexes(0, _cells.size());
+	std::vector<unsigned int> qtCellIndexes(_cells.size(), 0);
 	std::set<unsigned int, std::greater<unsigned int>> removed;
 	for (int index = 0 ; index < _qtCells.size() ; ++index)
 	{
 		qt::Cell * qtCell = _qtCells[index];
-		qtCellIndexes[qtCell->getX() * _size + qtCell->getY()];
+		qtCellIndexes[qtCell->getX() * _size + qtCell->getY()] = index;
 	}
 	for (auto const& cellTransition: transition.getCellTransition())
 	{
+		int index = qtCellIndexes[cellTransition._fromx * _size + cellTransition._fromy];
 		if (not cellTransition._removed)
 		{
 			if (cellTransition._fromx >= 0 and cellTransition._fromy >= 0)
 			{
-				qt::Cell * cell = _qtCells[cellTransition._fromx * _size + cellTransition._fromy];
+				qt::Cell * cell = _qtCells[index];
 				cell->setX(cellTransition._tox);
 				cell->setY(cellTransition._toy);
 			}
 		}
 		else
 		{
-			removed.insert(cellTransition._fromx * _size + cellTransition._fromy);
+			removed.insert(index);
 		}
 	}
 	for (unsigned int index : removed)
 	{
+		beginRemoveRows(QModelIndex(), index, index);
 		delete _qtCells.takeAt(index);
+		endRemoveRows();
 	}
 	for (auto const& cellTransition: transition.getCellTransition())
 	{
 		if (not cellTransition._removed and (cellTransition._fromx < 0 or cellTransition._fromy < 0))
 		{
+			int position = _qtCells.size();
 			qt::Cell * newCell = new qt::Cell(cellTransition._fromx, cellTransition._fromy, cellTransition._symbol);
+			beginInsertRows(QModelIndex(), position, position);
 			_qtCells.append(newCell);
+			endInsertRows();
 			newCell->setX(cellTransition._tox);
 			newCell->setY(cellTransition._toy);
 		}
@@ -296,10 +302,24 @@ Serializer& operator<<(Serializer& out, const GameBoard& board)
 }
 
 #ifdef SQUAREZ_QT
-QQmlListProperty<qt::Cell> GameBoard::getModel(QObject * object)
+
+QHash<int, QByteArray> GameBoard::roleNames() const
 {
-	return QQmlListProperty<qt::Cell>(object, _qtCells);
+	QHash<int, QByteArray> roles;
+	roles[0] = "cell";
+	return roles;
 }
+
+int GameBoard::rowCount(const QModelIndex &) const
+{
+	return _qtCells.size();
+}
+
+QVariant GameBoard::data(const QModelIndex &index, int role) const
+{
+	return QVariant::fromValue(_qtCells.at(index.row()));
+}
+
 #endif
 
 }

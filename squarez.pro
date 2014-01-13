@@ -13,7 +13,7 @@ SOURCES += src/qt/main.cpp \
     src/shared/gameboard.cpp \
     src/client/highscores.cpp \
     src/client/httprequest.cpp \
-    src/client/multiplayerrules.cpp \
+#    src/client/multiplayerrules.cpp \
     src/client/rules.cpp \
     src/client/singleplayerrules.cpp \
 #    src/client/tutorialrules.cpp \
