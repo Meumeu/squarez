@@ -18,8 +18,30 @@ Rectangle {
     Item
     {
         id:selection
-        property var points: []
+        property var cells: []
         signal onSelect(variant points)
+
+        function clickCell(cell)
+        {
+            var index = cells.indexOf(cell)
+            if (index === -1)
+            {
+                cells.push(cell)
+                cell.selected = true
+            }
+            else
+            {
+                cells.splice(index, 1)
+                cell.selected = false
+            }
+            var points = cells.map(function(item){return Qt.point(item.logical_x, item.logical_y)})
+            onSelect(points)
+        }
+        function reset()
+        {
+            cells.forEach(function(cell){cell.selected = false})
+            cells = []
+        }
     }
 
     Repeater
@@ -30,12 +52,7 @@ Rectangle {
         Component.onCompleted:
         {
             selection.onSelect.connect(rules.select)
-            rules.selectionAccepted.connect(acceptSelection)
-        }
-
-        function acceptSelection(points)
-        {
-            selection.points = []
+            rules.selectionAccepted.connect(selection.reset)
         }
     }
 
@@ -45,37 +62,26 @@ Rectangle {
 
         Rectangle
         {
+            property var logical_x: modelData.x
+            property var logical_y: modelData.y
             x: gameArea.cellSize * modelData.x
             y: gameArea.cellSize * modelData.y
             width: gameArea.cellSize * 0.8
             height: gameArea.cellSize * 0.8
+            radius: gameArea.cellSize * 0.2
+            antialiasing: true
             color: modelData.symbol === 0 ? "red" : (modelData.symbol === 1 ? "yellow" : "blue")
             property var selected: false
             border.color: "black"
             border.width: selected ? 2 : 0
 
-            Behavior on y {SmoothedAnimation { velocity: 100}}
-            Behavior on x {SmoothedAnimation { velocity: 100}}
+            Behavior on y {SmoothedAnimation { velocity: gameArea.cellSize * 4}}
+            Behavior on x {SmoothedAnimation { velocity: gameArea.cellSize * 4}}
 
             MouseArea
             {
                 anchors.fill: parent
-                onClicked:
-                {
-                    var point = Qt.point(modelData.x, modelData.y)
-                    var index = selection.points.indexOf(point)
-                    if (index === -1)
-                    {
-                        selection.points.push(point)
-                        parent.selected = true
-                    }
-                    else
-                    {
-                        selection.points.splice(index, 1)
-                        parent.selected = false
-                    }
-                    selection.onSelect(selection.points)
-                }
+                onClicked: {selection.clickCell(parent)}
             }
         }
     }
