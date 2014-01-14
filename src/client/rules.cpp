@@ -19,6 +19,7 @@
 
 #include "rules.h"
 #include "shared/selection.h"
+#include "shared/timer.h"
 
 squarez::Rules::Rules(int board_size, int nb_symbols, std::string name) :
 	_board(new squarez::GameBoard(board_size, nb_symbols)), _playerName(name)
@@ -33,6 +34,11 @@ squarez::Rules::Rules(std::unique_ptr<GameBoard> &&board, std::string name) :
 }
 
 #ifdef SQUAREZ_QT
+
+float squarez::Rules::getPercentageLeft() const
+{
+	return getTimer().percentageLeft();
+}
 
 void squarez::Rules::select(const QVariantList & qSelection)
 {

@@ -53,6 +53,7 @@ class Rules
 {
 	Q_OBJECT
 	Q_PROPERTY(squarez::GameBoard* board READ getBoard CONSTANT)
+	Q_PROPERTY(float percentageLeft READ getPercentageLeft)
 signals:
 	void scoreChanged(int new_score);
 	void scoreListChanged(std::vector<Score> const& scores);
@@ -63,6 +64,9 @@ signals:
 
 public slots:
 	void select(const QVariantList &);
+
+public:
+	float getPercentageLeft() const;
 
 #else
 {
