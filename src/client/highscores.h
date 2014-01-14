@@ -26,10 +26,24 @@
 
 #include "shared/score.h"
 
+#ifdef SQUAREZ_QT
+#include <QAbstractListModel>
+#endif
+
 namespace squarez {
 
 class HighScores
+#ifdef SQUAREZ_QT
+		:public QAbstractListModel
 {
+	Q_OBJECT
+public:
+	int rowCount(const QModelIndex &) const { return _scores.size();}
+	QVariant data(const QModelIndex &index, int role) const;
+	QHash<int, QByteArray> roleNames() const;
+#else
+{
+#endif
 public:
 	HighScores(unsigned int maxScores);
 

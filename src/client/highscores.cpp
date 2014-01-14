@@ -18,8 +18,14 @@
  */
 
 #include "highscores.h"
-#include <shared/serializer.h>
+#include "shared/serializer.h"
 #include <cstdlib>
+
+#ifdef SQUAREZ_QT
+#include <iterator>
+#include <QDateTime>
+#include "shared/score.h"
+#endif
 
 #ifdef EMSCRIPTEN
 #include <sstream>
@@ -81,7 +87,8 @@ std::string getFileName()
 
 }
 
-squarez::HighScores::HighScores(unsigned int maxScores) : _maxScores(maxScores)
+squarez::HighScores::HighScores(unsigned int maxScores):
+	_maxScores(maxScores)
 {
 	// Try to deserialize scores from "file"
 	{
@@ -177,4 +184,35 @@ void squarez::HighScores::persist()
 		std::cerr << "Failed to save high scores" << std::endl;
 	}
 }
+
+#ifdef SQUAREZ_QT
+enum roles {name = Qt::UserRole, score, date};
+
+QVariant squarez::HighScores::data(const QModelIndex &index, int role) const
+{
+	if (index.row() >= (int)_scores.size())
+		return QVariant();
+
+	auto it = _scores.cbegin();
+	std::advance(it, index.row());
+	switch((enum roles) role)
+	{
+	case name:
+		return QString::fromStdString(it->_name);
+	case score:
+		return it->_score;
+	case date:
+		return QDateTime::fromTime_t(it->getDate());
+	}
+	return QVariant();
+}
+QHash<int, QByteArray> squarez::HighScores::roleNames() const
+{
+	QHash<int, QByteArray> roles;
+	roles[name] = "name";
+	roles[score] = "score";
+	roles[date] = "date";
+	return roles;
+}
+#endif
 
