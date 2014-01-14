@@ -25,7 +25,6 @@
 squarez::SinglePlayerRules::SinglePlayerRules(int board_size, int nb_symbols, int long_term, int short_term, int duration) :
 	Rules(board_size, nb_symbols),
 	timer(std::chrono::seconds(long_term), std::chrono::seconds(short_term), std::chrono::seconds(duration)),
-	score(0),
 	_highScores(10), _scoreSaved(false)
 {}
 
@@ -85,15 +84,14 @@ void squarez::SinglePlayerRules::onSelect(const squarez::Selection& selection)
 	{
 		score += tr._score;
 		timer.refill(tr._score * 2);
+		setScore(getScore() + tr._score);
 
 #ifdef SQUAREZ_QT
-		emit scoreChanged(score);
 		QVariantList qtSelection;
 		for (auto const & point: selection.getPoints())
 			qtSelection.append(QPoint(point.first, point.second));
 		emit selectionAccepted(qtSelection);
 #else
-		_ui->onScoreChanged(score);
 		_ui->onTransition(tr);
 #endif
 		

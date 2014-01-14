@@ -25,5 +25,9 @@ Rectangle
             Layout.fillWidth: true
             height: 20
         }
+        Text
+        {
+            text:"Score: "+singlePlayerRules.score
+        }
     }
 }

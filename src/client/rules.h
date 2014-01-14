@@ -54,8 +54,9 @@ class Rules
 	Q_OBJECT
 	Q_PROPERTY(squarez::GameBoard* board READ getBoard CONSTANT)
 	Q_PROPERTY(float percentageLeft READ getPercentageLeft)
+	Q_PROPERTY(unsigned int score READ getScore NOTIFY scoreChanged)
 signals:
-	void scoreChanged(int new_score);
+	void scoreChanged(unsigned int score);
 	void scoreListChanged(std::vector<Score> const& scores);
 	void selectionAccepted(const QVariantList& selection);
 	void selectionRejected(const QVariantList& selection);
@@ -75,15 +76,19 @@ protected:
 	UI * _ui;
 	virtual void setUI(UI * ui) { _ui = ui;}
 #endif
+private:
+	unsigned int _score;
 
 protected:
 	std::unique_ptr<GameBoard> _board;
 	std::string _playerName;
+	void setScore(unsigned int score);
 
 public:
 	virtual void onSelect(Selection const& selection) = 0;
 	virtual bool gameOver() = 0;
 	virtual Timer const& getTimer() const = 0;
+	unsigned int getScore() const {return _score;}
 	GameBoard const* getBoard() const { return _board.get(); }
 	GameBoard * getBoard() { return _board.get(); }
 	virtual void setPlayerName(std::string const& name) = 0;

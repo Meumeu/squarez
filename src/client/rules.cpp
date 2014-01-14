@@ -22,15 +22,30 @@
 #include "shared/timer.h"
 
 squarez::Rules::Rules(int board_size, int nb_symbols, std::string name) :
-	_board(new squarez::GameBoard(board_size, nb_symbols)), _playerName(name)
+#ifndef SQUAREZ_QT
+	_ui(nullptr),
+#endif
+	 _score(0),_board(new squarez::GameBoard(board_size, nb_symbols)), _playerName(name)
 {
-
 }
 
 squarez::Rules::Rules(std::unique_ptr<GameBoard> &&board, std::string name) :
-	_board(std::move(board)), _playerName(name)
+#ifndef SQUAREZ_QT
+	_ui(nullptr),
+#endif
+	_score(0), _board(std::move(board)), _playerName(name)
 {
+}
 
+void squarez::Rules::setScore(unsigned int score)
+{
+	_score = score;
+#ifdef SQUAREZ_QT
+	emit scoreChanged(score);
+#else
+	if (_ui)
+		_ui->onScoreChanged(score);
+#endif
 }
 
 #ifdef SQUAREZ_QT
