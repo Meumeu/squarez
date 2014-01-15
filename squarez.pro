@@ -53,3 +53,6 @@ HEADERS += \
 CONFIG += c++11
 
 DEFINES += SQUAREZ_QT
+
+OTHER_FILES += \
+    qml/squarez/HighScoresArea.qml

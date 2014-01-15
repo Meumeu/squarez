@@ -31,9 +31,10 @@ class SinglePlayerRules : public squarez::Rules
 {
 private:
 	Timer timer;
-	unsigned int score;
 	HighScores _highScores;
 	bool _scoreSaved;
+
+	bool checkGameOver();
 
 #ifndef SQUAREZ_QT
 protected:
@@ -44,8 +45,7 @@ public:
 	SinglePlayerRules(int board_size = 8, int nb_symbols = 3, int long_term = 10, int short_term = 60, int duration = 180);
 	
 	virtual void onSelect(Selection const& selection);
-	virtual Timer const& getTimer() const;
-	virtual bool gameOver();
+	virtual Timer const& getTimer();
 	virtual void setPlayerName(std::string const& name);
 
 	unsigned int getScore() const { return score; }

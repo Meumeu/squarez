@@ -41,28 +41,31 @@ void squarez::SinglePlayerRules::setUI(squarez::UI* ui)
 }
 #endif
 
-bool squarez::SinglePlayerRules::gameOver()
+bool squarez::SinglePlayerRules::checkGameOver()
 {
 	bool gameOver = timer.percentageLeft() == 0;
-	if (gameOver and not _scoreSaved and _highScores.mayBeSaved(score))
+	setGameOver(gameOver);
+	if (gameOver)
 	{
-		if (_playerName.empty())
-#ifdef SQUAREZ_QT
-			emit nameRequired("");
-#else
-			_ui->nameRequired("");
-#endif
-		else
+		if (not _scoreSaved and _highScores.mayBeSaved(getScore()))
 		{
-			if (_highScores.save(score, _playerName))
-			{
+			if (_playerName.empty())
 #ifdef SQUAREZ_QT
-				emit scoreListChanged(_highScores.getScoreVector());
+				emit nameRequired("");
 #else
-				_ui->onScoreListChanged(_highScores.getScoreVector());
+				_ui->nameRequired("");
 #endif
+			else
+			{
+				if (_highScores.save(getScore(), _playerName))
+				{
+#ifndef SQUAREZ_QT
+
+					_ui->onScoreListChanged(_highScores.getScoreVector());
+#endif
+				}
+				_scoreSaved = true;
 			}
-			_scoreSaved = true;
 		}
 	}
 	return gameOver;
@@ -73,16 +76,17 @@ void squarez::SinglePlayerRules::setPlayerName(const std::string& name)
 	if (not name.empty())
 	{
 		_playerName = name;
-		this->gameOver();
+		checkGameOver();
 	}
 }
 
 void squarez::SinglePlayerRules::onSelect(const squarez::Selection& selection)
 {
+	if (checkGameOver())
+		return;
 	Transition const& tr = _board->selectSquare(selection, false);
 	if (tr._score)
 	{
-		score += tr._score;
 		timer.refill(tr._score * 2);
 		setScore(getScore() + tr._score);
 
@@ -109,8 +113,9 @@ void squarez::SinglePlayerRules::unpause()
 	timer.unPause();
 }
 
-const squarez::Timer& squarez::SinglePlayerRules::getTimer() const
+const squarez::Timer& squarez::SinglePlayerRules::getTimer()
 {
+	checkGameOver();
 	return timer;
 }
 

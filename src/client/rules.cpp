@@ -39,6 +39,8 @@ squarez::Rules::Rules(std::unique_ptr<GameBoard> &&board, std::string name) :
 
 void squarez::Rules::setScore(unsigned int score)
 {
+	if (score == _score)
+		return;
 	_score = score;
 #ifdef SQUAREZ_QT
 	emit scoreChanged(score);
@@ -48,9 +50,22 @@ void squarez::Rules::setScore(unsigned int score)
 #endif
 }
 
+void squarez::Rules::setGameOver(bool status)
+{
+	if (status == _gameOver)
+		return;
+	_gameOver = status;
+#ifdef SQUAREZ_QT
+	emit gameOverChanged(status);
+#else
+	if (_ui)
+		_ui->onGameOverChanged(status);
+#endif
+}
+
 #ifdef SQUAREZ_QT
 
-float squarez::Rules::getPercentageLeft() const
+float squarez::Rules::getPercentageLeft()
 {
 	return getTimer().percentageLeft();
 }

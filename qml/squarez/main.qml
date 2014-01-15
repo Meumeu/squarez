@@ -29,5 +29,6 @@ Rectangle
         {
             text:"Score: "+singlePlayerRules.score
         }
+        HighScoresArea {}
     }
 }

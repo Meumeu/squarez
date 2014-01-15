@@ -315,7 +315,7 @@ int GameBoard::rowCount(const QModelIndex &) const
 	return _qtCells.size();
 }
 
-QVariant GameBoard::data(const QModelIndex &index, int role) const
+QVariant GameBoard::data(const QModelIndex &index, int /*role*/) const
 {
 	return QVariant::fromValue(_qtCells.at(index.row()));
 }

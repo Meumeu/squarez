@@ -80,4 +80,17 @@ Rectangle {
             }
         }
     }
+
+    Rectangle
+    {
+        anchors.fill: parent
+        visible: gameArea.rules.gameOver
+        color: "#000000A0"
+        Text
+        {
+            text: "Game over"
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.horizontalCenter: parent.horizontalCenter
+        }
+    }
 }
