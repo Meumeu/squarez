@@ -43,32 +43,40 @@ void squarez::SinglePlayerRules::setUI(squarez::UI* ui)
 
 bool squarez::SinglePlayerRules::checkGameOver()
 {
-	bool gameOver = timer.percentageLeft() == 0;
-	setGameOver(gameOver);
-	if (gameOver)
-	{
-		if (not _scoreSaved and _highScores.mayBeSaved(getScore()))
-		{
-			if (_playerName.empty())
-#ifdef SQUAREZ_QT
-				emit nameRequired("");
-#else
-				_ui->nameRequired("");
-#endif
-			else
-			{
-				if (_highScores.save(getScore(), _playerName))
-				{
-#ifndef SQUAREZ_QT
+	if (gameOver())
+		return true;
 
-					_ui->onScoreListChanged(_highScores.getScoreVector());
+	if (timer.percentageLeft() > 0)
+		return false;
+
+	setGameOver(true);
+	saveScore();
+
+	return true;
+}
+
+void squarez::SinglePlayerRules::saveScore()
+{
+	if (_scoreSaved or not _highScores.mayBeSaved(getScore()))
+		return;
+
+	if (_playerName.empty())
+	{
+#ifdef SQUAREZ_QT
+		emit nameRequired("");
+#else
+		_ui->nameRequired("");
 #endif
-				}
-				_scoreSaved = true;
-			}
-		}
+		return;
 	}
-	return gameOver;
+
+	if (_highScores.save(getScore(), _playerName))
+	{
+#ifndef SQUAREZ_QT
+		_ui->onScoreListChanged(_highScores.getScoreVector());
+#endif
+	}
+	_scoreSaved = true;
 }
 
 void squarez::SinglePlayerRules::setPlayerName(const std::string& name)
@@ -76,8 +84,9 @@ void squarez::SinglePlayerRules::setPlayerName(const std::string& name)
 	if (not name.empty())
 	{
 		_playerName = name;
-		checkGameOver();
 	}
+	if (gameOver())
+		saveScore();
 }
 
 void squarez::SinglePlayerRules::onSelect(const squarez::Selection& selection)

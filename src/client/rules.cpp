@@ -70,6 +70,11 @@ float squarez::Rules::getPercentageLeft()
 	return getTimer().percentageLeft();
 }
 
+void squarez::Rules::setPlayerName(QString name)
+{
+	setPlayerName(name.toStdString());
+}
+
 void squarez::Rules::select(const QVariantList & qSelection)
 {
 	squarez::Selection selection;

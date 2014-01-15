@@ -47,6 +47,13 @@ Rectangle {
         {
             selection.onSelect.connect(rules.select)
             rules.selectionAccepted.connect(selection.reset)
+            rules.nameRequired.connect(onNameRequired)
+        }
+
+        function onNameRequired(previousName)
+        {
+            nameInput.text = previousName
+            nameInputArea.visible = true
         }
     }
 
@@ -89,8 +96,32 @@ Rectangle {
         Text
         {
             text: "Game over"
+            anchors.centerIn: parent
+        }
+    }
+    Rectangle
+    {
+        id: nameInputArea
+        anchors.fill: parent
+        visible: false
+        color: "#A0A0A0"
+        Column
+        {
             anchors.verticalCenter: parent.verticalCenter
-            anchors.horizontalCenter: parent.horizontalCenter
+            width: parent.width
+            Text {
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: "Enter name"
+            }
+            TextInput
+            {
+                width: parent.width
+                id: nameInput
+                onAccepted: {
+                    nameInputArea.visible = false;
+                    gameArea.rules.playerName = nameInput.text;
+                }
+            }
         }
     }
 }

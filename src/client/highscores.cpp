@@ -24,6 +24,7 @@
 #ifdef SQUAREZ_QT
 #include <iterator>
 #include <QDateTime>
+#include <QDir>
 #include "shared/score.h"
 #endif
 
@@ -80,9 +81,28 @@ std::string getenv(const char * variable, std::string const& defaultValue)
 	return defaultValue;
 }
 
+std::string getDir()
+{
+#ifdef _WIN32
+	return getenv("APPDATA", ".") + "/" + directory + "/";
+#else
+	return getenv("XDG_DATA_HOME", getenv("HOME", "") + "/.local/share") + "/" + directory + "/";
+#endif
+}
+
 std::string getFileName()
 {
-	return getenv("XDG_DATA_HOME", getenv("HOME", "") + "/.local/share") + "/" + directory + "/" + fileName;
+	return getDir() + fileName;
+}
+
+void mkdir(const std::string & dir)
+{
+#ifdef SQUAREZ_QT
+	QDir().mkpath(QString::fromStdString(dir));
+#else
+	// not implemented
+	return;
+#endif
 }
 
 }
@@ -173,6 +193,7 @@ std::vector<squarez::Score> squarez::HighScores::getScoreVector() const
 
 void squarez::HighScores::persist()
 {
+	mkdir(getDir());
 	persistent_t f(getFileName(), std::ios_base::out | std::ios_base::trunc);
 	try
 	{

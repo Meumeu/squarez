@@ -29,6 +29,10 @@ Rectangle
         {
             text:"Score: "+singlePlayerRules.score
         }
-        HighScoresArea {}
+        HighScoresArea
+        {
+            width: parent.width
+            height: 50
+        }
     }
 }

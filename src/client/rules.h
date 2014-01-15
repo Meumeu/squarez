@@ -56,13 +56,14 @@ class Rules
 	Q_PROPERTY(float percentageLeft READ getPercentageLeft)
 	Q_PROPERTY(unsigned int score READ getScore NOTIFY scoreChanged)
 	Q_PROPERTY(bool gameOver READ gameOver NOTIFY gameOverChanged)
+	Q_PROPERTY(QString playerName READ playerName WRITE setPlayerName)
 signals:
 	void gameOverChanged(bool);
 	void scoreChanged(unsigned int score);
 	void selectionAccepted(const QVariantList& selection);
 	void selectionRejected(const QVariantList& selection);
 	void message(std::string const& message);
-	void nameRequired(std::string const& previousName);
+	void nameRequired(QString previousName);
 
 public slots:
 	void select(const QVariantList &);
@@ -70,6 +71,9 @@ public slots:
 public:
 	float getPercentageLeft();
 	bool gameOver() const {return _gameOver;}
+
+	QString playerName() const {return QString::fromStdString(_playerName);}
+	void setPlayerName(QString name);
 
 #else
 {

@@ -6,8 +6,9 @@ ListView
 {
     model: HighScores {}
     delegate: Row {
+        spacing: 5
         Text {text: name}
+        Text {text: Qt.formatDate(date)}
         Text {text: score}
-        Text {text: date}
     }
 }
