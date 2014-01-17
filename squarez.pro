@@ -1,15 +1,19 @@
-# Add more folders to ship with the application, here
-folder_01.source = qml/squarez
-folder_01.target = qml
-DEPLOYMENTFOLDERS = folder_01
+# The name of your app.
+# NOTICE: name defined in TARGET has a corresponding QML filename.
+#         If name defined in TARGET is changed, following needs to be
+#         done to match new name:
+#         - corresponding QML filename must be changed
+#         - desktop icon filename must be changed
+#         - desktop filename must be changed
+#         - icon definition filename in desktop file must be changed
+TARGET = squarez
 
-# Additional import path used to resolve QML modules in Creator's code model
-QML_IMPORT_PATH =
+CONFIG += sailfishapp \
+    C++11
 
 INCLUDEPATH += src
 
-# The .cpp file which was generated for your project. Feel free to hack it.
-SOURCES += src/qt/main.cpp \
+SOURCES += sailfish/src/squarez.cpp \
     src/shared/gameboard.cpp \
     src/client/highscores.cpp \
     src/client/httprequest.cpp \
@@ -25,13 +29,6 @@ SOURCES += src/qt/main.cpp \
     src/shared/network/methods.cpp \
     src/shared/network/urltools.cpp \
     src/qt/cell.cpp
-
-# Installation path
-# target.path =
-
-# Please do not modify the following two lines. Required for deployment.
-include(src/qt/qtquick2applicationviewer/qtquick2applicationviewer.pri)
-qtcAddDeployment()
 
 HEADERS += \
     src/client/highscores.h \
@@ -50,9 +47,15 @@ HEADERS += \
     src/shared/network/urltools.h \
     src/qt/cell.h
 
-CONFIG += c++11
-
 DEFINES += SQUAREZ_QT
 
-OTHER_FILES += \
-    qml/squarez/HighScoresArea.qml
+OTHER_FILES += qml/squarez.qml \
+    qml/cover/CoverPage.qml \
+    qml/pages/FirstPage.qml \
+    rpm/squarez.spec \
+    rpm/squarez.yaml \
+    squarez.desktop \
+    qml/squarez/HighScoresArea.qml \
+    qml/squarez/GameArea.qml \
+    qml/squarez/TimerArea.qml \
+    qml/pages/SinglePlayerPage.qml

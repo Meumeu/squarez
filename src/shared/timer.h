@@ -18,6 +18,11 @@
  * 
  */
 
+#if __GNUC__ == 4 && __GNUC_MINOR__ < 7
+// workaround for missing c++11 type in gcc 4.6
+#define steady_clock monotonic_clock
+#endif
+
 #include <chrono>
 
 #ifndef TIMER_H
