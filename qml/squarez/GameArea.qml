@@ -1,4 +1,5 @@
 import QtQuick 2.0
+import Sailfish.Silica 1.0
 
 Rectangle {
     id: gameArea
@@ -52,8 +53,12 @@ Rectangle {
 
         function onNameRequired(previousName)
         {
-            nameInput.text = previousName
-            nameInputArea.visible = true
+            var dialog = pageStack.push("../pages/NameInput.qml")
+            if (previousName)
+                dialog.name = previousName
+            dialog.accepted.connect(function() {
+                gameArea.rules.playerName = name;
+            })
         }
     }
 
@@ -92,36 +97,11 @@ Rectangle {
     {
         anchors.fill: parent
         visible: gameArea.rules.gameOver
-        color: "#000000A0"
-        Text
+        color: "#A0000000"
+        Label
         {
             text: "Game over"
             anchors.centerIn: parent
-        }
-    }
-    Rectangle
-    {
-        id: nameInputArea
-        anchors.fill: parent
-        visible: false
-        color: "#A0A0A0"
-        Column
-        {
-            anchors.verticalCenter: parent.verticalCenter
-            width: parent.width
-            Text {
-                anchors.horizontalCenter: parent.horizontalCenter
-                text: "Enter name"
-            }
-            TextInput
-            {
-                width: parent.width
-                id: nameInput
-                onAccepted: {
-                    nameInputArea.visible = false;
-                    gameArea.rules.playerName = nameInput.text;
-                }
-            }
         }
     }
 }

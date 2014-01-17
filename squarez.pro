@@ -58,4 +58,5 @@ OTHER_FILES += qml/squarez.qml \
     qml/squarez/HighScoresArea.qml \
     qml/squarez/GameArea.qml \
     qml/squarez/TimerArea.qml \
-    qml/pages/SinglePlayerPage.qml
+    qml/pages/SinglePlayerPage.qml \
+    qml/pages/NameInput.qml
