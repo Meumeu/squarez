@@ -9,11 +9,18 @@ Page
     SinglePlayer
     {
         id: singlePLayerRules
+        pause: !applicationActive
     }
 
     Column
     {
         width: parent.width
+        PageHeader
+        {
+            id: header
+            title: "Score: " + singlePLayerRules.score
+        }
+
         GameArea
         {
             rules: singlePLayerRules
@@ -21,14 +28,12 @@ Page
             height: width
             color: "#00000000"
         }
+
         TimerArea
         {
             id: timer
             rules: singlePLayerRules
-            height: 20
             width: parent.width
-            foreground: Theme.rgba(Theme.primaryColor, 0.8)
-            background: "#00000000"
         }
     }
 }

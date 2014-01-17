@@ -50,8 +50,7 @@ public:
 	float percentageLeft(float offset = 0) const;
 	uint16_t secondsLeft() const;
 	
-	void pause();
-	void unPause();
+    void setPause(bool state);
 	bool paused() const { return _paused; }
 private:
 	std::chrono::seconds _longTerm;

@@ -29,6 +29,10 @@ namespace squarez {
 
 class SinglePlayerRules : public squarez::Rules
 {
+#ifdef SQUAREZ_QT
+    Q_OBJECT
+    Q_PROPERTY(bool pause READ pause WRITE setPause)
+#endif
 private:
 	Timer timer;
 	HighScores _highScores;
@@ -49,8 +53,8 @@ public:
 	virtual Timer const& getTimer();
 	virtual void setPlayerName(std::string const& name);
 	
-	void pause();
-	void unpause();
+    bool pause();
+    void setPause(bool state);
 };
 }
 

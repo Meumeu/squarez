@@ -112,14 +112,14 @@ void squarez::SinglePlayerRules::onSelect(const squarez::Selection& selection)
 	}
 }
 
-void squarez::SinglePlayerRules::pause()
+bool squarez::SinglePlayerRules::pause()
 {
-	timer.pause();
+    return timer.paused();
 }
 
-void squarez::SinglePlayerRules::unpause()
+void squarez::SinglePlayerRules::setPause(bool state)
 {
-	timer.unPause();
+    timer.setPause(state);
 }
 
 const squarez::Timer& squarez::SinglePlayerRules::getTimer()

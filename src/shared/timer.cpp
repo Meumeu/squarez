@@ -73,24 +73,23 @@ void Timer::refill(unsigned int percentage)
 		_end = _begin + _longTerm + _bonusDuration;
 }
 
-void Timer::pause()
+void Timer::setPause(bool state)
 {
-	if (not _paused)
-	{
-		_pauseTime = std::chrono::steady_clock::now();
-		_paused = true;
-	}
-}
+    if (state == _paused)
+        return;
 
-void Timer::unPause()
-{
-	if (_paused)
-	{
-		_paused = false;
-		auto elapsed = std::chrono::steady_clock::now() - _pauseTime;
-		_begin += elapsed;
-		_end += elapsed;
-	}
+    _paused = state;
+
+    if (_paused)
+    {
+        _pauseTime = std::chrono::steady_clock::now();
+    }
+    else
+    {
+        auto elapsed = std::chrono::steady_clock::now() - _pauseTime;
+        _begin += elapsed;
+        _end += elapsed;
+    }
 }
 
 }
