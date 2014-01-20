@@ -9,7 +9,7 @@ Page
     SinglePlayer
     {
         id: singlePLayerRules
-        pause: !applicationActive
+        pause: !applicationActive || status !== PageStatus.Active
     }
 
     Column

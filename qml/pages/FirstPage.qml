@@ -71,7 +71,10 @@ Page {
             MenuItem
             {
                 text: "Single player game"
-                onClicked: pageStack.push(Qt.resolvedUrl("SinglePlayerPage.qml"))
+                onClicked: {
+                    pageStack.pushAttached(Qt.resolvedUrl("SinglePlayerPage.qml"))
+                    pageStack.navigateForward()
+                }
             }
         }
         VerticalScrollDecorator {}
