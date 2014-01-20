@@ -55,7 +55,6 @@ OTHER_FILES += qml/squarez.qml \
     rpm/squarez.spec \
     rpm/squarez.yaml \
     squarez.desktop \
-    qml/squarez/HighScoresArea.qml \
     qml/squarez/GameArea.qml \
     qml/squarez/TimerArea.qml \
     qml/pages/SinglePlayerPage.qml \

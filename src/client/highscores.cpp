@@ -20,6 +20,7 @@
 #include "highscores.h"
 #include "shared/serializer.h"
 #include <cstdlib>
+#include <algorithm>
 
 #ifdef SQUAREZ_QT
 #include <iterator>
@@ -69,7 +70,6 @@ typedef LocalStorage persistent_t;
 typedef std::fstream persistent_t;
 #endif
 
-static const std::string fileName = "scores";
 static const std::string directory = "Squarez";
 
 namespace {
@@ -90,11 +90,6 @@ std::string getDir()
 #endif
 }
 
-std::string getFileName()
-{
-	return getDir() + fileName;
-}
-
 void mkdir(const std::string & dir)
 {
 #ifdef SQUAREZ_QT
@@ -107,12 +102,12 @@ void mkdir(const std::string & dir)
 
 }
 
-squarez::HighScores::HighScores(unsigned int maxScores):
-	_maxScores(maxScores)
+squarez::HighScores::HighScores(std::string saveName, unsigned int maxScores):
+	_saveName(std::move(saveName)), _maxScores(maxScores)
 {
 	// Try to deserialize scores from "file"
 	{
-		persistent_t f(getFileName(), std::ios::in);
+		persistent_t f(getDir() + _saveName, std::ios::in);
 		try
 		{
 			DeSerializer ser(f);
@@ -171,10 +166,28 @@ bool squarez::HighScores::save(unsigned int score, const std::string& name)
 	if (not mayBeSaved(score))
 		return false;
 
-	_scores.insert(Score(score, name));
+	auto it = std::find_if(_scores.begin(), _scores.end(),
+		[score](const Score & other){ return score >= other._score;});
+
+#ifdef SQUAREZ_QT
+	const size_t index = it - _scores.begin();
+	beginInsertRows(QModelIndex(), index, index);
+#endif
+	_scores.insert(it, Score(score, name));
+#ifdef SQUAREZ_QT
+	endInsertRows();
+#endif
 	// If we have reached the maximum number of elements, erase the lowest score
-	while(_scores.size() > _maxScores)
-		_scores.erase(_scores.begin());
+	if(_scores.size() > _maxScores)
+	{
+#ifdef SQUAREZ_QT
+		beginRemoveRows(QModelIndex(), _maxScores, _scores.size() - 1);
+#endif
+		_scores.erase(_scores.begin() + _maxScores, _scores.end());
+#ifdef SQUAREZ_QT
+		endRemoveRows();
+#endif
+	}
 
 	this->persist();
 
@@ -183,18 +196,13 @@ bool squarez::HighScores::save(unsigned int score, const std::string& name)
 
 bool squarez::HighScores::mayBeSaved(unsigned int score)
 {
-	return score > 0 and (_scores.size() < _maxScores or score > _scores.begin()->_score);
-}
-
-std::vector<squarez::Score> squarez::HighScores::getScoreVector() const
-{
-	return std::vector<Score>(_scores.rbegin(), _scores.rend());
+	return score > 0 and (_scores.size() < _maxScores or score > _scores.back()._score);
 }
 
 void squarez::HighScores::persist()
 {
 	mkdir(getDir());
-	persistent_t f(getFileName(), std::ios_base::out | std::ios_base::trunc);
+	persistent_t f(getDir() + _saveName, std::ios_base::out | std::ios_base::trunc);
 	try
 	{
 		Serializer ser(f);
@@ -214,16 +222,14 @@ QVariant squarez::HighScores::data(const QModelIndex &index, int role) const
 	if (index.row() >= (int)_scores.size())
 		return QVariant();
 
-	auto it = _scores.cbegin();
-	std::advance(it, index.row());
 	switch((enum roles) role)
 	{
 	case name:
-		return QString::fromStdString(it->_name);
+		return QString::fromStdString(_scores[index.row()]._name);
 	case score:
-		return it->_score;
+		return _scores[index.row()]._score;
 	case date:
-		return QDateTime::fromTime_t(it->getDate());
+		return QDateTime::fromTime_t(_scores[index.row()].getDate());
 	}
 	return QVariant();
 }

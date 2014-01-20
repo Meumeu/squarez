@@ -32,6 +32,7 @@
 #include <QtQuick>
 #endif
 
+#include <qqml.h>
 #include <sailfishapp.h>
 
 #include "client/singleplayerrules.h"
@@ -51,7 +52,7 @@ int main(int argc, char *argv[])
     // To display the view, call "show()" (will show fullscreen on device).
     //
     qmlRegisterType<squarez::SinglePlayerRules>("Squarez", 1,0, "SinglePlayer");
-    qmlRegisterType<squarez::HighScores>("Squarez", 1,0, "HighScores");
+    qmlRegisterUncreatableType<squarez::HighScores>("Squarez", 1,0, "HighScores", "");
     qmlRegisterUncreatableType<squarez::GameBoard>("Squarez", 1,0, "GameBoard", "");
     qmlRegisterUncreatableType<squarez::qt::Cell>("Squarez", 1,0, "Cell", "");
 

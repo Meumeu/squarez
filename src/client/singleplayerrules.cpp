@@ -19,13 +19,16 @@
  */
 
 #include "singleplayerrules.h"
+#include "client/highscores.h"
+#ifndef SQUAREZ_QT
 #include "client/ui.h"
+#endif
 #include "shared/timer.h"
 
 squarez::SinglePlayerRules::SinglePlayerRules(int board_size, int nb_symbols, int long_term, int short_term, int duration) :
 	Rules(board_size, nb_symbols),
 	timer(std::chrono::seconds(long_term), std::chrono::seconds(short_term), std::chrono::seconds(duration)),
-	_highScores(10), _scoreSaved(false)
+    _scoreSaved(false)
 {}
 
 #ifndef SQUAREZ_QT
@@ -33,7 +36,7 @@ void squarez::SinglePlayerRules::setUI(squarez::UI* ui)
 {
 	squarez::Rules::setUI(ui);
 
-	auto const& scores = _highScores.getScoreVector();
+    auto const& scores = accessHighScores().getScoreVector();
 	if (ui and not scores.empty())
 	{
 		ui->onScoreListChanged(scores);
@@ -57,7 +60,8 @@ bool squarez::SinglePlayerRules::checkGameOver()
 
 void squarez::SinglePlayerRules::saveScore()
 {
-	if (_scoreSaved or not _highScores.mayBeSaved(getScore()))
+    HighScores & scores = accessHighScores();
+    if (_scoreSaved or not scores.mayBeSaved(getScore()))
 		return;
 
 	if (_playerName.empty())
@@ -70,10 +74,10 @@ void squarez::SinglePlayerRules::saveScore()
 		return;
 	}
 
-	if (_highScores.save(getScore(), _playerName))
+    if (scores.save(getScore(), _playerName))
 	{
 #ifndef SQUAREZ_QT
-		_ui->onScoreListChanged(_highScores.getScoreVector());
+        _ui->onScoreListChanged(scores.getScoreVector());
 #endif
 	}
 	_scoreSaved = true;
@@ -128,3 +132,8 @@ const squarez::Timer& squarez::SinglePlayerRules::getTimer()
 	return timer;
 }
 
+squarez::HighScores & squarez::SinglePlayerRules::accessHighScores()
+{
+    static HighScores * scores = new HighScores("singlePlayer", 10);
+    return *scores;
+}

@@ -20,7 +20,6 @@
 #ifndef SQUAREZ_HIGHSCORES_H
 #define SQUAREZ_HIGHSCORES_H
 
-#include <set>
 #include <string>
 #include <vector>
 
@@ -45,24 +44,24 @@ public:
 {
 #endif
 public:
-	// parameter is the maximum number of scores to record
-	// 0 means that no additional score can be saved
-	HighScores(unsigned int maxScores = 0);
+    // parameter is the maximum number of scores to record
+    // 0 means that no additional score can be saved
+    HighScores(std::string saveName, unsigned int maxScores = 0);
 
 	bool save(unsigned int score, std::string const& name);
 	// Return true if the score is eligible to be a new high score
 	bool mayBeSaved(unsigned int score);
 
-	std::multiset<Score> const& getScores() const { return _scores; }
-	// Get high scores sorted from highest to lowest
-	std::vector<Score> getScoreVector() const;
+    // Sorted from highest to lowest score
+    std::vector<Score> const& getScores() const { return _scores; }
 
 private:
 	// Store the score list to deserialize later
 	void persist();
 
-	unsigned int _maxScores;
-	std::multiset<Score> _scores;
+    const std::string _saveName;
+    unsigned int _maxScores;
+    std::vector<Score> _scores;
 };
 
 }

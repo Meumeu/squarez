@@ -38,7 +38,8 @@ Page {
     id: page
 
     SilicaListView {
-        model: HighScores {}
+        SinglePlayer { id: rules}
+        model: rules.highScores;
         anchors.fill: parent
         header: PageHeader {
             title: "High scores"
