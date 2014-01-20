@@ -4,6 +4,7 @@ import Sailfish.Silica 1.0
 Dialog
 {
     property alias name: nameField.text
+    id: dialog
 
     Column
     {
@@ -22,6 +23,8 @@ Dialog
             focus: true
             id: nameField
             placeholderText: "Your name"
+            EnterKey.enabled: true
+            EnterKey.onClicked: dialog.accept()
         }
     }
 }

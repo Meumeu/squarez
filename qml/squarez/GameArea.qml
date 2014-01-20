@@ -57,7 +57,7 @@ Rectangle {
             if (previousName)
                 dialog.name = previousName
             dialog.accepted.connect(function() {
-                gameArea.rules.playerName = name;
+                gameArea.rules.playerName = dialog.name;
             })
         }
     }
