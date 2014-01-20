@@ -49,9 +49,21 @@ Page {
 
             Label {
                 x: Theme.paddingLarge
-                text: name + " " + Qt.formatDate(date) + " " + score
+                text: name
                 anchors.verticalCenter: parent.verticalCenter
                 color: delegate.highlighted ? Theme.highlightColor : Theme.primaryColor
+            }
+            Label
+            {
+                text: Qt.formatDate(date)
+                anchors.centerIn: parent
+            }
+            Label
+            {
+                width: parent.width - Theme.paddingLarge
+                text: score
+                anchors.verticalCenter: parent.verticalCenter
+                horizontalAlignment: Text.AlignRight
             }
         }
         // PullDownMenu and PushUpMenu must be declared in SilicaFlickable, SilicaListView or SilicaGridView
