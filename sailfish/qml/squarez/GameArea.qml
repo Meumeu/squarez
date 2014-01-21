@@ -87,9 +87,7 @@ Rectangle {
             height: gameArea.cellSize * 0.8
             radius: gameArea.cellSize * 0.2
             antialiasing: true
-            color: gameArea.colors[symbol]
-            border.color: "black"
-            border.width: selected ? 2 : 0
+            color: selected ? Qt.darker(gameArea.colors[symbol]) : gameArea.colors[symbol]
 
             Emitter
             {
