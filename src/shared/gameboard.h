@@ -47,6 +47,7 @@ class GameBoard
 {
 	Q_OBJECT
 	Q_PROPERTY(int size READ size CONSTANT)
+	Q_PROPERTY(int symbol READ symbol CONSTANT)
 private:
 	QList<qt::Cell*> _qtCells;
 public:

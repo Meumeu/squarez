@@ -8,6 +8,7 @@ Rectangle {
     property real cellSize: Math.min(gameArea.width, gameArea.height) / rules.board.size
     property var rules
     property bool animate: true
+    property var colors: [Qt.rgba(255,0,0,1), Qt.rgba(255,255,0,1), Qt.rgba(0,0,255,1)]
     onWidthChanged: animate = false
 
     Item
@@ -78,6 +79,7 @@ Rectangle {
             property int logical_x: modelData.x
             property int logical_y: modelData.y
             property bool selected: false
+            property int symbol: modelData.symbol
 
             x: gameArea.cellSize * modelData.x
             y: gameArea.cellSize * modelData.y
@@ -85,7 +87,7 @@ Rectangle {
             height: gameArea.cellSize * 0.8
             radius: gameArea.cellSize * 0.2
             antialiasing: true
-            color: modelData.symbol === 0 ? "red" : (modelData.symbol === 1 ? "yellow" : "blue")
+            color: gameArea.colors[symbol]
             border.color: "black"
             border.width: selected ? 2 : 0
 
@@ -97,6 +99,7 @@ Rectangle {
                 lifeSpan: 500
                 emitRate: 20
                 endSize: 0
+                group: ""+symbol
                 velocity: TargetDirection { magnitude: -gameArea.cellSize/3; targetItem: cell}
                 enabled: cell.selected
                 shape: RectangleShape {fill: false}
@@ -119,10 +122,26 @@ Rectangle {
     {
         id: particleSystem
         anchors.fill: parent
-        ItemParticle
+
+        ImageParticle
         {
-            delegate: Rectangle { width: 5; height: 5}
+            source: "../../img/particle.png"
+            groups: ["0"]
+            color: Qt.lighter(gameArea.colors[0])
         }
+        ImageParticle
+        {
+            source: "../../img/particle.png"
+            groups: ["1"]
+            color: Qt.lighter(gameArea.colors[1])
+        }
+        ImageParticle
+        {
+            source: "../../img/particle.png"
+            groups: ["2"]
+            color: Qt.lighter(gameArea.colors[2])
+        }
+
         Gravity
         {
             magnitude: gameArea.cellSize
@@ -134,14 +153,14 @@ Rectangle {
             height: gameArea.cellSize
             lifeSpan: 500
             endSize: 0
-            velocity: TargetDirection { magnitude: -gameArea.cellSize; targetItem: burstEmitter}
+            velocity: AngleDirection { magnitude: -2*gameArea.cellSize; angleVariation: 360}
             enabled: false
-            shape: RectangleShape {fill: false}
             function my_burst(target)
             {
+                group = ""+target.symbol
                 x = target.x
                 y = target.y
-                burst(20)
+                burst(100)
             }
         }
     }
