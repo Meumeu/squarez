@@ -1,4 +1,4 @@
-Name: squarez
+Name: harbour-squarez
 Summary: Squarez
 Version: 0.1
 Release: 1
@@ -8,7 +8,7 @@ License: LICENSE
 Sources:
 - '%{name}-%{version}.tar.bz2'
 Description: |
-  Short description of my SailfishOS Application
+  Find similar elements forming the corners of a square.
 Configure: none
 Builder: qtc5
 PkgConfigBR:
@@ -19,13 +19,13 @@ PkgConfigBR:
 Requires:
 - sailfishsilica-qt5 >= 0.10.9
 Files:
+- /usr/share/harbour-squarez
+- /usr/share/harbour-squarez/img
 - '%{_bindir}'
 - '%{_datadir}/%{name}/qml'
 - '%{_datadir}/applications/%{name}.desktop'
 - '%{_datadir}/icons/hicolor/86x86/apps/%{name}.png'
 - /usr/bin
-- /usr/share/squarez
 - /usr/share/applications
 - /usr/share/icons/hicolor/86x86/apps
-- /usr/share/squarez/img
 PkgBR: []

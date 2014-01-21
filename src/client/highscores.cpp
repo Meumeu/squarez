@@ -70,7 +70,7 @@ typedef LocalStorage persistent_t;
 typedef std::fstream persistent_t;
 #endif
 
-static const std::string directory = "Squarez";
+static const std::string directory = "harbour-squarez";
 
 namespace {
 std::string getenv(const char * variable, std::string const& defaultValue)

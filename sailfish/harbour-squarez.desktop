@@ -1,7 +1,7 @@
 [Desktop Entry]
 Type=Application
 X-Nemo-Application-Type=silica-qt5
-Name=squarez
-Icon=squarez
-Exec=squarez
+Name=Squarez
+Icon=harbour-squarez
+Exec=harbour-squarez
 

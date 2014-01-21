@@ -6,7 +6,7 @@
 #         - desktop icon filename must be changed
 #         - desktop filename must be changed
 #         - icon definition filename in desktop file must be changed
-TARGET = squarez
+TARGET = harbour-squarez
 
 CONFIG += sailfishapp \
     C++11
@@ -59,9 +59,9 @@ OTHER_FILES += qml/squarez.qml \
     qml/pages/FirstPage.qml \
     rpm/squarez.spec \
     rpm/squarez.yaml \
-    squarez.desktop \
     qml/squarez/GameArea.qml \
     qml/squarez/TimerArea.qml \
     qml/pages/SinglePlayerPage.qml \
     qml/pages/NameInput.qml \
-    img/particle.png
+    img/particle.png \
+    harbour-squarez.desktop
