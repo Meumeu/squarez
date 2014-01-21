@@ -1,5 +1,6 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
+import QtQuick.Particles 2.0
 
 Rectangle {
     id: gameArea
@@ -60,6 +61,11 @@ Rectangle {
                 gameArea.rules.playerName = dialog.name;
             })
         }
+
+        onItemRemoved:
+        {
+            burstEmitter.my_burst(item);
+        }
     }
 
     Component
@@ -68,6 +74,7 @@ Rectangle {
 
         Rectangle
         {
+            id: cell
             property int logical_x: modelData.x
             property int logical_y: modelData.y
             property bool selected: false
@@ -82,26 +89,60 @@ Rectangle {
             border.color: "black"
             border.width: selected ? 2 : 0
 
+            Emitter
+            {
+                id: particles
+                system: particleSystem
+                anchors.fill: cell
+                lifeSpan: 500
+                emitRate: 20
+                endSize: 0
+                velocity: TargetDirection { magnitude: -gameArea.cellSize/3; targetItem: cell}
+                enabled: cell.selected
+                shape: RectangleShape {fill: false}
+            }
+
             Behavior on y {SmoothedAnimation { velocity: gameArea.cellSize * 4} enabled: gameArea.animate}
             Behavior on x {SmoothedAnimation { velocity: gameArea.cellSize * 4} enabled: gameArea.animate}
 
+            NumberAnimation on opacity { from: 0 ; to: 1; duration: 500 }
+
             MouseArea
             {
-                anchors.fill: parent
-                onClicked: {selection.clickCell(parent)}
+                anchors.fill: cell
+                onClicked: selection.clickCell(cell)
             }
         }
     }
 
-    Rectangle
+    ParticleSystem
     {
+        id: particleSystem
         anchors.fill: parent
-        visible: gameArea.rules.gameOver
-        color: "#A0000000"
-        Label
+        ItemParticle
         {
-            text: "Game over"
-            anchors.centerIn: parent
+            delegate: Rectangle { width: 5; height: 5}
+        }
+        Gravity
+        {
+            magnitude: gameArea.cellSize
+        }
+        Emitter
+        {
+            id: burstEmitter
+            width: gameArea.cellSize
+            height: gameArea.cellSize
+            lifeSpan: 500
+            endSize: 0
+            velocity: TargetDirection { magnitude: -gameArea.cellSize; targetItem: burstEmitter}
+            enabled: false
+            shape: RectangleShape {fill: false}
+            function my_burst(target)
+            {
+                x = target.x
+                y = target.y
+                burst(20)
+            }
         }
     }
 }
