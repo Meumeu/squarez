@@ -52,7 +52,8 @@ HEADERS += \
     ../src/shared/network/urltools.h \
     ../src/qt/cell.h
 
-DEFINES += SQUAREZ_QT
+DEFINES += SQUAREZ_QT\
+    PACKAGE=\\\"harbour-squarez\\\"
 
 OTHER_FILES += qml/squarez.qml \
     qml/cover/CoverPage.qml \

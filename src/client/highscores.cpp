@@ -29,6 +29,10 @@
 #include "shared/score.h"
 #endif
 
+#ifndef PACKAGE
+#include "config.h"
+#endif
+
 #ifdef EMSCRIPTEN
 #include <sstream>
 #include <emscripten/val.h>
@@ -70,8 +74,6 @@ typedef LocalStorage persistent_t;
 typedef std::fstream persistent_t;
 #endif
 
-static const std::string directory = "harbour-squarez";
-
 namespace {
 std::string getenv(const char * variable, std::string const& defaultValue)
 {
@@ -84,9 +86,9 @@ std::string getenv(const char * variable, std::string const& defaultValue)
 std::string getDir()
 {
 #ifdef _WIN32
-	return getenv("APPDATA", ".") + "/" + directory + "/";
+	return getenv("APPDATA", ".") + "/" PACKAGE "/";
 #else
-	return getenv("XDG_DATA_HOME", getenv("HOME", "") + "/.local/share") + "/" + directory + "/";
+	return getenv("XDG_DATA_HOME", getenv("HOME", "") + "/.local/share") + "/" PACKAGE "/";
 #endif
 }
 
