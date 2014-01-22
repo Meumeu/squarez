@@ -58,6 +58,7 @@ Rectangle {
             var dialog = pageStack.push("../pages/NameInput.qml")
             if (previousName)
                 dialog.name = previousName
+            dialog.coverText = "Score: " + gameArea.rules.score
             dialog.accepted.connect(function() {
                 gameArea.rules.playerName = dialog.name;
             })
@@ -99,7 +100,7 @@ Rectangle {
                 endSize: 0
                 group: ""+symbol
                 velocity: TargetDirection { magnitude: -gameArea.cellSize/3; targetItem: cell}
-                enabled: cell.selected
+                enabled: cell.selected && ! rules.pause
                 shape: RectangleShape {fill: false}
             }
 

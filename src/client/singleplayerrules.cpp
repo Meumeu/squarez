@@ -118,12 +118,17 @@ void squarez::SinglePlayerRules::onSelect(const squarez::Selection& selection)
 
 bool squarez::SinglePlayerRules::pause()
 {
-    return timer.paused();
+	return timer.paused();
 }
 
 void squarez::SinglePlayerRules::setPause(bool state)
 {
-    timer.setPause(state);
+	if (state == pause())
+		return;
+	timer.setPause(state);
+#ifdef SQUAREZ_QT
+	emit pauseChanged(state);
+#endif
 }
 
 const squarez::Timer& squarez::SinglePlayerRules::getTimer()

@@ -32,8 +32,10 @@ class SinglePlayerRules : public squarez::Rules
 {
 #ifdef SQUAREZ_QT
 	Q_OBJECT
-	Q_PROPERTY(bool pause READ pause WRITE setPause)
+	Q_PROPERTY(bool pause READ pause WRITE setPause NOTIFY pauseChanged)
 	Q_PROPERTY(squarez::HighScores * highScores READ getHighScores CONSTANT)
+signals:
+	void pauseChanged(bool);
 #endif
 private:
 	Timer timer;

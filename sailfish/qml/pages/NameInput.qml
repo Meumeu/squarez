@@ -4,6 +4,7 @@ import Sailfish.Silica 1.0
 Dialog
 {
     property alias name: nameField.text
+    property string coverText: ""
     id: dialog
 
     Column

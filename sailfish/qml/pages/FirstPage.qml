@@ -33,9 +33,9 @@ import Sailfish.Silica 1.0
 
 import harbour.squarez 1.0
 
-
 Page {
     id: page
+    property string coverText: ""
 
     SilicaListView {
         SinglePlayer { id: rules}

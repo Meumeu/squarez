@@ -38,6 +38,11 @@ CoverBackground {
         Label {
             text: "Squarez"
         }
+        Label {
+            id: custom
+            text: pageStack.currentPage.coverText
+            visible: text !== ""
+        }
     }
 
 }

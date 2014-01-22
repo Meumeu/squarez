@@ -64,4 +64,5 @@ OTHER_FILES += qml/squarez.qml \
     qml/pages/SinglePlayerPage.qml \
     qml/pages/NameInput.qml \
     img/particle.png \
-    harbour-squarez.desktop
+    harbour-squarez.desktop \
+    qml/harbour-squarez.qml

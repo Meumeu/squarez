@@ -6,9 +6,10 @@ import "../squarez"
 
 Page
 {
+    property string coverText: header.title
     SinglePlayer
     {
-        id: singlePLayerRules
+        id: singlePlayerRules
         pause: !applicationActive || status !== PageStatus.Active
     }
 
@@ -18,12 +19,12 @@ Page
         PageHeader
         {
             id: header
-            title: "Score: " + singlePLayerRules.score
+            title: "Score: " + singlePlayerRules.score
         }
 
         GameArea
         {
-            rules: singlePLayerRules
+            rules: singlePlayerRules
             width: parent.width
             height: width
             color: "#00000000"
@@ -32,7 +33,7 @@ Page
         TimerArea
         {
             id: timer
-            rules: singlePLayerRules
+            rules: singlePlayerRules
             width: parent.width
         }
     }
