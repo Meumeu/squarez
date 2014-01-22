@@ -58,7 +58,10 @@ public:
 #else
 {
 #endif
+private:
 	friend Serializer & operator<<(Serializer & out, GameBoard const& board);
+	// Create an initialized gameboard (but with no qt data)
+	GameBoard(const GameBoard & other);
 	
 public:
 	// Create a new gameboard from its serialized representation

@@ -48,6 +48,14 @@ GameBoard::GameBoard(unsigned int size, unsigned int numberOfSymbols): _symbols(
 #endif
 }
 
+GameBoard::GameBoard(const GameBoard & other):
+#ifdef SQUAREZ_QT
+	QAbstractListModel(),
+#endif
+	_symbols(other._symbols), _cells(other._cells), _size(other._size)
+{
+}
+
 GameBoard::~GameBoard()
 {
 #ifdef SQUAREZ_QT
@@ -131,13 +139,12 @@ Transition GameBoard::selectSquare(const Selection& selection, bool allowDefeat)
 	if (score == 0)
 		return Transition();
 
-	//if (allowDefeat)
+	if (allowDefeat)
 		return Transition(*this, selection, score);
 	
 	// We do not allow defeat, test if the transition leads to a defeat scenario
 
-	/*
-	GameBoard after(_cells);
+	GameBoard after(*this);
 	Transition res(*this, selection, score);
 	after.applyTransition(res);
 	while (not after.hasTransition())
@@ -149,7 +156,6 @@ Transition GameBoard::selectSquare(const Selection& selection, bool allowDefeat)
 	res._score = score;
 	res._selection = selection;
 	return res;
-	*/
 }
 
 void GameBoard::applyTransition(const Transition& transition)
@@ -167,48 +173,52 @@ void GameBoard::applyTransition(const Transition& transition)
 		}
 	}
 #ifdef SQUAREZ_QT
-	// We will need to get the qt cell by position, so build the mapping
-	std::vector<unsigned int> qtCellIndexes(_cells.size(), 0);
-	std::set<unsigned int, std::greater<unsigned int>> removed;
-	for (int index = 0 ; index < _qtCells.size() ; ++index)
+	// qt cells may be empty if we are just testing future state
+	if (not _qtCells.empty())
 	{
-		qt::Cell * qtCell = _qtCells[index];
-		qtCellIndexes[qtCell->getX() * _size + qtCell->getY()] = index;
-	}
-	for (auto const& cellTransition: transition.getCellTransition())
-	{
-		int index = qtCellIndexes[cellTransition._fromx * _size + cellTransition._fromy];
-		if (not cellTransition._removed)
+		// We will need to get the qt cell by position, so build the mapping
+		std::vector<unsigned int> qtCellIndexes(_cells.size(), 0);
+		std::set<unsigned int, std::greater<unsigned int>> removed;
+		for (int index = 0 ; index < _qtCells.size() ; ++index)
 		{
-			if (cellTransition._fromx >= 0 and cellTransition._fromy >= 0)
+			qt::Cell * qtCell = _qtCells[index];
+			qtCellIndexes[qtCell->getX() * _size + qtCell->getY()] = index;
+		}
+		for (auto const& cellTransition: transition.getCellTransition())
+		{
+			int index = qtCellIndexes[cellTransition._fromx * _size + cellTransition._fromy];
+			if (not cellTransition._removed)
 			{
-				qt::Cell * cell = _qtCells[index];
-				cell->setX(cellTransition._tox);
-				cell->setY(cellTransition._toy);
+				if (cellTransition._fromx >= 0 and cellTransition._fromy >= 0)
+				{
+					qt::Cell * cell = _qtCells[index];
+					cell->setX(cellTransition._tox);
+					cell->setY(cellTransition._toy);
+				}
+			}
+			else
+			{
+				removed.insert(index);
 			}
 		}
-		else
+		for (unsigned int index : removed)
 		{
-			removed.insert(index);
+			beginRemoveRows(QModelIndex(), index, index);
+			delete _qtCells.takeAt(index);
+			endRemoveRows();
 		}
-	}
-	for (unsigned int index : removed)
-	{
-		beginRemoveRows(QModelIndex(), index, index);
-		delete _qtCells.takeAt(index);
-		endRemoveRows();
-	}
-	for (auto const& cellTransition: transition.getCellTransition())
-	{
-		if (not cellTransition._removed and (cellTransition._fromx < 0 or cellTransition._fromy < 0))
+		for (auto const& cellTransition: transition.getCellTransition())
 		{
-			int position = _qtCells.size();
-			qt::Cell * newCell = new qt::Cell(cellTransition._fromx, cellTransition._fromy, cellTransition._symbol);
-			beginInsertRows(QModelIndex(), position, position);
-			_qtCells.append(newCell);
-			endInsertRows();
-			newCell->setX(cellTransition._tox);
-			newCell->setY(cellTransition._toy);
+			if (not cellTransition._removed and (cellTransition._fromx < 0 or cellTransition._fromy < 0))
+			{
+				int position = _qtCells.size();
+				qt::Cell * newCell = new qt::Cell(cellTransition._fromx, cellTransition._fromy, cellTransition._symbol);
+				beginInsertRows(QModelIndex(), position, position);
+				_qtCells.append(newCell);
+				endInsertRows();
+				newCell->setX(cellTransition._tox);
+				newCell->setY(cellTransition._toy);
+			}
 		}
 	}
 
@@ -278,7 +288,7 @@ bool GameBoard::hasTransition() const
 
 					if (x3 >= _size or y3 >= _size or x4 >= _size or y4 >= _size)
 						continue;
-					
+
 					squarez::Selection s;
 					s.addPoint(x1, y1);
 					s.addPoint(x2, y2);
