@@ -51,10 +51,10 @@ int main(int argc, char *argv[])
     //
     // To display the view, call "show()" (will show fullscreen on device).
     //
-    qmlRegisterType<squarez::SinglePlayerRules>("Squarez", 1,0, "SinglePlayer");
-    qmlRegisterUncreatableType<squarez::HighScores>("Squarez", 1,0, "HighScores", "");
-    qmlRegisterUncreatableType<squarez::GameBoard>("Squarez", 1,0, "GameBoard", "");
-    qmlRegisterUncreatableType<squarez::qt::Cell>("Squarez", 1,0, "Cell", "");
+	qmlRegisterType<squarez::SinglePlayerRules>("harbour.squarez", 1,0, "SinglePlayer");
+	qmlRegisterUncreatableType<squarez::HighScores>("harbour.squarez", 1,0, "HighScores", "");
+	qmlRegisterUncreatableType<squarez::GameBoard>("harbour.squarez", 1,0, "GameBoard", "");
+	qmlRegisterUncreatableType<squarez::qt::Cell>("harbour.squarez", 1,0, "Cell", "");
 
     return SailfishApp::main(argc, argv);
 }
