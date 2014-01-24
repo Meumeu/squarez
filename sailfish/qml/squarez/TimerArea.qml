@@ -9,7 +9,7 @@ ProgressBar
     value: 1
     Timer
     {
-        interval: 30; repeat: true
+        interval: 100; repeat: true
         running: !rules.pause
         onTriggered: parent.value = rules.percentageLeft
     }

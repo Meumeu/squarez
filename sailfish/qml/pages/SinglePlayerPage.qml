@@ -27,7 +27,6 @@ Page
             rules: singlePlayerRules
             width: parent.width
             height: width
-            color: "#00000000"
         }
 
         TimerArea

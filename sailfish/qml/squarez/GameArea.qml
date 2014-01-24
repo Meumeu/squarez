@@ -2,7 +2,7 @@ import QtQuick 2.0
 import Sailfish.Silica 1.0
 import QtQuick.Particles 2.0
 
-Rectangle {
+Item {
     id: gameArea
 
     property real cellSize: Math.min(gameArea.width, gameArea.height) / rules.board.size
@@ -11,34 +11,30 @@ Rectangle {
     property var colors: [Qt.rgba(255,0,0,1), Qt.rgba(255,255,0,1), Qt.rgba(0,0,255,1)]
     onWidthChanged: animate = false
 
-    Item
-    {
-        id:selection
-        property var cells: []
-        signal onSelect(variant points)
+    property var selection: []
+    signal onSelect(variant points)
 
-        function clickCell(cell)
+    function clickCell(cell)
+    {
+        gameArea.animate = true
+        var index = selection.indexOf(cell)
+        if (index === -1)
         {
-            gameArea.animate = true
-            var index = cells.indexOf(cell)
-            if (index === -1)
-            {
-                cells.push(cell)
-                cell.selected = true
-            }
-            else
-            {
-                cells.splice(index, 1)
-                cell.selected = false
-            }
-            var points = cells.map(function(item){return Qt.point(item.logical_x, item.logical_y)})
-            onSelect(points)
+            selection.push(cell)
+            cell.selected = true
         }
-        function reset()
+        else
         {
-            cells.forEach(function(cell){cell.selected = false})
-            cells = []
+            selection.splice(index, 1)
+            cell.selected = false
         }
+        var points = selection.map(function(item){return Qt.point(item.logical_x, item.logical_y)})
+        onSelect(points)
+    }
+    function resetSelection()
+    {
+        selection.forEach(function(cell){cell.selected = false})
+        selection = []
     }
 
     Repeater
@@ -48,8 +44,8 @@ Rectangle {
 
         Component.onCompleted:
         {
-            selection.onSelect.connect(rules.select)
-            rules.selectionAccepted.connect(selection.reset)
+            gameArea.onSelect.connect(rules.select)
+            rules.selectionAccepted.connect(gameArea.resetSelection)
             rules.nameRequired.connect(onNameRequired)
         }
 
@@ -112,7 +108,7 @@ Rectangle {
             MouseArea
             {
                 anchors.fill: cell
-                onClicked: selection.clickCell(cell)
+                onClicked: gameArea.clickCell(cell)
             }
         }
     }
@@ -121,6 +117,7 @@ Rectangle {
     {
         id: particleSystem
         anchors.fill: parent
+        running: applicationActive && status === PageStatus.Active
 
         ImageParticle
         {
@@ -152,7 +149,7 @@ Rectangle {
             height: gameArea.cellSize
             lifeSpan: 500
             endSize: 0
-            velocity: AngleDirection { magnitude: -2*gameArea.cellSize; angleVariation: 360}
+            velocity: AngleDirection { magnitude: 2*gameArea.cellSize; angleVariation: 360}
             enabled: false
             function my_burst(target)
             {
