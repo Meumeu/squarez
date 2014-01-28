@@ -28,7 +28,7 @@
 squarez::SinglePlayerRules::SinglePlayerRules(int board_size, int nb_symbols, int long_term, int short_term, int duration) :
 	Rules(board_size, nb_symbols),
 	timer(std::chrono::seconds(long_term), std::chrono::seconds(short_term), std::chrono::seconds(duration)),
-    _scoreSaved(false)
+	_scoreSaved(false)
 {}
 
 #ifndef SQUAREZ_QT
@@ -74,10 +74,10 @@ void squarez::SinglePlayerRules::saveScore()
 		return;
 	}
 
-    if (scores.save(getScore(), _playerName))
+	if (scores.save(getScore(), _playerName))
 	{
 #ifndef SQUAREZ_QT
-        _ui->onScoreListChanged(scores.getScoreVector());
+		_ui->onScoreListChanged(scores.getScoreVector());
 #endif
 	}
 	_scoreSaved = true;
@@ -103,16 +103,7 @@ void squarez::SinglePlayerRules::onSelect(const squarez::Selection& selection)
 		timer.refill(tr._score * 2);
 		setScore(getScore() + tr._score);
 
-#ifdef SQUAREZ_QT
-		QVariantList qtSelection;
-		for (auto const & point: selection.getPoints())
-			qtSelection.append(QPoint(point.first, point.second));
-		emit selectionAccepted(qtSelection);
-#else
-		_ui->onTransition(tr);
-#endif
-		
-		_board->applyTransition(tr);
+		this->applyTransition(tr);
 	}
 }
 
@@ -139,6 +130,6 @@ const squarez::Timer& squarez::SinglePlayerRules::getTimer()
 
 squarez::HighScores & squarez::SinglePlayerRules::accessHighScores()
 {
-    static HighScores * scores = new HighScores("singlePlayer", 10);
-    return *scores;
+	static HighScores * scores = new HighScores("singlePlayer", 10);
+	return *scores;
 }

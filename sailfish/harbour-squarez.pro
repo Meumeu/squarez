@@ -25,7 +25,7 @@ SOURCES += src/squarez.cpp \
 #    ../src/client/multiplayerrules.cpp \
     ../src/client/rules.cpp \
     ../src/client/singleplayerrules.cpp \
-#    ../src/client/tutorialrules.cpp \
+    ../src/client/tutorialrules.cpp \
     ../src/shared/score.cpp \
     ../src/shared/selection.cpp \
     ../src/shared/serializer.cpp \
@@ -66,4 +66,5 @@ OTHER_FILES += qml/squarez.qml \
     qml/pages/NameInput.qml \
     img/particle.png \
     harbour-squarez.desktop \
-    qml/harbour-squarez.qml
+    qml/harbour-squarez.qml \
+    qml/pages/TutorialPage.qml

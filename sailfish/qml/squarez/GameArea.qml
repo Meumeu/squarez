@@ -14,9 +14,8 @@ Item {
     property var selection: []
     signal onSelect(variant points)
 
-    function clickCell(cell)
+    property var clickCell: function(cell)
     {
-        gameArea.animate = true
         var index = selection.indexOf(cell)
         if (index === -1)
         {
@@ -33,9 +32,11 @@ Item {
     }
     function resetSelection()
     {
+        selectedSquare.visible = false
         selection.forEach(function(cell){cell.selected = false})
         selection = []
     }
+
 
     Repeater
     {
@@ -45,7 +46,9 @@ Item {
         Component.onCompleted:
         {
             gameArea.onSelect.connect(rules.select)
-            rules.selectionAccepted.connect(gameArea.resetSelection)
+            rules.selectionAccepted.connect(selectedSquare.setPoints)
+            rules.selectionApplied.connect(gameArea.resetSelection)
+            rules.selectionRejected.connect(gameArea.resetSelection)
             rules.nameRequired.connect(onNameRequired)
         }
 
@@ -62,6 +65,7 @@ Item {
 
         onItemRemoved:
         {
+            gameArea.animate = true
             burstEmitter.my_burst(item);
         }
     }
@@ -78,8 +82,8 @@ Item {
             property bool selected: false
             property int symbol: modelData.symbol
 
-            x: gameArea.cellSize * modelData.x
-            y: gameArea.cellSize * modelData.y
+            x: gameArea.cellSize * (modelData.x + 0.1)
+            y: gameArea.cellSize * (modelData.y + 0.1)
             width: gameArea.cellSize * 0.8
             height: gameArea.cellSize * 0.8
             radius: gameArea.cellSize * 0.2
@@ -110,6 +114,41 @@ Item {
                 anchors.fill: cell
                 onClicked: gameArea.clickCell(cell)
             }
+        }
+    }
+
+    Rectangle
+    {
+        id: selectedSquare
+        height: width
+        color: "#00000000"
+        border.color: "#80000000"
+        border.width: gameArea.cellSize / 3
+        visible: false
+        function setPoints(points)
+        {
+            // We assume it is really a square, we only need to compute the size, center and angle
+            var center = {x:0, y:0};
+            for (var i = 0 ; i < 4 ; i++)
+            {
+                center.x += points[i].x;
+                center.y += points[i].y;
+            }
+
+            var squareSize = (points[0].x - points[1].x)*(points[0].x - points[1].x) + (points[0].y - points[1].y)*(points[0].y - points[1].y);
+            var side = 1;
+            var otherSize = (points[0].x - points[2].x)*(points[0].x - points[2].x) + (points[0].y - points[2].y)*(points[0].y - points[2].y);
+            if (otherSize < squareSize)
+            {
+                    squareSize = otherSize;
+                    side = 2;
+            }
+            squareSize = Math.sqrt(squareSize)
+            width = gameArea.cellSize * squareSize + border.width
+            x = (center.x/4 + 0.5) * gameArea.cellSize - width / 2
+            y = (center.y/4 + 0.5) * gameArea.cellSize - height / 2
+            rotation = Math.atan2(points[side].x - points[0].x, points[0].y - points[side].y) * 180 / Math.PI
+            visible = true
         }
     }
 

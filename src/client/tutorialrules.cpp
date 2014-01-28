@@ -18,14 +18,20 @@
  */
 
 #include "tutorialrules.h"
+
+#ifdef SQUAREZ_QT
+#define MESSAGE(text) emit message(text)
+#else
 #include "ui.h"
+#define MESSAGE(text) ui->message(text)
+#endif
 
 squarez::TutorialRules::TutorialRules(int board_size, int nb_symbols):
 squarez::Rules(board_size, nb_symbols, "Tutorial"),
 _timer(std::chrono::seconds(10), std::chrono::seconds(60), std::chrono::seconds(180)),
-_score(0), _step(0)
+_step(0)
 {
-	_timer.pause();
+	_timer.setPause(true);
 }
 
 static squarez::Transition findHorizontalTransition(squarez::GameBoard const & board)
@@ -58,57 +64,53 @@ void squarez::TutorialRules::next()
 	switch (_step)
 	{
 		case 1:
-			ui->onMessage("Squarez rules\n(click to continue)");
+			MESSAGE("Squarez rules\n(click to continue)");
 			break;
 		case 3:
-			_selection = findHorizontalTransition(board)._selection;
-			ui->onSelectionAccepted(_selection);
+			_selection = findHorizontalTransition(*_board)._selection;
+			this->acceptSelection(_selection);
 		case 2:
-			ui->onMessage("Spot similar elements at the edges of a square shape");
+			MESSAGE("Spot similar elements at the edges of a square shape");
 			break;
 		case 4:
 		case 8:
 		{
-			ui->onMessage("");
-			squarez::Transition const & transition = board.selectSquare(_selection, false);
-			ui->onTransition(transition);
-			_score += transition._score;
-			ui->onScoreChanged(_score);
-			board.applyTransition(transition);
+			MESSAGE("");
+			squarez::Transition const & transition = _board->selectSquare(_selection, false);
+			this->setScore(getScore() + transition._score);
+			this->applyTransition(transition);
 			break;
 		}
 		case 5:
-			ui->onMessage("Bigger squares give more points");
+			MESSAGE("Bigger squares give more points");
 			break;
 		case 7:
-			_selection = findGoodTransition(board)._selection;
-			ui->onSelectionAccepted(_selection);
+			_selection = findGoodTransition(*_board)._selection;
+			this->acceptSelection(_selection);
 		case 6:
-			ui->onMessage("Squares not aligned with the grid give double score");
+			MESSAGE("Squares not aligned with the grid give double score");
 			break;
 		case 9:
-			ui->onMessage("Time is limited\nEach square you select refills time based on its score");
-			_timer.unPause();
+			MESSAGE("Time is limited\nEach square you select refills time based on its score");
+			_timer.setPause(false);
 			break;
 		case 10:
-			ui->onMessage("Total amount of available time gets shorter as you progress");
+			MESSAGE("Total amount of available time gets shorter as you progress");
 			_selection = squarez::Selection();
 		default:
 			if (_selection.getPoints().empty())
 			{
-				auto const & transitions = board.findTransitions();
+				auto const & transitions = _board->findTransitions();
 				_selection = transitions.at(std::rand() % transitions.size())._selection;
-				ui->onSelectionAccepted(_selection);
+				this->acceptSelection(_selection);
 			}
 			else
 			{
-				ui->onMessage("");
-				auto const & transition = board.selectSquare(_selection, false);
-				_score += transition._score;
+				MESSAGE("");
+				auto const & transition = _board->selectSquare(_selection, false);
+				this->setScore(getScore() + transition._score);
 				_timer.refill(transition._score * 2);
-				ui->onScoreChanged(_score);
-				ui->onTransition(transition);
-				board.applyTransition(transition);
+				this->applyTransition(transition);;
 				_selection = squarez::Selection();
 			}
 	}

@@ -25,25 +25,37 @@
 #include "shared/selection.h"
 #include "shared/timer.h"
 
+#ifndef SQUAREZ_QT
+#define Q_INVOKABLE /*ignored*/
+#endif
+
 namespace squarez
 {
 
 class TutorialRules : public Rules
+#ifdef SQUAREZ_QT
 {
+	Q_OBJECT
+	Q_PROPERTY(bool pause READ pause CONSTANT)
+public:
+	bool pause() const {return false;}
+signals:
+	void message(QString text);
+#else
+{
+#endif
 private:
 	Selection _selection;
 	Timer _timer;
-	unsigned int _score;
 	unsigned int _step;
 public:
-	TutorialRules(int board_size, int nb_symbols);
-	virtual void onSelect(Selection const& /*selection*/) {};
-	virtual Timer const& getTimer() const {return _timer;};
-	virtual bool gameOver() {return false;};
-	virtual void setPlayerName(std::string const& /*name*/) {};
+	TutorialRules(int board_size = 8, int nb_symbols = 3);
+	virtual void onSelect(Selection const& /*selection*/) {}
+	virtual const Timer & getTimer() {return _timer;}
+	virtual void setPlayerName(std::string const& /*name*/) {}
 
 	//Move to the next hint
-	void next();
+	Q_INVOKABLE void next();
 };
 
 }

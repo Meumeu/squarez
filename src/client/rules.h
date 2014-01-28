@@ -60,9 +60,13 @@ class Rules
 signals:
 	void gameOverChanged(bool);
 	void scoreChanged(unsigned int score);
+	// Selection is valid and should be displayed on screen
 	void selectionAccepted(const QVariantList& selection);
+	// Previously valid selection should be removed
 	void selectionRejected(const QVariantList& selection);
-	void message(std::string const& message);
+	// Previously valid or new selection has been accepted
+	void selectionApplied(const QVariantList& selection);
+	void message(QString message);
 	void nameRequired(QString previousName);
 
 public slots:
@@ -91,6 +95,11 @@ protected:
 	std::string _playerName;
 	void setScore(unsigned int score);
 	void setGameOver(bool status);
+
+	void acceptSelection(const Selection & selection);
+	void rejectSelection(const Selection & selection);
+	void applySelection(const Selection & selection);
+	void applyTransition(const Transition & transition);
 
 public:
 	virtual void onSelect(Selection const& selection) = 0;

@@ -63,6 +63,17 @@ void squarez::Rules::setGameOver(bool status)
 #endif
 }
 
+void squarez::Rules::applyTransition(const Transition &transition)
+{
+#ifdef SQUAREZ_QT
+	this->applySelection(transition._selection);
+#else
+	if (_ui)
+		_ui->onTransition(transition);
+#endif
+	_board->applyTransition(transition);
+}
+
 #ifdef SQUAREZ_QT
 
 float squarez::Rules::getPercentageLeft()
@@ -87,4 +98,42 @@ void squarez::Rules::select(const QVariantList & qSelection)
 	this->onSelect(selection);
 }
 
+static QVariantList translateSelection(const squarez::Selection & selection)
+{
+	QVariantList qtSelection;
+	for (auto const & point: selection.getPoints())
+		qtSelection.append(QPoint(point.first, point.second));
+	return qtSelection;
+}
+
+void squarez::Rules::acceptSelection(const squarez::Selection &selection)
+{
+	emit selectionAccepted(translateSelection(selection));
+}
+void squarez::Rules::rejectSelection(const squarez::Selection &selection)
+{
+	emit selectionRejected(translateSelection(selection));
+}
+void squarez::Rules::applySelection(const squarez::Selection &selection)
+{
+	emit selectionApplied(translateSelection(selection));
+}
+
+#else
+
+void squarez::Rules::acceptSelection(const squarez::Selection &selection)
+{
+	if (_ui)
+		_ui->onSelectionAccepted(selection);
+}
+void squarez::Rules::rejectSelection(const squarez::Selection &selection)
+{
+	if (_ui)
+		_ui->onSelectionRejected(selection);
+}
+void squarez::Rules::applySelection(const squarez::Selection &selection)
+{
+	if (_ui)
+		_ui->applySelection(selection);
+}
 #endif

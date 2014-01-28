@@ -70,7 +70,12 @@ Page {
         PullDownMenu {
             MenuItem
             {
-                text: "Single player game"
+                text: "How to play"
+                onClicked: pageStack.push(Qt.resolvedUrl("TutorialPage.qml"))
+            }
+            MenuItem
+            {
+                text: "New game"
                 onClicked: {
                     pageStack.pushAttached(Qt.resolvedUrl("SinglePlayerPage.qml"))
                     pageStack.navigateForward()
