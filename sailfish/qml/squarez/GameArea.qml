@@ -119,8 +119,13 @@ Item {
 
     Rectangle
     {
+        property real centerX: 0
+        property real centerY: 0
         id: selectedSquare
         height: width
+        width: 0
+        x: (centerX + 0.5) * gameArea.cellSize - width / 2
+        y: (centerY + 0.5) * gameArea.cellSize - height / 2
         color: "#00000000"
         border.color: "#80000000"
         border.width: gameArea.cellSize / 3
@@ -128,11 +133,12 @@ Item {
         function setPoints(points)
         {
             // We assume it is really a square, we only need to compute the size, center and angle
-            var center = {x:0, y:0};
+            centerX = 0;
+            centerY = 0
             for (var i = 0 ; i < 4 ; i++)
             {
-                center.x += points[i].x;
-                center.y += points[i].y;
+                centerX += points[i].x/4;
+                centerY += points[i].y/4;
             }
 
             var squareSize = (points[0].x - points[1].x)*(points[0].x - points[1].x) + (points[0].y - points[1].y)*(points[0].y - points[1].y);
@@ -145,10 +151,16 @@ Item {
             }
             squareSize = Math.sqrt(squareSize)
             width = gameArea.cellSize * squareSize + border.width
-            x = (center.x/4 + 0.5) * gameArea.cellSize - width / 2
-            y = (center.y/4 + 0.5) * gameArea.cellSize - height / 2
             rotation = Math.atan2(points[side].x - points[0].x, points[0].y - points[side].y) * 180 / Math.PI
             visible = true
+        }
+        Behavior on width
+        {
+            SequentialAnimation
+            {
+                PropertyAction {value: 0}
+                NumberAnimation {duration: 800; easing.type: Easing.OutElastic}
+            }
         }
     }
 
