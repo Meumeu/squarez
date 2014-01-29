@@ -69,11 +69,11 @@
 				};
 			}
 
-			var scores = new Module.HighScores(0);
-			var scoreVector = scores.scores;
+			var rules = new Module.SinglePlayerRules(8,3,10,60,180);
+			var scoreVector = rules.getHighScores().scores;
 			drawScoreList(scoreVector);
 			scoreVector.delete();
-			scores.delete();
+			rules.delete();
 		</script>
 	</body>
 </html>
