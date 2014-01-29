@@ -59,7 +59,7 @@ public:
 
 	HighScores * getHighScores() {return &accessHighScores();}
 	
-	bool pause();
+	bool pause() const;
 	void setPause(bool state);
 };
 }

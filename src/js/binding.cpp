@@ -23,7 +23,6 @@
 #include "client/highscores.h"
 #include "client/ui.h"
 #include "shared/gameboard.h"
-#include "shared/timer.h"
 #include "shared/selection.h"
 #include "shared/score.h"
 
@@ -58,7 +57,6 @@ EMSCRIPTEN_BINDINGS(Transition) {
 	.function("size", &Transition::size)
 	.function("get", &Transition::get)
 	.property("score", &Transition::_score)
-	.property("selection", &Transition::_selection)
 	;
 }
 
@@ -74,14 +72,6 @@ EMSCRIPTEN_BINDINGS(CellTransition) {
 	;
 }
 
-EMSCRIPTEN_BINDINGS(Timer) {
-	emscripten::class_<Timer>("Timer")
-	.function("percentageLeft", &Timer::percentageLeft)
-	.function("secondsLeft", &Timer::secondsLeft)
-	.function("paused", &Timer::paused)
-	;
-}
-
 EMSCRIPTEN_BINDINGS(Score) {
 	emscripten::class_<Score>("Score")
 	.property("score", &Score::_score)
@@ -92,14 +82,17 @@ EMSCRIPTEN_BINDINGS(Score) {
 	emscripten::register_vector<Score>("VectorScore");
 
 	emscripten::class_<HighScores>("HighScores")
-	.constructor<unsigned int>()
-	.property("scores", &HighScores::getScoreVector)
+	.property("scores", &HighScores::getScores)
 	;
 }
 
 struct UIWrapper: public emscripten::wrapper<UI>
 {
 	EMSCRIPTEN_WRAPPER(UIWrapper);
+	void onGameOverChanged(bool value)
+	{
+		return call<void>("onGameOverChanged", value);
+	}
 	void onTransition(Transition const& transition)
 	{
 		return call<void>("onTransition", transition);
@@ -108,13 +101,17 @@ struct UIWrapper: public emscripten::wrapper<UI>
 	{
 		return call<void>("onScoreChanged", new_score);
 	}
-	void onScoreListChanged(std::vector<Score> const& scoreList)
+	void onScoreListChanged(std::vector<Score> const& scores)
 	{
-		return call<void>("onScoreListChanged", scoreList);
+		return call<void>("onScoreListChanged", scores);
 	}
 	void onSelectionAccepted(Selection const& selection)
 	{
 		return call<void>("onSelectionAccepted", selection);
+	}
+	void onSelectionApplied(Selection const& selection)
+	{
+		return call<void>("onSelectionApplied", selection);
 	}
 	void onSelectionRejected(Selection const& selection)
 	{
@@ -126,15 +123,12 @@ struct UIWrapper: public emscripten::wrapper<UI>
 	}
 	void nameRequired(std::string const& lastName)
 	{
-		return call<void>("nameRequired", lastName);
+		return call<void>("onNameRequired", lastName);
 	}
 };
 
 EMSCRIPTEN_BINDINGS(UI) {
 	emscripten::class_<UI>("UI")
-	.function("onTransition", &UI::onTransition)
-	.function("onScoreChanged", &UI::onScoreChanged)
-	.function("onSelectionAccepted", &UI::onSelectionAccepted)
 	.function("setRules", &UI::setRules)
 	.allow_subclass<UIWrapper>()
 	;
@@ -143,27 +137,24 @@ EMSCRIPTEN_BINDINGS(UI) {
 EMSCRIPTEN_BINDINGS(Rules) {
 	emscripten::class_<Rules>("Rules")
 	.smart_ptr<std::shared_ptr<Rules>>()
+	.function("getBoard", emscripten::select_overload<GameBoard const*()const>(&Rules::getBoard), emscripten::allow_raw_pointers())
+	.function("getGameOver", &Rules::gameOver)
+	.function("getPercentageLeft", &Rules::getPercentageLeft)
 	;
 
 	emscripten::class_<SinglePlayerRules, emscripten::base<Rules>>("SinglePlayerRules")
 	.smart_ptr_constructor(&std::make_shared<SinglePlayerRules,int,int,int,int,int>)
 	.function("onSelect", &SinglePlayerRules::onSelect)
-	.function("gameOver", &SinglePlayerRules::gameOver)
-	.function("pause", &SinglePlayerRules::pause)
-	.function("unPause", &SinglePlayerRules::unpause)
 	.function("setPlayerName", &SinglePlayerRules::setPlayerName)
-	.property("timer", &SinglePlayerRules::getTimer)
-	.property("board", &SinglePlayerRules::getBoard)
+	.function("getHighScores", &SinglePlayerRules::getHighScores, emscripten::allow_raw_pointers())
+	.property("pause", &SinglePlayerRules::pause, &SinglePlayerRules::setPause)
 	.property("score", &SinglePlayerRules::getScore)
 	;
 
 	emscripten::class_<MultiPlayerRules, emscripten::base<Rules>>("MultiPlayerRules")
 	.smart_ptr_constructor(&std::make_shared<MultiPlayerRules,std::string,std::string>)
 	.function("onSelect", &MultiPlayerRules::onSelect)
-	.function("gameOver", &MultiPlayerRules::gameOver)
 	.function("setPlayerName", &MultiPlayerRules::setPlayerName)
-	.property("timer", &MultiPlayerRules::getTimer)
-	.property("board", &MultiPlayerRules::getBoard)
 	.property("numberOfRounds", &MultiPlayerRules::getNumberOfRounds)
 	;
 
@@ -171,9 +162,6 @@ EMSCRIPTEN_BINDINGS(Rules) {
 	.smart_ptr_constructor(&std::make_shared<TutorialRules,int,int>)
 	.function("next", &TutorialRules::next)
 	.function("onSelect", &TutorialRules::onSelect)
-	.function("gameOver", &TutorialRules::gameOver)
 	.function("setPlayerName", &TutorialRules::setPlayerName)
-	.property("timer", &TutorialRules::getTimer)
-	.property("board", &TutorialRules::getBoard)
 	;
 }

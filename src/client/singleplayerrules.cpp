@@ -107,7 +107,7 @@ void squarez::SinglePlayerRules::onSelect(const squarez::Selection& selection)
 	}
 }
 
-bool squarez::SinglePlayerRules::pause()
+bool squarez::SinglePlayerRules::pause() const
 {
 	return timer.paused();
 }

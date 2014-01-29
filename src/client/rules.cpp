@@ -73,17 +73,20 @@ void squarez::Rules::applyTransition(const Transition &transition)
 	this->applySelection(transition._selection);
 #else
 	if (_ui)
+	{
 		_ui->onTransition(transition);
+		_ui->onSelectionApplied(transition._selection);
+	}
 #endif
 	_board->applyTransition(transition);
 }
 
-#ifdef SQUAREZ_QT
-
-float squarez::Rules::getPercentageLeft()
+float squarez::Rules::getPercentageLeft(float offset)
 {
-	return getTimer().percentageLeft();
+	return getTimer().percentageLeft(offset);
 }
+
+#ifdef SQUAREZ_QT
 
 void squarez::Rules::setPlayerName(QString name)
 {

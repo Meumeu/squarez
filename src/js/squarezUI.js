@@ -18,12 +18,12 @@ function SquarezUI(rootElement, scoreElement, timerCheat, gameRules)
 		rootElement.style.fontSize = (Math.min(window.innerHeight, window.innerWidth)/8) + "px";
 	}
 
-	var size = gameRules.board.size();
+	var size = gameRules.getBoard().size();
 	for (var y = 0 ; y < size ; y++)
 	{
 		for (var x = 0 ; x < size ; x++)
 		{
-			this.addElement(x,y,gameRules.board.get(x,y));
+			this.addElement(x,y,gameRules.getBoard().get(x,y));
 		}
 	}
 
@@ -140,7 +140,7 @@ SquarezUI.prototype =
 		}
 		center.x /=4;
 		center.y /=4;
-		var symbol = this.rules.board.get(removed[0].x, removed[0].y);
+		var symbol = this.rules.getBoard().get(removed[0].x, removed[0].y);
 
 		var squareSize = (removed[0].x - removed[1].x)*(removed[0].x - removed[1].x) + (removed[0].y - removed[1].y)*(removed[0].y - removed[1].y);
 		var side = 1;
@@ -194,6 +194,11 @@ SquarezUI.prototype =
 		{
 			old[0].parentNode.removeChild(old[0]);
 		}
+	},
+
+	onSelectionApplied: function(selection)
+	{
+		this.animateSelection(selection);
 	},
 
 	onTransition: function(transition)
@@ -269,10 +274,6 @@ SquarezUI.prototype =
 		{
 			moveTo.apply(null, moves[i]);
 		}
-		if (transition.selection.valid)
-		{
-			this.animateSelection(transition.selection);
-		}
 	},
 	
 	updateTimer: function()
@@ -285,12 +286,9 @@ SquarezUI.prototype =
 			this.timerFunc = setInterval(function() {that.updateTimer();}, 500);
 		}
 		
-		var timeLeft = this.rules.timer.percentageLeft(0.5 - this.timerCheat);
+		var timeLeft = this.rules.getPercentageLeft(0.5);
 		this.timerEl.style.right = ""+((1-timeLeft)*100)+"%";
 		this.timerEl.style.top = this.timerEl.style.right;
-
-		//To be defined in rules methods
-		this.onTimerEvent();
 	},
 	
 	clearSelection: function()
@@ -319,16 +317,16 @@ SquarezUI.prototype =
 		}
 	},
 
-	onTimerEvent: function()
+	onGameOverChanged: function(gameOver)
 	{
-		if (this.rules.gameOver())
+		if (gameOver)
 		{
 			clearInterval(this.timerFunc);
 			this.timerFunc = null;
 			this.root.getElementsByClassName("gameOver")[0].style.display = "";
 		}
 	},
-	
+
 	onScoreChanged: function(score)
 	{
 		this.scoreElement.innerHTML = score;
@@ -336,22 +334,22 @@ SquarezUI.prototype =
 
 	pause: function()
 	{
-		if (this.rules.timer.paused())
+		if (this.rules.pause)
 		{
-			this.rules.unPause();
+			this.rules.pause = false;
 			this.root.getElementsByClassName("pause")[0].style.display = "none";
 			this.updateTimer();
 		}
 		else
 		{
-			this.rules.pause();
+			this.rules.pause = true;
 			clearInterval(this.timerFunc);
 			this.timerFunc = null;
 			this.root.getElementsByClassName("pause")[0].style.display = "";
 		}
 	},
 
-	nameRequired: function(lastName)
+	onNameRequired: function(lastName)
 	{
 		var form = document.getElementById("nameForm");
 		form.style.display = "";

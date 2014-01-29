@@ -73,8 +73,6 @@ public slots:
 	void select(const QVariantList &);
 
 public:
-	float getPercentageLeft();
-
 	QString playerName() const {return QString::fromStdString(_playerName);}
 	void setPlayerName(QString name);
 
@@ -94,6 +92,7 @@ protected:
 	std::string _playerName;
 	void setScore(unsigned int score);
 	void setGameOver(bool status);
+	virtual Timer const& getTimer() = 0;
 
 	void acceptSelection(const Selection & selection);
 	void rejectSelection(const Selection & selection);
@@ -101,9 +100,9 @@ protected:
 	void applyTransition(const Transition & transition);
 
 public:
+	float getPercentageLeft(float offset = 0);
 	bool gameOver() const {return _gameOver;}
 	virtual void onSelect(Selection const& selection) = 0;
-	virtual Timer const& getTimer() = 0;
 	unsigned int getScore() const {return _score;}
 	GameBoard const* getBoard() const { return _board.get(); }
 	GameBoard * getBoard() { return _board.get(); }
