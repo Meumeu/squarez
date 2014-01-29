@@ -94,11 +94,17 @@ std::string getDir()
 
 void mkdir(const std::string & dir)
 {
+#ifdef EMSCRIPTEN
+	// mkdir is not required for javascript, just silence the warning
+	(void)dir;
+	return;
+#else
 #ifdef SQUAREZ_QT
 	QDir().mkpath(QString::fromStdString(dir));
 #else
-	// not implemented
+	#error mkdir not implemented
 	return;
+#endif
 #endif
 }
 
@@ -107,6 +113,17 @@ void mkdir(const std::string & dir)
 squarez::HighScores::HighScores(std::string saveName, unsigned int maxScores):
 	_saveName(std::move(saveName)), _maxScores(maxScores)
 {
+#ifdef EMSCRIPTEN
+	// Check if scores have been saved before naming changes
+	emscripten::val localStorage = emscripten::val::global("localStorage");
+	const std::string oldName = "/home/emscripten/.local/share/Squarez/scores";
+	auto const & file = localStorage.call<emscripten::val>("getItem", oldName);
+	if (file.as<bool>())
+	{
+		localStorage.call<void>("setItem", getDir() + _saveName, file.as<std::string>());
+		localStorage.call<void>("removeItem", oldName);
+	}
+#endif
 	// Try to deserialize scores from "file"
 	{
 		persistent_t f(getDir() + _saveName, std::ios::in);
