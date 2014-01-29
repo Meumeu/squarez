@@ -22,6 +22,7 @@
 #define SQUAREZ_METHODS_H
 
 #include <chrono>
+#include <memory>
 #include <string>
 #include <utility>
 #include <vector>
@@ -53,7 +54,7 @@ namespace squarez
 			unsigned int currentRound);
 
 
-		GameBoard _board;
+		std::unique_ptr<GameBoard> _board;
 		unsigned int _token;
 
 		std::chrono::seconds _roundDuration;

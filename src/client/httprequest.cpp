@@ -21,9 +21,14 @@
 #include <string>
 #include <stdexcept>
 
+#ifdef EMSCRIPTEN
+#include <emscripten/emscripten.h>
+#include <emscripten/val.h>
+#endif
+
 #ifndef EMSCRIPTEN
 
-#if 1
+#ifdef SQUAREZ_QT
 
 std::string squarez::HttpRequest::request(const std::string &/*url*/)
 {
@@ -118,7 +123,6 @@ std::string squarez::HttpRequest::request(const std::string& url)
 #endif // curl
 
 #else //EMSCRIPTEN
-#include <emscripten/val.h>
 
 typedef std::pair<std::function<void(std::string const&)>, std::function<void()>> callback_pair;
 

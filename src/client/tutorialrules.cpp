@@ -23,7 +23,7 @@
 #define MESSAGE(text) emit message(text)
 #else
 #include "ui.h"
-#define MESSAGE(text) ui->message(text)
+#define MESSAGE(text) _ui->onMessage(text)
 #endif
 
 squarez::TutorialRules::TutorialRules(int board_size, int nb_symbols):

@@ -45,12 +45,11 @@ private:
 
 	unsigned int _numberOfRounds;
 
-	unsigned int _score;
 	//TODO: player scores
 
 public:
 	virtual bool gameOver();
-	virtual const squarez::Timer& getTimer() const { return _timer; }
+	virtual const squarez::Timer& getTimer() { return _timer; }
 	virtual void onSelect(const squarez::Selection& selection);
 	
 	MultiPlayerRules(const std::string& url, const std::string& username);

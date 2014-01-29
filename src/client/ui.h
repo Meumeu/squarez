@@ -38,10 +38,12 @@ protected:
 	std::shared_ptr<Rules> rules;
 	
 public:
+	virtual void onGameOverChanged(bool value) = 0;
 	virtual void onTransition(Transition const& transition) = 0; // Called before the board is modified
 	virtual void onScoreChanged(int new_score) = 0;
 	virtual void onScoreListChanged(std::vector<Score> const& scores) = 0;
 	virtual void onSelectionAccepted(Selection const& selection) = 0;
+	virtual void onSelectionApplied(Selection const& selection) = 0;
 	virtual void onSelectionRejected(Selection const& selection) = 0;
 	virtual void onMessage(std::string const& message) = 0;
 

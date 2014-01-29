@@ -51,7 +51,7 @@ void GameInit::serialize(Serializer& serialized, const GameBoard& board, unsigne
 	serialized << board << token << roundDuration.count() << roundProgress << numberOfRounds << currentRound;
 }
 
-GameInit::GameInit(DeSerializer& serialized): _board(serialized)
+GameInit::GameInit(DeSerializer& serialized): _board(new squarez::GameBoard(serialized))
 {
 	std::int64_t roundDuration;
 	serialized >> _token >> roundDuration >> _roundProgress >> _numberOfRounds >> _currentRound;

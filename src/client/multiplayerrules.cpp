@@ -33,7 +33,7 @@ bool squarez::MultiPlayerRules::gameOver()
 
 void squarez::MultiPlayerRules::onSelect(const squarez::Selection& selection)
 {
-	Transition tr = board.selectSquare(selection, true);
+	Transition tr = _board->selectSquare(selection, true);
 	
 	if (tr._score == 0)
 		return;
@@ -45,14 +45,14 @@ squarez::MultiPlayerRules::MultiPlayerRules(const std::string& url, const std::s
 #ifndef EMSCRIPTEN
 _xhr(_mutex),
 #endif
-_url(url), _score(0)
+_url(url)
 {
 	//Retrieve the game parameters
 	StringDeSerializer ser(_xhr.request(url + GameInit::encodeRequest(username)));
 	GameInit gameinit(ser);
 	
 	_token = std::move(gameinit._token);
-	board = std::move(gameinit._board);
+	_board = std::move(gameinit._board);
 	
 	_timer = squarez::Timer(gameinit._roundDuration * gameinit._numberOfRounds,
 		(gameinit._numberOfRounds - gameinit._currentRound - 1 + gameinit._roundProgress) / gameinit._numberOfRounds);
@@ -73,22 +73,10 @@ void squarez::MultiPlayerRules::onTransitionPoll(const std::string& serializedTr
 	{
 		StringDeSerializer ser(serializedTransition);
 		TransitionPoll transitionPoll(ser);
-#ifdef SQUAREZ_QT
-		emit transition(transitionPoll._transition);
-#else
-		if (_ui)
-			_ui->onTransition(transitionPoll._transition);
-#endif
-		board.applyTransition(transitionPoll._transition);
+		this->applyTransition(transitionPoll._transition);
 		if (transitionPoll._round == 0)
 		{
-#ifdef SQUAREZ_QT
-			emit scoreChanged(0);
-#else
-			if (_ui)
-				_ui->onScoreChanged(0);
-#endif
-			_score = 0;
+			this->setScore(0);
 			_timer.refill(200);
 		}
 	}
@@ -101,21 +89,11 @@ void squarez::MultiPlayerRules::onSelectionPushed(Selection const &selection, co
 	StringDeSerializer ser(res);
 	unsigned int score;
 	ser >> score;
-
-#ifdef SQUAREZ_QT
-	if (score > _score)
-		emit selectionAccepted(selection);
+	if (score > this->getScore())
+		this->acceptSelection(selection);
 	else
-		emit selectionRejected(selection);
-	emit scoreChanged(score);
-#else
-	if (score > _score)
-		_ui->onSelectionAccepted(selection);
-	else
-		_ui->onSelectionRejected(selection);
-	_ui->onScoreChanged(score);
-#endif
-	_score = score;
+		this->rejectSelection(selection);
+	this->setScore(score);
 }
 
 void squarez::MultiPlayerRules::setPlayerName(const std::string& /*name*/)
@@ -132,7 +110,7 @@ void squarez::MultiPlayerRules::onScoreListPoll(const std::string& scoreList)
 #ifdef SQUAREZ_QT
 		emit scoreListChanged(scores._scores);
 #else
-		if (ui)
+		if (_ui)
 			_ui->onScoreListChanged(scores._scores);
 #endif
 	}

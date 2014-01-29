@@ -24,9 +24,7 @@
 #include <string>
 #include <functional>
 
-#ifdef EMSCRIPTEN
-	#include "emscripten.h"
-#else
+#ifndef EMSCRIPTEN
 	namespace std { class mutex; }
 #endif
 

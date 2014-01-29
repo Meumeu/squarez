@@ -74,7 +74,6 @@ public slots:
 
 public:
 	float getPercentageLeft();
-	bool gameOver() const {return _gameOver;}
 
 	QString playerName() const {return QString::fromStdString(_playerName);}
 	void setPlayerName(QString name);
@@ -102,6 +101,7 @@ protected:
 	void applyTransition(const Transition & transition);
 
 public:
+	bool gameOver() const {return _gameOver;}
 	virtual void onSelect(Selection const& selection) = 0;
 	virtual Timer const& getTimer() = 0;
 	unsigned int getScore() const {return _score;}

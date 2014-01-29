@@ -36,8 +36,8 @@ void squarez::SinglePlayerRules::setUI(squarez::UI* ui)
 {
 	squarez::Rules::setUI(ui);
 
-    auto const& scores = accessHighScores().getScoreVector();
-	if (ui and not scores.empty())
+	auto const& scores = accessHighScores().getScores();
+	if (_ui and not scores.empty())
 	{
 		ui->onScoreListChanged(scores);
 	}
@@ -77,7 +77,7 @@ void squarez::SinglePlayerRules::saveScore()
 	if (scores.save(getScore(), _playerName))
 	{
 #ifndef SQUAREZ_QT
-		_ui->onScoreListChanged(scores.getScoreVector());
+		_ui->onScoreListChanged(scores.getScores());
 #endif
 	}
 	_scoreSaved = true;

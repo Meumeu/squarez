@@ -21,6 +21,10 @@
 #include "shared/selection.h"
 #include "shared/timer.h"
 
+#ifndef SQUAREZ_QT
+#include "client/ui.h"
+#endif
+
 squarez::Rules::Rules(int board_size, int nb_symbols, std::string name) :
 #ifndef SQUAREZ_QT
 	_ui(nullptr),
@@ -134,6 +138,6 @@ void squarez::Rules::rejectSelection(const squarez::Selection &selection)
 void squarez::Rules::applySelection(const squarez::Selection &selection)
 {
 	if (_ui)
-		_ui->applySelection(selection);
+		_ui->onSelectionApplied(selection);
 }
 #endif

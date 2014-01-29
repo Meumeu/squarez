@@ -158,14 +158,17 @@ void testSquareFinding()
 	
 	// This transition leads to a situation with no square, test no-shuffle/shuffle cases
 	board = squarez::GameBoard(4,3);
-	unsigned int situation2[] =
-	{0, 0, 0, 1, // X 0 X 1
-	 0, 1, 1, 0, // X 1 X 0
-	 0, 2, 0, 0, // 0 2 1 0
-	 0, 2, 1, 0};// 0 2 1 0
-	 for (unsigned int x = 0; x < 4; x++)
-		 for (unsigned int y = 0; y < 4; y++)
-			 board.set(x,y,situation2[4*x + y]);
+	auto init_lost = [](squarez::GameBoard & board)
+	{
+		unsigned int situation2[] =
+		{0, 0, 0, 1, // X 0 X 1
+			0, 1, 1, 0, // X 1 X 0
+			0, 2, 0, 0, // 0 2 1 0
+			0, 2, 1, 0};// 0 2 1 0
+		for (unsigned int x = 0; x < 4; x++)
+			for (unsigned int y = 0; y < 4; y++)
+				board.set(x,y,situation2[4*x + y]);
+	};
 	squarez::Selection s;
 	s.addPoint(0,0);
 	s.addPoint(0,2);
@@ -173,21 +176,19 @@ void testSquareFinding()
 	s.addPoint(2,2);
 	
 	// allowDefeat = true
-	auto const& t1 = board.selectSquare(s, true);
-	squarez::GameBoard lost = board;
-	lost.applyTransition(t1);
-	if (lost.hasTransition())
+	init_lost(board);
+	board.applyTransition(board.selectSquare(s, true));
+	if (board.hasTransition())
 	{
 		std::stringstream text;
-		text << "Board should not have a transition" << std::endl << lost;
+		text << "Board should not have a transition" << std::endl << board;
 		throw std::runtime_error(text.str());
 	}
 	
 	// allowDefeat = false
-	auto const& t2 = board.selectSquare(s, false);
-	squarez::GameBoard ok = board;
-	ok.applyTransition(t2);
-	if (not ok.hasTransition())
+	init_lost(board);
+	board.applyTransition(board.selectSquare(s, false));
+	if (not board.hasTransition())
 	{
 		std::stringstream text;
 		text << "Board should have a transition";
@@ -254,8 +255,8 @@ void testSerialization2()
 		for (unsigned int y = 0 ; y < board.size() ; ++y)
 			sameCells = sameCells and board.get(x,y) == board1.get(x,y);
 
-	if (not board.size() == board1.size()
-		or not board.symbol() == board1.symbol()
+	if (not (board.size() == board1.size())
+		or not (board.symbol() == board1.symbol())
 		or not sameCells)
 	{
 		std::stringstream text;
