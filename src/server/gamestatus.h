@@ -68,7 +68,7 @@ class GameStatus : public boost::noncopyable
 	friend class ROGameStatus;
 	friend class RWGameStatus;
 public:
-	GameStatus(GameBoard const& board, std::chrono::seconds roundDuration, unsigned int roundsPerGame);
+	GameStatus(unsigned int size, unsigned int numSymbols, std::chrono::seconds roundDuration, unsigned int roundsPerGame);
 	~GameStatus();
 
 	GameBoard const& getBoard() const { return _board;}

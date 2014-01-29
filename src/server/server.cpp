@@ -105,7 +105,7 @@ int main(int argc, char ** argv)
 	}
 
 	// Initialize the game
-	squarez::GameStatus game(squarez::GameBoard(SIZE, SYMBOLS), std::chrono::seconds(15), 10);
+	squarez::GameStatus game(SIZE, SYMBOLS, std::chrono::seconds(15), 10);
 
 	// Start listening on the provided socket
 	Fastcgipp::Manager<squarez::RequestHandler> manager(socket_fd);
