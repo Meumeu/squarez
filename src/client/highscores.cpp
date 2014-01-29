@@ -114,52 +114,16 @@ squarez::HighScores::HighScores(std::string saveName, unsigned int maxScores):
 		{
 			DeSerializer ser(f);
 			ser >> _scores;
+			// Make sure scores are correctly sorted
+			std::sort(_scores.begin(), _scores.end(),
+				[](const Score & left, const Score & right)
+				{ return left._score > right._score;});
 		}
 		catch (...)
 		{
 			_scores.clear();
 		}
 	}
-
-#ifdef EMSCRIPTEN
-// Migrate old score format
-	emscripten::val localStorage = emscripten::val::global("localStorage");
-	unsigned int i = 0;
-	while (true)
-	{
-		std::stringstream i_;
-		i_ << i++;
-		std::string i_string = i_.str();
-
-		emscripten::val date_val = localStorage.call<emscripten::val>("getItem", "score_date_" + i_string);
-		emscripten::val name_val = localStorage.call<emscripten::val>("getItem", "score_name_" + i_string);
-		emscripten::val score_val = localStorage.call<emscripten::val>("getItem", "score_val_" + i_string);
-
-		localStorage.call<void>("removeItem", "score_date_" + i_string);
-		localStorage.call<void>("removeItem", "score_name_" + i_string);
-		localStorage.call<void>("removeItem", "score_val_" + i_string);
-
-		if (not date_val.as<bool>() or not name_val.as<bool>() or not score_val.as<bool>())
-			break;
-
-		unsigned long long date;
-		unsigned int score;
-		{
-			std::stringstream s;
-			s << date_val.as<std::string>();
-			s >> date;
-		}
-
-		{
-			std::stringstream s;
-			s << score_val.as<std::string>();
-			s >> score;
-		}
-
-		_scores.insert(Score(score, name_val.as<std::string>(), date/1000));
-	}
-	this->persist();
-#endif
 
 }
 
