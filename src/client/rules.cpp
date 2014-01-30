@@ -70,12 +70,14 @@ void squarez::Rules::setGameOver(bool status)
 void squarez::Rules::applyTransition(const Transition &transition)
 {
 #ifdef SQUAREZ_QT
-	this->applySelection(transition._selection);
+	if (transition._selection.isValid())
+		this->applySelection(transition._selection);
 #else
 	if (_ui)
 	{
 		_ui->onTransition(transition);
-		_ui->onSelectionApplied(transition._selection);
+		if (transition._selection.isValid())
+			_ui->onSelectionApplied(transition._selection);
 	}
 #endif
 	_board->applyTransition(transition);
