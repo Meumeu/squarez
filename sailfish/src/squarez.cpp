@@ -36,6 +36,7 @@
 #include <sailfishapp.h>
 
 #include "client/highscores.h"
+#include "client/multiplayerrules.h"
 #include "client/singleplayerrules.h"
 #include "client/tutorialrules.h"
 #include "shared/gameboard.h"
@@ -52,6 +53,7 @@ int main(int argc, char *argv[])
     //
     // To display the view, call "show()" (will show fullscreen on device).
     //
+	qmlRegisterType<squarez::MultiPlayerRules>("harbour.squarez", 1,0, "MultiPlayer");
 	qmlRegisterType<squarez::SinglePlayerRules>("harbour.squarez", 1,0, "SinglePlayer");
 	qmlRegisterType<squarez::TutorialRules>("harbour.squarez", 1,0, "Tutorial");
 	qmlRegisterUncreatableType<squarez::HighScores>("harbour.squarez", 1,0, "HighScores", "");

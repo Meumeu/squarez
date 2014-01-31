@@ -64,7 +64,7 @@ std::string PushSelection::encodeRequest(const Selection& selection, unsigned in
 	StringSerializer ser;
 	ser << selection;
 
-	str << request_path << method() << "?selection=" << ser.get() << "&token=" << token;
+	str << request_path << method() << "?selection=" << urlTools::urlencode(ser.get()) << "&token=" << token;
 	return str.str();
 }
 

@@ -4,6 +4,7 @@ import Sailfish.Silica 1.0
 Dialog
 {
     property alias name: nameField.text
+    property alias title: header.title
     property string coverText: ""
     id: dialog
 
@@ -12,7 +13,7 @@ Dialog
         anchors.fill: parent
         DialogHeader
         {
-            title: "Save high score"
+            id: header
         }
         Label
         {

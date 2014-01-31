@@ -304,6 +304,11 @@ bool GameBoard::hasTransition() const
 GameBoard::GameBoard(DeSerializer& serialized)
 {
 	serialized >> _symbols >> _size >> _cells;
+#ifdef SQUAREZ_QT
+	for (unsigned int x = 0 ; x < _size ; ++x)
+		for (unsigned int y = 0 ; y < _size ; ++y)
+			_qtCells.append(new qt::Cell(x, y, this->get(x, y)));
+#endif
 }
 
 Serializer& operator<<(Serializer& out, const GameBoard& board)

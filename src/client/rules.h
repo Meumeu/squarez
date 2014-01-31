@@ -52,12 +52,14 @@ class Rules
 		:public QObject
 {
 	Q_OBJECT
-	Q_PROPERTY(squarez::GameBoard* board READ getBoard CONSTANT)
+	Q_PROPERTY(squarez::GameBoard* board READ getBoard NOTIFY boardChanged)
 	Q_PROPERTY(float percentageLeft READ getPercentageLeft)
 	Q_PROPERTY(unsigned int score READ getScore NOTIFY scoreChanged)
 	Q_PROPERTY(bool gameOver READ gameOver NOTIFY gameOverChanged)
 	Q_PROPERTY(QString playerName READ playerName WRITE setPlayerName)
+	Q_PROPERTY(bool pause READ pause WRITE setPause NOTIFY pauseChanged)
 signals:
+	void boardChanged(GameBoard * board);
 	void gameOverChanged(bool);
 	void scoreChanged(unsigned int score);
 	// Selection is valid and should be displayed on screen
@@ -68,6 +70,7 @@ signals:
 	void selectionApplied(const QVariantList& selection);
 	void message(QString message);
 	void nameRequired(QString previousName);
+	void pauseChanged(bool);
 
 public slots:
 	void select(const QVariantList &);
@@ -75,6 +78,9 @@ public slots:
 public:
 	QString playerName() const {return QString::fromStdString(_playerName);}
 	void setPlayerName(QString name);
+
+	virtual bool pause() const {return false;}
+	virtual void setPause(bool) {}
 
 #else
 {

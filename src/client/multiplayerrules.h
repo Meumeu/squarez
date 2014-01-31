@@ -33,6 +33,15 @@ namespace squarez {
 
 class MultiPlayerRules : public squarez::Rules
 {
+#ifdef SQUAREZ_QT
+	Q_OBJECT
+	Q_PROPERTY(QString url READ url WRITE setUrl)
+	Q_PROPERTY(float roundPercentageLeft READ roundPercentageLeft)
+public:
+	QString url() const {return QString::fromStdString(_url);}
+	void setUrl(QString url);
+	float roundPercentageLeft();
+#endif
 private:
 	Timer _timer;
 #ifndef EMSCRIPTEN
@@ -47,14 +56,17 @@ private:
 
 	//TODO: player scores
 
+	// Make the request to initialize the game if all required parameters are present
+	void initGame();
+
 public:
 	virtual bool gameOver();
 	virtual const squarez::Timer& getTimer() { return _timer; }
 	virtual void onSelect(const squarez::Selection& selection);
 	
-	MultiPlayerRules(const std::string& url, const std::string& username);
+	MultiPlayerRules(const std::string& url = "", const std::string& username = "");
 
-	// Action not authorized (throws)
+	// Ignored if game is already initialized, triggers a game init if not already done
 	virtual void setPlayerName(std::string const& name);
 
 	unsigned int getNumberOfRounds() const { return _numberOfRounds; }

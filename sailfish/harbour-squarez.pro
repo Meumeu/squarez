@@ -9,7 +9,10 @@
 TARGET = harbour-squarez
 
 CONFIG += sailfishapp \
-    C++11
+    C++11\
+    link_pkgconfig
+
+PKGCONFIG += libcurl sailfishapp
 
 INCLUDEPATH += ../src
 
@@ -22,7 +25,7 @@ SOURCES += src/squarez.cpp \
     ../src/shared/gameboard.cpp \
     ../src/client/highscores.cpp \
     ../src/client/httprequest.cpp \
-#    ../src/client/multiplayerrules.cpp \
+    ../src/client/multiplayerrules.cpp \
     ../src/client/rules.cpp \
     ../src/client/singleplayerrules.cpp \
     ../src/client/tutorialrules.cpp \
@@ -53,7 +56,8 @@ HEADERS += \
     ../src/qt/cell.h
 
 DEFINES += SQUAREZ_QT\
-    PACKAGE=\\\"harbour-squarez\\\"
+    PACKAGE=\\\"harbour-squarez\\\"\
+    USERAGENT=\\\"jolla-squarez\\\"
 
 OTHER_FILES += qml/squarez.qml \
     qml/cover/CoverPage.qml \
@@ -67,4 +71,6 @@ OTHER_FILES += qml/squarez.qml \
     img/particle.png \
     harbour-squarez.desktop \
     qml/harbour-squarez.qml \
-    qml/pages/TutorialPage.qml
+    qml/pages/TutorialPage.qml \
+    rpm/harbour-squarez.yaml \
+    qml/pages/MultiPlayerPage.qml

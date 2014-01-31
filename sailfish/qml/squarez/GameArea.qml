@@ -57,6 +57,7 @@ Item {
             var dialog = pageStack.push("../pages/NameInput.qml")
             if (previousName)
                 dialog.name = previousName
+            dialog.title = "Save high score"
             dialog.coverText = "Score: " + gameArea.rules.score
             dialog.accepted.connect(function() {
                 gameArea.rules.playerName = dialog.name;
@@ -132,6 +133,7 @@ Item {
         visible: false
         function setPoints(points)
         {
+            gameArea.resetSelection()
             // We assume it is really a square, we only need to compute the size, center and angle
             centerX = 0;
             centerY = 0

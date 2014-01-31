@@ -75,6 +75,18 @@ Page {
             }
             MenuItem
             {
+                text: "Multiplayer"
+                onClicked: {
+                    var dialog = pageStack.push("../pages/NameInput.qml")
+                    dialog.title = "Enter your name"
+                    dialog.accepted.connect(function() {
+                        var page = pageStack.replace(Qt.resolvedUrl("MultiPlayerPage.qml"))
+                        page.playerName = dialog.name
+                    })
+                }
+            }
+            MenuItem
+            {
                 text: "New game"
                 onClicked: {
                     pageStack.pushAttached(Qt.resolvedUrl("SinglePlayerPage.qml"))

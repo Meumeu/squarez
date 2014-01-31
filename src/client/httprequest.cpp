@@ -18,42 +18,30 @@
  */
 
 #include "httprequest.h"
-#include <string>
-#include <stdexcept>
-
 #ifdef EMSCRIPTEN
-#include <emscripten/emscripten.h>
-#include <emscripten/val.h>
+	#include <emscripten/emscripten.h>
+	#include <emscripten/val.h>
+#else
+	#include <curl/curl.h>
+	#include <memory>
+	#include <sstream>
+	#include <stdexcept>
+
+	#ifndef SQUAREZ_QT
+		#include <thread>
+		#include <mutex>
+	#endif
+
+	#ifndef USERAGENT
+		#include "config.h"
+		#define USERAGENT "squarez/" PACKAGE_VERSION
+	#endif
 #endif
 
 #ifndef EMSCRIPTEN
-
-#ifdef SQUAREZ_QT
-
-std::string squarez::HttpRequest::request(const std::string &/*url*/)
-{
-	//FIXME: implement
-	return "";
-}
-
-void squarez::HttpRequest::request(const std::string &/*url*/, std::function<void (const std::string &)> onload, std::function<void ()> /*onerror*/)
-{
-	onload("");
-}
-
-#else
-
-#include <curl/curl.h>
-#include <boost/lexical_cast.hpp>
-#include <sstream>
-#include <thread>
-#include <mutex>
-
-#include "config.h"
-
 namespace
 {
-static size_t http_write_in_memory(char * ptr, size_t size, size_t nmemb, void * userdata)
+size_t http_write_in_memory(char * ptr, size_t size, size_t nmemb, void * userdata)
 {
 	std::stringstream& strstr = *reinterpret_cast<std::stringstream *>(userdata);
 
@@ -61,66 +49,102 @@ static size_t http_write_in_memory(char * ptr, size_t size, size_t nmemb, void *
 
 	return size * nmemb;
 }
-}
 
-void squarez::HttpRequest::request(const std::string& url, std::function<void(std::string const&)> onload, std::function<void()> onerror)
-{
-	std::thread worker([this, url, onload, onerror]() {
-		std::unique_lock<std::mutex> lock;
-		std::string response;
-		
-		try
-		{
-			response = std::move(request(url));
-		}
-		catch(...)
-		{
-			if (_mutex)
-				lock = std::unique_lock<std::mutex>(*_mutex);
-			
-			onerror();
-			return;
-		}
-		
-		try
-		{
-			if (_mutex)
-				lock = std::unique_lock<std::mutex>(*_mutex);
-			
-			onload(response);
-		}
-		catch(...)
-		{
-		}
-	});
-	worker.detach();
-}
-
-std::string squarez::HttpRequest::request(const std::string& url)
+std::string synchronous_request(const std::string & url)
 {
 	auto del = std::function<void(CURL*)>(curl_easy_cleanup);
 	std::unique_ptr<CURL, decltype(del)> curl(curl_easy_init(), del);
-	
+
 	if (!curl)
 		throw std::runtime_error("Cannot initialize libcurl");
-	
+
 	std::stringstream strstr;
-	
+
 	curl_easy_setopt(curl.get(), CURLOPT_FOLLOWLOCATION, 1L);
-	curl_easy_setopt(curl.get(), CURLOPT_USERAGENT, "squarez/" PACKAGE_VERSION);
+	curl_easy_setopt(curl.get(), CURLOPT_USERAGENT, USERAGENT);
 	curl_easy_setopt(curl.get(), CURLOPT_WRITEFUNCTION, http_write_in_memory);
 	curl_easy_setopt(curl.get(), CURLOPT_WRITEDATA, (void *)&strstr);
 	curl_easy_setopt(curl.get(), CURLOPT_URL, url.c_str());
-	
+
 	CURLcode rc = curl_easy_perform(curl.get());
-	
+
 	if (rc != CURLE_OK)
-		throw std::runtime_error("CURL error " + boost::lexical_cast<std::string>(rc));
+		throw std::runtime_error("CURL error " + std::to_string(rc));
 	else
 		return strstr.str();
 }
 
-#endif // curl
+#ifndef SQUAREZ_QT
+void async_request(const std::string url, std::function<void(std::string const&)> onload, std::function<void()> onerror, std::mutex * mutex)
+{
+	std::unique_lock<std::mutex> lock;
+	std::string response;
+
+	try
+	{
+		response = std::move(synchronous_request(url));
+	}
+	catch(...)
+	{
+		if (mutex)
+			lock = std::unique_lock<std::mutex>(*mutex);
+
+		onerror();
+		return;
+	}
+
+	try
+	{
+		if (mutex)
+			lock = std::unique_lock<std::mutex>(*mutex);
+
+		onload(response);
+	}
+	catch(...)
+	{
+	}
+}
+#endif
+
+}
+
+#ifdef SQUAREZ_QT
+void squarez::AsyncRequest::run()
+{
+	try
+	{
+		QString response = QString::fromStdString(synchronous_request(_url));
+		emit load(response);
+	}
+	catch (...)
+	{
+		emit error();
+	}
+}
+
+void squarez::HttpRequest::request(const std::string& url, std::function<void(std::string const&)> onload, std::function<void()> onerror)
+{
+	squarez::AsyncRequest * worker = new squarez::AsyncRequest(url);
+	squarez::Callback * callback = new squarez::Callback(onload, onerror);
+	callback->connect(worker, &squarez::AsyncRequest::load, callback, &squarez::Callback::onLoad);
+	callback->connect(worker, &squarez::AsyncRequest::error, callback, &squarez::Callback::onErorr);
+	worker->connect(worker, &squarez::AsyncRequest::finished, &QObject::deleteLater);
+	worker->start();
+}
+
+#else
+
+void squarez::HttpRequest::request(const std::string& url, std::function<void(std::string const&)> onload, std::function<void()> onerror)
+{
+	std::thread worker(async_request, url, onload, onerror, _mutex);
+	worker.detach();
+}
+#endif
+
+std::string squarez::HttpRequest::request(const std::string& url)
+{
+	return synchronous_request(url);
+}
 
 #else //EMSCRIPTEN
 

@@ -24,6 +24,10 @@
 #include "shared/network/methods.h"
 #include "shared/serializer.h"
 
+#include <climits>
+#include <cmath>
+#define INVALID_TOKEN UINT_MAX
+
 #define NOP [](){}
 
 bool squarez::MultiPlayerRules::gameOver()
@@ -41,30 +45,48 @@ void squarez::MultiPlayerRules::onSelect(const squarez::Selection& selection)
 	_xhr.request(_url + PushSelection::encodeRequest(selection, _token), std::bind(&MultiPlayerRules::onSelectionPushed, this, selection, std::placeholders::_1), NOP);
 }
 
-squarez::MultiPlayerRules::MultiPlayerRules(const std::string& url, const std::string& username): Rules(0,0, username), _timer(std::chrono::seconds(0)),
-#ifndef EMSCRIPTEN
-_xhr(_mutex),
-#endif
-_url(url)
+void squarez::MultiPlayerRules::initGame()
 {
+	if (_token != INVALID_TOKEN)
+	{
+		// Game is already initialized
+		return;
+	}
+	if (_playerName.empty())
+	{
+		// Required parameters are missing
+		return;
+	}
+
 	//Retrieve the game parameters
-	StringDeSerializer ser(_xhr.request(url + GameInit::encodeRequest(username)));
+	StringDeSerializer ser(_xhr.request(_url + GameInit::encodeRequest(_playerName)));
 	GameInit gameinit(ser);
-	
-	_token = std::move(gameinit._token);
+
+	_token = gameinit._token;
 	_board = std::move(gameinit._board);
-	
-	_timer = squarez::Timer(gameinit._roundDuration * gameinit._numberOfRounds,
-		(gameinit._numberOfRounds - gameinit._currentRound - 1 + gameinit._roundProgress) / gameinit._numberOfRounds);
+#ifdef SQUAREZ_QT
+	emit boardChanged(_board.get());
+#endif
 
 	_numberOfRounds = gameinit._numberOfRounds;
+
+	_timer = squarez::Timer(gameinit._roundDuration * _numberOfRounds,
+		(_numberOfRounds - gameinit._currentRound - 1 + gameinit._roundProgress) / _numberOfRounds);
 
 	// Start the round polling loop
 	onTransitionPoll("");
 
 	// Start the score polling loop
 	onScoreListPoll("");
+}
 
+squarez::MultiPlayerRules::MultiPlayerRules(const std::string& url, const std::string& username): Rules(0,0, username), _timer(std::chrono::seconds(1)),
+#ifndef EMSCRIPTEN
+_xhr(_mutex),
+#endif
+_url(url), _token(INVALID_TOKEN)
+{
+	initGame();
 }
 
 void squarez::MultiPlayerRules::onTransitionPoll(const std::string& serializedTransition)
@@ -96,9 +118,15 @@ void squarez::MultiPlayerRules::onSelectionPushed(Selection const &selection, co
 	this->setScore(score);
 }
 
-void squarez::MultiPlayerRules::setPlayerName(const std::string& /*name*/)
+void squarez::MultiPlayerRules::setPlayerName(const std::string& name)
 {
-	throw std::runtime_error("Name can not be changed in multiplayer mode");
+	if (_token != INVALID_TOKEN)
+	{
+		// Game is already initialized, ignore property change
+		return;
+	}
+	_playerName = name;
+	initGame();
 }
 
 void squarez::MultiPlayerRules::onScoreListPoll(const std::string& scoreList)
@@ -108,7 +136,7 @@ void squarez::MultiPlayerRules::onScoreListPoll(const std::string& scoreList)
 		StringDeSerializer ser(scoreList);
 		ScoreList scores(ser);
 #ifdef SQUAREZ_QT
-		emit scoreListChanged(scores._scores);
+//		emit scoreListChanged(scores._scores);
 #else
 		if (_ui)
 			_ui->onScoreListChanged(scores._scores);
@@ -119,3 +147,18 @@ void squarez::MultiPlayerRules::onScoreListPoll(const std::string& scoreList)
 		std::bind(&MultiPlayerRules::onScoreListPoll, this, std::placeholders::_1),
 		std::bind(&MultiPlayerRules::onScoreListPoll, this, ""));
 }
+
+#ifdef SQUAREZ_QT
+void squarez::MultiPlayerRules::setUrl(QString url)
+{
+	_url = url.toStdString();
+	initGame();
+}
+
+float squarez::MultiPlayerRules::roundPercentageLeft()
+{
+	float intpart;
+	return std::modf(this->getPercentageLeft() * _numberOfRounds, &intpart);
+}
+
+#endif
