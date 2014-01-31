@@ -72,6 +72,11 @@ void squarez::Rules::applyTransition(const Transition &transition)
 #ifdef SQUAREZ_QT
 	if (transition._selection.isValid())
 		this->applySelection(transition._selection);
+	else
+	{
+		// Small hack to force selections to be cleared
+		this->rejectSelection(Selection());
+	}
 #else
 	if (_ui)
 	{

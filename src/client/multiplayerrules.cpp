@@ -80,11 +80,15 @@ void squarez::MultiPlayerRules::initGame()
 	onScoreListPoll("");
 }
 
-squarez::MultiPlayerRules::MultiPlayerRules(const std::string& url, const std::string& username): Rules(0,0, username), _timer(std::chrono::seconds(1)),
-#ifndef EMSCRIPTEN
-_xhr(_mutex),
+squarez::MultiPlayerRules::MultiPlayerRules(const std::string& url, const std::string& username): Rules(0,0, username),
+#ifdef SQUAREZ_QT
+	_highScores(new HighScores(std::vector<Score>())),
 #endif
-_url(url), _token(INVALID_TOKEN)
+	_timer(std::chrono::seconds(1)),
+#ifndef EMSCRIPTEN
+	_xhr(_mutex),
+#endif
+	_url(url), _token(INVALID_TOKEN)
 {
 	initGame();
 }
@@ -136,7 +140,8 @@ void squarez::MultiPlayerRules::onScoreListPoll(const std::string& scoreList)
 		StringDeSerializer ser(scoreList);
 		ScoreList scores(ser);
 #ifdef SQUAREZ_QT
-//		emit scoreListChanged(scores._scores);
+		_highScores.reset(new HighScores(scores._scores));
+		emit highScoresChanged(_highScores.get());
 #else
 		if (_ui)
 			_ui->onScoreListChanged(scores._scores);

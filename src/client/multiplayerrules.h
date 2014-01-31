@@ -25,6 +25,10 @@
 #include "httprequest.h"
 #include "shared/timer.h"
 
+#ifdef SQUAREZ_QT
+#include "client/highscores.h"
+#endif
+
 #ifndef EMSCRIPTEN
 	#include <mutex>
 #endif
@@ -37,10 +41,16 @@ class MultiPlayerRules : public squarez::Rules
 	Q_OBJECT
 	Q_PROPERTY(QString url READ url WRITE setUrl)
 	Q_PROPERTY(float roundPercentageLeft READ roundPercentageLeft)
+	Q_PROPERTY(squarez::HighScores * highScores READ getHighScores NOTIFY highScoresChanged)
 public:
 	QString url() const {return QString::fromStdString(_url);}
 	void setUrl(QString url);
 	float roundPercentageLeft();
+	HighScores * getHighScores() {return _highScores.get();}
+signals:
+	void highScoresChanged(squarez::HighScores *);
+private:
+	std::unique_ptr<HighScores> _highScores;
 #endif
 private:
 	Timer _timer;

@@ -184,6 +184,9 @@ bool squarez::HighScores::mayBeSaved(unsigned int score)
 
 void squarez::HighScores::persist()
 {
+	if (_saveName.empty())
+		return;
+
 	mkdir(getDir());
 	persistent_t f(getDir() + _saveName, std::ios_base::out | std::ios_base::trunc);
 	try

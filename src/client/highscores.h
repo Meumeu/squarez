@@ -44,9 +44,10 @@ public:
 {
 #endif
 public:
-    // parameter is the maximum number of scores to record
-    // 0 means that no additional score can be saved
-    HighScores(std::string saveName, unsigned int maxScores = 0);
+	// parameter is the maximum number of scores to record
+	// 0 means that no additional score can be saved
+	HighScores(std::string saveName, unsigned int maxScores = 0);
+	HighScores(std::vector<Score> scores): _maxScores(0), _scores(std::move(scores)) {}
 
 	bool save(unsigned int score, std::string const& name);
 	// Return true if the score is eligible to be a new high score

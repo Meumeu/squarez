@@ -6,6 +6,7 @@ import "../squarez"
 
 Page
 {
+    id: page
     property string coverText: header.title
     property alias playerName: multiPlayerRules.playerName
     MultiPlayer
@@ -16,6 +17,7 @@ Page
 
     Column
     {
+        id: content
         width: parent.width
         PageHeader
         {
@@ -37,5 +39,31 @@ Page
             round: true
             width: parent.width
         }
+    }
+    SilicaListView {
+        model: multiPlayerRules.highScores;
+        anchors.top: content.anchors.bottom
+        anchors.bottom: page.anchors.bottom
+        anchors.left: page.anchors.left
+        anchors.right: page.anchors.right
+        delegate: BackgroundItem {
+            id: delegate
+
+            Label {
+                x: Theme.paddingLarge
+                text: name
+                anchors.verticalCenter: parent.verticalCenter
+                color: delegate.highlighted ? Theme.highlightColor : Theme.primaryColor
+            }
+            Label
+            {
+                width: parent.width - Theme.paddingLarge
+                text: score
+                anchors.verticalCenter: parent.verticalCenter
+                horizontalAlignment: Text.AlignRight
+            }
+        }
+
+        VerticalScrollDecorator {}
     }
 }
