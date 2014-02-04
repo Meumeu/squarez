@@ -49,11 +49,12 @@ Page
         delegate: BackgroundItem {
             id: delegate
             highlighted: name === multiPlayerRules.playerName && score == multiPlayerRules.score
+            height: Theme.fontSizeSmall + Theme.paddingSmall
 
             Label {
                 x: Theme.paddingLarge
                 font.pixelSize: Theme.fontSizeSmall
-                text: name
+                text: 1+index + ": " + name
                 anchors.verticalCenter: parent.verticalCenter
                 color: delegate.highlighted ? Theme.highlightColor : Theme.primaryColor
             }
