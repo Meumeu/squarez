@@ -42,15 +42,17 @@ Page
     }
     SilicaListView {
         model: multiPlayerRules.highScores;
-        anchors.top: content.anchors.bottom
-        anchors.bottom: page.anchors.bottom
-        anchors.left: page.anchors.left
-        anchors.right: page.anchors.right
+        anchors.top: content.bottom
+        anchors.bottom: page.bottom
+        anchors.left: page.left
+        anchors.right: page.right
         delegate: BackgroundItem {
             id: delegate
+            highlighted: name === multiPlayerRules.playerName && score == multiPlayerRules.score
 
             Label {
                 x: Theme.paddingLarge
+                font.pixelSize: Theme.fontSizeSmall
                 text: name
                 anchors.verticalCenter: parent.verticalCenter
                 color: delegate.highlighted ? Theme.highlightColor : Theme.primaryColor
@@ -58,6 +60,7 @@ Page
             Label
             {
                 width: parent.width - Theme.paddingLarge
+                font.pixelSize: Theme.fontSizeSmall
                 text: score
                 anchors.verticalCenter: parent.verticalCenter
                 horizontalAlignment: Text.AlignRight
