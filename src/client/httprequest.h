@@ -25,6 +25,7 @@
 #include <functional>
 
 #ifndef EMSCRIPTEN
+	#include <memory>
 	namespace std { class mutex; }
 #endif
 
@@ -38,11 +39,13 @@ class HttpRequest
 {
 #ifndef EMSCRIPTEN
 private:
-	std::mutex * const _mutex;
+	std::shared_ptr<std::mutex> _mutex;
+	std::shared_ptr<bool> _alive;
 
 public:
-	HttpRequest(std::mutex & mutex): _mutex(&mutex) {}
-	HttpRequest(): _mutex(nullptr) {}
+	HttpRequest(std::shared_ptr<std::mutex> mutex): _mutex(mutex), _alive(new bool(true)) {}
+	HttpRequest(): _mutex(nullptr), _alive(new bool(true)) {}
+	~HttpRequest();
 #endif
 public:
 
@@ -69,15 +72,16 @@ class Callback: public QObject
 {
 	Q_OBJECT
 public:
-	Callback(std::function<void(std::string const&)> onload, std::function<void()> onerror):
-	_onload(onload), _onerror(onerror) {}
+	Callback(std::function<void(std::string const&)> onload, std::function<void()> onerror, std::shared_ptr<bool> alive):
+	_alive(alive), _onload(onload), _onerror(onerror) {}
 private:
+	std::shared_ptr<bool> _alive;
 	std::function<void(std::string const&)> _onload;
 	std::function<void()> _onerror;
 
 public slots:
-	void onLoad(QString result) const {_onload(result.toStdString()); delete this;}
-	void onErorr() const {_onerror(); delete this;}
+	void onLoad(QString result) const;
+	void onErorr() const;
 };
 
 #endif

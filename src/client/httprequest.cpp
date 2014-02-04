@@ -26,10 +26,10 @@
 	#include <memory>
 	#include <sstream>
 	#include <stdexcept>
+	#include <mutex>
 
 	#ifndef SQUAREZ_QT
 		#include <thread>
-		#include <mutex>
 	#endif
 
 	#ifndef USERAGENT
@@ -75,7 +75,12 @@ std::string synchronous_request(const std::string & url)
 }
 
 #ifndef SQUAREZ_QT
-void async_request(const std::string url, std::function<void(std::string const&)> onload, std::function<void()> onerror, std::mutex * mutex)
+void async_request(
+	const std::string url,
+	std::function<void(std::string const&)> onload,
+	std::function<void()> onerror,
+	std::shared_ptr<std::mutex> mutex,
+	std::shared_ptr<bool> alive)
 {
 	std::unique_lock<std::mutex> lock;
 	std::string response;
@@ -88,8 +93,8 @@ void async_request(const std::string url, std::function<void(std::string const&)
 	{
 		if (mutex)
 			lock = std::unique_lock<std::mutex>(*mutex);
-
-		onerror();
+		if (*alive)
+			onerror();
 		return;
 	}
 
@@ -97,8 +102,8 @@ void async_request(const std::string url, std::function<void(std::string const&)
 	{
 		if (mutex)
 			lock = std::unique_lock<std::mutex>(*mutex);
-
-		onload(response);
+		if (*alive)
+			onload(response);
 	}
 	catch(...)
 	{
@@ -122,10 +127,24 @@ void squarez::AsyncRequest::run()
 	}
 }
 
+void squarez::Callback::onErorr() const
+{
+	if (*_alive)
+		_onerror();
+	delete this;
+}
+
+void squarez::Callback::onLoad(QString result) const
+{
+	if (*_alive)
+		_onload(result.toStdString());
+	delete this;
+}
+
 void squarez::HttpRequest::request(const std::string& url, std::function<void(std::string const&)> onload, std::function<void()> onerror)
 {
 	squarez::AsyncRequest * worker = new squarez::AsyncRequest(url);
-	squarez::Callback * callback = new squarez::Callback(onload, onerror);
+	squarez::Callback * callback = new squarez::Callback(onload, onerror, _alive);
 	callback->connect(worker, &squarez::AsyncRequest::load, callback, &squarez::Callback::onLoad);
 	callback->connect(worker, &squarez::AsyncRequest::error, callback, &squarez::Callback::onErorr);
 	worker->connect(worker, &squarez::AsyncRequest::finished, &QObject::deleteLater);
@@ -136,10 +155,18 @@ void squarez::HttpRequest::request(const std::string& url, std::function<void(st
 
 void squarez::HttpRequest::request(const std::string& url, std::function<void(std::string const&)> onload, std::function<void()> onerror)
 {
-	std::thread worker(async_request, url, onload, onerror, _mutex);
+	std::thread worker(async_request, url, onload, onerror, _mutex, _alive);
 	worker.detach();
 }
 #endif
+
+squarez::HttpRequest::~HttpRequest()
+{
+	std::unique_lock<std::mutex> lock;
+	if (_mutex)
+		lock = std::unique_lock<std::mutex>(*_mutex);
+	*_alive = false;
+}
 
 std::string squarez::HttpRequest::request(const std::string& url)
 {

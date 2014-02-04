@@ -86,7 +86,7 @@ squarez::MultiPlayerRules::MultiPlayerRules(const std::string& url, const std::s
 #endif
 	_timer(std::chrono::seconds(1)),
 #ifndef EMSCRIPTEN
-	_xhr(_mutex),
+	_mutex(new std::mutex()), _xhr(_mutex),
 #endif
 	_url(url), _token(INVALID_TOKEN)
 {

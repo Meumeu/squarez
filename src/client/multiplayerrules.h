@@ -30,6 +30,7 @@
 #endif
 
 #ifndef EMSCRIPTEN
+	#include <memory>
 	#include <mutex>
 #endif
 
@@ -55,7 +56,7 @@ private:
 private:
 	Timer _timer;
 #ifndef EMSCRIPTEN
-	std::mutex _mutex;
+	std::shared_ptr<std::mutex> _mutex;
 #endif
 	HttpRequest _xhr;
 	
