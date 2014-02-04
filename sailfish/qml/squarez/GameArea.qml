@@ -30,9 +30,12 @@ Item {
         var points = selection.map(function(item){return Qt.point(item.logical_x, item.logical_y)})
         onSelect(points)
     }
-    function resetSelection()
+    function resetSquare()
     {
         selectedSquare.visible = false
+    }
+    function resetSelection()
+    {
         selection.forEach(function(cell){cell.selected = false})
         selection = []
     }
@@ -49,6 +52,8 @@ Item {
             rules.selectionAccepted.connect(selectedSquare.setPoints)
             rules.selectionApplied.connect(gameArea.resetSelection)
             rules.selectionRejected.connect(gameArea.resetSelection)
+            rules.selectionApplied.connect(gameArea.resetSquare)
+            rules.selectionRejected.connect(gameArea.resetSquare)
             rules.nameRequired.connect(onNameRequired)
         }
 
@@ -114,6 +119,7 @@ Item {
             {
                 anchors.fill: cell
                 onClicked: gameArea.clickCell(cell)
+                onPressAndHold: gameArea.resetSelection()
             }
         }
     }
