@@ -73,4 +73,5 @@ OTHER_FILES += qml/squarez.qml \
     qml/harbour-squarez.qml \
     qml/pages/TutorialPage.qml \
     rpm/harbour-squarez.yaml \
-    qml/pages/MultiPlayerPage.qml
+    qml/pages/MultiPlayerPage.qml \
+    qml/squarez/SingleSquare.qml
