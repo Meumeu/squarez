@@ -8,12 +8,13 @@ ProgressBar
     minimumValue: 0
     maximumValue: 1
     value: 1
+    label: round ? "round " + rules.currentRound + "/" + rules.numberOfRounds : ""
     Timer
     {
         interval: 100; repeat: true
         running: !rules.pause
         onTriggered: {
-            parent.value = round ? rules.roundPercentageLeft : rules.percentageLeft
+            parent.value = rules.percentageLeft
         }
     }
 }

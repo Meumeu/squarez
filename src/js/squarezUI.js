@@ -275,7 +275,9 @@ SquarezUI.prototype =
 			moveTo.apply(null, moves[i]);
 		}
 	},
-	
+
+	getGlobalTimeLeft: function(offset) { return this.rules.getPercentageLeft(offset); },
+
 	updateTimer: function()
 	{
 		if (!this.timerFunc)
@@ -286,7 +288,7 @@ SquarezUI.prototype =
 			this.timerFunc = setInterval(function() {that.updateTimer();}, 500);
 		}
 		
-		var timeLeft = this.rules.getPercentageLeft(0.5);
+		var timeLeft = this.getGlobalTimeLeft(0.5);
 		this.timerEl.style.right = ""+((1-timeLeft)*100)+"%";
 		this.timerEl.style.top = this.timerEl.style.right;
 	},

@@ -155,6 +155,7 @@ EMSCRIPTEN_BINDINGS(Rules) {
 	.smart_ptr_constructor(&std::make_shared<MultiPlayerRules,std::string,std::string>)
 	.function("onSelect", &MultiPlayerRules::onSelect)
 	.function("setPlayerName", &MultiPlayerRules::setPlayerName)
+	.property("currentRound", &MultiPlayerRules::currentRound)
 	.property("numberOfRounds", &MultiPlayerRules::getNumberOfRounds)
 	;
 

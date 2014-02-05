@@ -69,9 +69,13 @@ void squarez::MultiPlayerRules::initGame()
 #endif
 
 	_numberOfRounds = gameinit._numberOfRounds;
+	_currentRound = gameinit._currentRound;
+#ifdef SQUAREZ_QT
+	emit numberOfRoundsChanged(_numberOfRounds);
+	emit currentRoundChanged(_currentRound);
+#endif
 
-	_timer = squarez::Timer(gameinit._roundDuration * _numberOfRounds,
-		(_numberOfRounds - gameinit._currentRound - 1 + gameinit._roundProgress) / _numberOfRounds);
+	_timer = squarez::Timer(gameinit._roundDuration, gameinit._roundProgress);
 
 	// Start the round polling loop
 	onTransitionPoll("");
@@ -88,7 +92,7 @@ squarez::MultiPlayerRules::MultiPlayerRules(const std::string& url, const std::s
 #ifndef EMSCRIPTEN
 	_mutex(new std::mutex()), _xhr(_mutex),
 #endif
-	_url(url), _token(INVALID_TOKEN)
+	_url(url), _token(INVALID_TOKEN), _currentRound(1)
 {
 	initGame();
 }
@@ -100,11 +104,15 @@ void squarez::MultiPlayerRules::onTransitionPoll(const std::string& serializedTr
 		StringDeSerializer ser(serializedTransition);
 		TransitionPoll transitionPoll(ser);
 		this->applyTransition(transitionPoll._transition);
-		if (transitionPoll._round == 0)
+		_currentRound = transitionPoll._round + 1;
+		if (_currentRound == 1)
 		{
 			this->setScore(0);
-			_timer.refill(200);
 		}
+		_timer.refill(200);
+#ifdef SQUAREZ_QT
+		emit currentRoundChanged(_currentRound);
+#endif
 	}
 
 	_xhr.request(_url + TransitionPoll::encodeRequest(_token), std::bind(&MultiPlayerRules::onTransitionPoll, this, std::placeholders::_1), NOP);
@@ -158,12 +166,6 @@ void squarez::MultiPlayerRules::setUrl(QString url)
 {
 	_url = url.toStdString();
 	initGame();
-}
-
-float squarez::MultiPlayerRules::roundPercentageLeft()
-{
-	float intpart;
-	return std::modf(this->getPercentageLeft() * _numberOfRounds, &intpart);
 }
 
 #endif

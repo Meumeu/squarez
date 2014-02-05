@@ -22,3 +22,9 @@ function MultiplayerRules(rootElement, scoreElement, server, playerName)
 }
 
 MultiplayerRules.prototype = Object.create(SquarezUI.prototype);
+
+MultiplayerRules.prototype.getGlobalTimeLeft = function(offset)
+{
+	var fraction = this.rules.getPercentageLeft(offset);
+	return (this.rules.numberOfRounds - this.rules.currentRound + fraction) / this.rules.numberOfRounds;
+}

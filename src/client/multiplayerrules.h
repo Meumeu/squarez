@@ -41,8 +41,9 @@ class MultiPlayerRules : public squarez::Rules
 #ifdef SQUAREZ_QT
 	Q_OBJECT
 	Q_PROPERTY(QString url READ url WRITE setUrl)
-	Q_PROPERTY(float roundPercentageLeft READ roundPercentageLeft)
 	Q_PROPERTY(squarez::HighScores * highScores READ getHighScores NOTIFY highScoresChanged)
+	Q_PROPERTY(unsigned int numberOfRounds READ getNumberOfRounds NOTIFY numberOfRoundsChanged)
+	Q_PROPERTY(unsigned int currentRound READ currentRound NOTIFY currentRoundChanged)
 public:
 	QString url() const {return QString::fromStdString(_url);}
 	void setUrl(QString url);
@@ -50,6 +51,8 @@ public:
 	HighScores * getHighScores() {return _highScores.get();}
 signals:
 	void highScoresChanged(squarez::HighScores *);
+	void numberOfRoundsChanged(unsigned int);
+	void currentRoundChanged(unsigned int);
 private:
 	std::unique_ptr<HighScores> _highScores;
 #endif
@@ -64,6 +67,7 @@ private:
 	unsigned int _token;
 
 	unsigned int _numberOfRounds;
+	unsigned int _currentRound;
 
 	//TODO: player scores
 
@@ -81,6 +85,7 @@ public:
 	virtual void setPlayerName(std::string const& name);
 
 	unsigned int getNumberOfRounds() const { return _numberOfRounds; }
+	unsigned int currentRound() const { return _currentRound;}
 
 	// Callback for transition polling mechanism
 	void onTransitionPoll(std::string const& serializedTransition);
