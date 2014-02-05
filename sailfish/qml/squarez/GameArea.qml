@@ -34,6 +34,12 @@ Item {
     {
         selectedSquare.visible = false
     }
+    function burstSelection(points)
+    {
+        selectionEmitter.my_burst(points)
+        resetSelection()
+    }
+
     function resetSelection()
     {
         selection.forEach(function(cell){cell.selected = false})
@@ -51,7 +57,7 @@ Item {
             gameArea.onSelect.connect(rules.select)
             rules.selectionAccepted.connect(gameArea.resetSelection)
             rules.selectionAccepted.connect(selectedSquare.setPoints)
-            rules.selectionApplied.connect(gameArea.resetSelection)
+            rules.selectionApplied.connect(gameArea.burstSelection)
             rules.selectionRejected.connect(gameArea.resetSelection)
             rules.selectionApplied.connect(gameArea.resetSquare)
             rules.selectionRejected.connect(gameArea.resetSquare)
@@ -166,6 +172,12 @@ Item {
             groups: ["2"]
             color: Qt.lighter(gameArea.colors[2])
         }
+        ImageParticle
+        {
+            source: "../../img/particle.png"
+            groups: ["selection"]
+            color: "#202020"
+        }
 
         Gravity
         {
@@ -186,6 +198,43 @@ Item {
                 x = target.x
                 y = target.y
                 burst(100)
+            }
+        }
+        Emitter
+        {
+            id: selectionEmitter
+            lifeSpan: 800
+            endSize: 0
+            enabled: false
+            velocity: AngleDirection { magnitudeVariation: gameArea.cellSize / 2; angleVariation: 360}
+            group: "selection"
+            property var points: []
+            function my_burst(points_)
+            {
+                for (var i = 0 ; i < points_.length ; i++)
+                {
+                    points[i] = Qt.point((points_[i].x + 0.5) * gameArea.cellSize, (points_[i].y + 0.5) * gameArea.cellSize)
+                }
+                points.sort(function(a,b) {
+                    if (a.x < b.x)
+                        return -1;
+                    if (a.x === b.x && a.y < b.y)
+                        return -1;
+                    return 1;
+                })
+                var p3 = points[3]
+                points[3] = points[2]
+                points[2] = p3
+                burst(100)
+            }
+            onEmitParticles: {
+                for (var i = 0; i < particles.length ; i++)
+                {
+                    var side = Math.floor(Math.random() * 4)
+                    var l = Math.random();
+                    particles[i].x = points[side].x * l + points[(side + 1) % 4].x * (1-l)
+                    particles[i].y = points[side].y * l + points[(side + 1) % 4].y * (1-l)
+                }
             }
         }
     }
