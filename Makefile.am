@@ -21,7 +21,12 @@ www_script_PROGRAMS = squarez.js
 www_script_DATA = src/js/squarezUI.js src/js/singleplayer.js src/js/multiplayer.js src/js/tutorial.js
 
 www_imgdir = $(wwwdir)/img
-www_img_DATA = data/img/icon30.png data/img/icon60.png data/img/icon64.png data/img/icon90.png data/img/icon120.png data/img/icon128.png data/img/shape0.svg data/img/shape1.svg data/img/shape2.svg data/img/shape0-selected.svg data/img/shape1-selected.svg data/img/shape2-selected.svg
+www_img_DATA = data/img/icon30.png data/img/icon60.png data/img/icon64.png data/img/icon90.png data/img/icon120.png data/img/icon128.png shape0.svg shape1.svg shape2.svg shape0-selected.svg shape1-selected.svg shape2-selected.svg
+
+%.svg: data/img/%.m4 data/img/shape.svg.m4
+	m4 -Dm4_config_file=$< $(srcdir)/data/img/shape.svg.m4 > $@
+%-selected.svg: data/img/%.m4 data/img/shape.svg.m4
+	m4 -Dm4_config_file=$< -Dselected $(srcdir)/data/img/shape.svg.m4 > $@
 
 www_DATA = src/web/singleplayer.html src/web/multiplayer.html src/web/tutorial.html src/web/index.html manifest.webapp manifest.appcache src/web/game.css src/web/gameSelection.css
 
