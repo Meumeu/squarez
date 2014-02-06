@@ -16,9 +16,31 @@ PKGCONFIG += libcurl sailfishapp
 
 INCLUDEPATH += ../src
 
+SVG_IMAGES = ../data/img/shape0.m4\
+    ../data/img/shape1.m4\
+    ../data/img/shape2.m4
+
+svg.output = ${QMAKE_FILE_BASE}.svg
+svg.commands = m4 -Dm4_config_file=${QMAKE_FILE_IN} $$PWD/../data/img/shape.svg.m4  > ${QMAKE_FILE_BASE}.svg
+svg.input = SVG_IMAGES
+svg.CONFIG = no_link target_predeps
+
+svg_selected.output = ${QMAKE_FILE_BASE}-selected.svg
+svg_selected.commands = m4 -Dm4_config_file=${QMAKE_FILE_IN} -Dselected $$PWD/../data/img/shape.svg.m4  > ${QMAKE_FILE_BASE}-selected.svg
+svg_selected.input = SVG_IMAGES
+svg_selected.CONFIG = no_link target_predeps
+
+QMAKE_EXTRA_COMPILERS += svg svg_selected
+
 INSTALLS += img
 
-img.files = $$files(img/*.png)
+img.files = $$files(img/*.png)\
+    $$OUT_PWD/shape0.svg\
+    $$OUT_PWD/shape1.svg\
+    $$OUT_PWD/shape2.svg\
+    $$OUT_PWD/shape0-selected.svg\
+    $$OUT_PWD/shape1-selected.svg\
+    $$OUT_PWD/shape2-selected.svg
 img.path = /usr/share/$${TARGET}/img
 
 SOURCES += src/squarez.cpp \
