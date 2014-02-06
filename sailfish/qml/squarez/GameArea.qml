@@ -226,13 +226,16 @@ Item {
                 var p3 = points[3]
                 points[3] = points[2]
                 points[2] = p3
-                burst(100)
+                burst(Math.sqrt(Math.pow(points[1].x - points[0].x, 2) + Math.pow(points[1].y - points[0].y, 2))* 100 / gameArea.cellSize)
             }
             onEmitParticles: {
                 for (var i = 0; i < particles.length ; i++)
                 {
                     var side = Math.floor(Math.random() * 4)
                     var l = Math.random();
+                    particles[i].red = 1 - Math.random() * 0.5
+                    particles[i].green = 1 - Math.random() * 0.5
+                    particles[i].blue = 1 - Math.random() * 0.5
                     particles[i].x = points[side].x * l + points[(side + 1) % 4].x * (1-l)
                     particles[i].y = points[side].y * l + points[(side + 1) % 4].y * (1-l)
                 }
