@@ -87,7 +87,7 @@ Item {
     {
         id: cellDelegate
 
-        Rectangle
+        Image
         {
             id: cell
             property int logical_x: modelData.x
@@ -99,9 +99,10 @@ Item {
             y: gameArea.cellSize * (modelData.y + 0.1)
             width: gameArea.cellSize * 0.8
             height: gameArea.cellSize * 0.8
-            radius: gameArea.cellSize * 0.2
             antialiasing: true
-            color: selected ? Qt.darker(gameArea.colors[symbol]) : gameArea.colors[symbol]
+            source: "../../img/shape" + symbol + (selected ? "-selected" : "") + ".svg"
+            sourceSize.width: width
+            sourceSize.height: height
 
             Emitter
             {
