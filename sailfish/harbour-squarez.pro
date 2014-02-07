@@ -12,6 +12,8 @@ CONFIG += sailfishapp \
     C++11\
     link_pkgconfig
 
+QT += svg
+
 PKGCONFIG += libcurl sailfishapp
 
 INCLUDEPATH += ../src

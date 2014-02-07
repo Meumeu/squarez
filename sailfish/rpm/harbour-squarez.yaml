@@ -12,23 +12,23 @@ Description: |
 Configure: none
 Builder: qtc5
 PkgConfigBR:
-- libcurl
-- Qt5Quick
-- Qt5Qml
-- Qt5Core
 - sailfishapp >= 0.0.10
-Requires:
-- sailfishsilica-qt5 >= 0.10.9
+- Qt5Core
+- Qt5Qml
+- Qt5Quick
 - libcurl
+Requires:
 - qt5-qtsvg-plugin-imageformat-svg
+- libcurl
+- sailfishsilica-qt5 >= 0.10.9
 Files:
-- /usr/share/harbour-squarez
-- /usr/share/harbour-squarez/img
-- '%{_bindir}'
-- '%{_datadir}/%{name}/qml'
-- '%{_datadir}/applications/%{name}.desktop'
-- '%{_datadir}/icons/hicolor/86x86/apps/%{name}.png'
-- /usr/bin
-- /usr/share/applications
 - /usr/share/icons/hicolor/86x86/apps
+- /usr/share/applications
+- /usr/bin
+- '%{_datadir}/icons/hicolor/86x86/apps/%{name}.png'
+- '%{_datadir}/applications/%{name}.desktop'
+- '%{_datadir}/%{name}/qml'
+- '%{_bindir}'
+- /usr/share/harbour-squarez/img
+- /usr/share/harbour-squarez
 PkgBR: []
