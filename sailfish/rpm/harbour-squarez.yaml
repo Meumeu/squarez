@@ -17,10 +17,10 @@ PkgConfigBR:
 - Qt5Qml
 - Qt5Core
 - sailfishapp >= 0.0.10
-- Qt5Svg
 Requires:
 - sailfishsilica-qt5 >= 0.10.9
 - libcurl
+- qt5-qtsvg-plugin-imageformat-svg
 Files:
 - /usr/share/harbour-squarez
 - /usr/share/harbour-squarez/img
