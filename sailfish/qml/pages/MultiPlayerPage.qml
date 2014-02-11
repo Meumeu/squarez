@@ -12,7 +12,7 @@ Page
     MultiPlayer
     {
         id: multiPlayerRules
-        url: "http://10.0.2.2/"
+        url: "http://squarez.meumeu.org/"
     }
 
     Column

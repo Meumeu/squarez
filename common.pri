@@ -1,7 +1,7 @@
 CONFIG += C++11\
     link_pkgconfig
 
-QMAKE_CXXFLAGS += -std=c++11
+QT += svg
 
 PKGCONFIG += libcurl
 
