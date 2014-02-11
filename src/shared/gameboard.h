@@ -30,7 +30,6 @@
 #include <QList>
 #include <QObject>
 #include <QAbstractListModel>
-#include <QQmlListProperty>
 #include "qt/cell.h"
 #endif
 

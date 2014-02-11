@@ -8,76 +8,18 @@
 #         - icon definition filename in desktop file must be changed
 TARGET = harbour-squarez
 
+include(../common.pri)
+
 CONFIG += sailfishapp \
-    C++11\
     link_pkgconfig
 
-PKGCONFIG += libcurl sailfishapp
+PKGCONFIG += sailfishapp
 
-INCLUDEPATH += ../src
+SOURCES += src/squarez.cpp
 
-SVG_IMAGES = ../data/img/shape0.m4\
-    ../data/img/shape1.m4\
-    ../data/img/shape2.m4
+HEADERS +=
 
-svg.output = ${QMAKE_FILE_BASE}.svg
-svg.commands = m4 -Dm4_config_file=${QMAKE_FILE_IN} $$PWD/../data/img/shape.svg.m4  > ${QMAKE_FILE_BASE}.svg
-svg.input = SVG_IMAGES
-svg.CONFIG = no_link target_predeps
-
-svg_selected.output = ${QMAKE_FILE_BASE}-selected.svg
-svg_selected.commands = m4 -Dm4_config_file=${QMAKE_FILE_IN} -Dselected $$PWD/../data/img/shape.svg.m4  > ${QMAKE_FILE_BASE}-selected.svg
-svg_selected.input = SVG_IMAGES
-svg_selected.CONFIG = no_link target_predeps
-
-QMAKE_EXTRA_COMPILERS += svg svg_selected
-
-INSTALLS += img
-
-img.files = $$files(img/*.png)\
-    $$OUT_PWD/shape0.svg\
-    $$OUT_PWD/shape1.svg\
-    $$OUT_PWD/shape2.svg\
-    $$OUT_PWD/shape0-selected.svg\
-    $$OUT_PWD/shape1-selected.svg\
-    $$OUT_PWD/shape2-selected.svg
-img.path = /usr/share/$${TARGET}/img
-
-SOURCES += src/squarez.cpp \
-    ../src/shared/gameboard.cpp \
-    ../src/client/highscores.cpp \
-    ../src/client/httprequest.cpp \
-    ../src/client/multiplayerrules.cpp \
-    ../src/client/rules.cpp \
-    ../src/client/singleplayerrules.cpp \
-    ../src/client/tutorialrules.cpp \
-    ../src/shared/score.cpp \
-    ../src/shared/selection.cpp \
-    ../src/shared/serializer.cpp \
-    ../src/shared/timer.cpp \
-    ../src/shared/transition.cpp \
-    ../src/shared/network/methods.cpp \
-    ../src/shared/network/urltools.cpp \
-    ../src/qt/cell.cpp
-
-HEADERS += \
-    ../src/client/highscores.h \
-    ../src/client/httprequest.h \
-    ../src/client/multiplayerrules.h \
-    ../src/client/rules.h \
-    ../src/client/singleplayerrules.h \
-    ../src/client/tutorialrules.h \
-    ../src/shared/gameboard.h \
-    ../src/shared/score.h \
-    ../src/shared/selection.h \
-    ../src/shared/serializer.h \
-    ../src/shared/timer.h \
-    ../src/shared/transition.h \
-    ../src/shared/network/methods.h \
-    ../src/shared/network/urltools.h \
-    ../src/qt/cell.h
-
-DEFINES += SQUAREZ_QT\
+DEFINES += \
     PACKAGE=\\\"harbour-squarez\\\"\
     USERAGENT=\\\"jolla-squarez\\\"
 
