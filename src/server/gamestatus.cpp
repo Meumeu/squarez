@@ -106,11 +106,6 @@ void GameStatus::run()
 
 				// Shuffle the board
 				_lastRoundTransition = Transition(_board.size());
-
-				// Return the updated scores
-				for (auto const& callback: _pendingScoreList)
-					callback(Fastcgipp::Message(1));
-				_pendingScoreList.clear();
 			}
 			else
 			{
@@ -124,6 +119,11 @@ void GameStatus::run()
 				// Make sure the transition can not end the game
 				_lastRoundTransition = _board.selectSquare(_bestTransition._selection, false);
 			}
+
+			// Return the scores, they may be updated and we don't want to timeout if nothing happens
+			for (auto const& callback: _pendingScoreList)
+				callback(Fastcgipp::Message(1));
+			_pendingScoreList.clear();
 
 			_bestTransition = Transition();
 
