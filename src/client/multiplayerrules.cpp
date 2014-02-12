@@ -69,7 +69,7 @@ void squarez::MultiPlayerRules::initGame()
 #endif
 
 	_numberOfRounds = gameinit._numberOfRounds;
-	_currentRound = gameinit._currentRound;
+	_currentRound = gameinit._currentRound + 1;
 #ifdef SQUAREZ_QT
 	emit numberOfRoundsChanged(_numberOfRounds);
 	emit currentRoundChanged(_currentRound);
