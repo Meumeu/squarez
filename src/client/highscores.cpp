@@ -63,6 +63,8 @@ public:
 	}
 
 	operator std::stringstream& () { return _stream; }
+
+	operator bool() { return not _stream.str().empty();}
 private:
 	std::string _fileName;
 	std::ios_base::openmode _mode;
@@ -125,29 +127,24 @@ squarez::HighScores::HighScores(std::string saveName, unsigned int maxScores):
 	}
 #endif
 	// Try to deserialize scores from "file"
+	try
 	{
-		try
-		{
-			const std::string & fileName = getDir() + _saveName;
-#ifndef EMSCRIPTEN
-			// Test if the file exists
-			if (not std::ofstream(fileName, std::ios::out))
-			{
-				return;
-			}
-#endif
-			persistent_t f(fileName, std::ios::in);
-			DeSerializer ser(f);
-			ser >> _scores;
-			// Make sure scores are correctly sorted
+		persistent_t f(getDir() + _saveName, std::ios::in);
+
+		if (not f)
+			return;
+
+		DeSerializer ser(f);
+		ser >> _scores;
+		// Make sure scores are correctly sorted
+		if (not _scores.empty())
 			std::sort(_scores.begin(), _scores.end(),
 				[](const Score & left, const Score & right)
 				{ return left._score > right._score;});
-		}
-		catch (...)
-		{
-			_scores.clear();
-		}
+	}
+	catch (...)
+	{
+		_scores.clear();
 	}
 
 }
