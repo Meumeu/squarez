@@ -126,9 +126,17 @@ squarez::HighScores::HighScores(std::string saveName, unsigned int maxScores):
 #endif
 	// Try to deserialize scores from "file"
 	{
-		persistent_t f(getDir() + _saveName, std::ios::in);
 		try
 		{
+			const std::string & fileName = getDir() + _saveName;
+#ifndef EMSCRIPTEN
+			// Test if the file exists
+			if (not std::ofstream(fileName, std::ios::out))
+			{
+				return;
+			}
+#endif
+			persistent_t f(fileName, std::ios::in);
 			DeSerializer ser(f);
 			ser >> _scores;
 			// Make sure scores are correctly sorted
@@ -187,10 +195,10 @@ void squarez::HighScores::persist()
 	if (_saveName.empty())
 		return;
 
-	mkdir(getDir());
-	persistent_t f(getDir() + _saveName, std::ios_base::out | std::ios_base::trunc);
 	try
 	{
+		mkdir(getDir());
+		persistent_t f(getDir() + _saveName, std::ios_base::out | std::ios_base::trunc);
 		Serializer ser(f);
 		ser << _scores;
 	}
