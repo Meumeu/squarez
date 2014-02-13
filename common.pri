@@ -25,7 +25,7 @@ QMAKE_EXTRA_COMPILERS += svg svg_selected
 
 INSTALLS += img
 
-img.files = $$files(img/*.png)\
+img.files = \
     $$OUT_PWD/shape0.svg\
     $$OUT_PWD/shape1.svg\
     $$OUT_PWD/shape2.svg\

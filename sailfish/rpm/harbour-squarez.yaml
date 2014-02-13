@@ -1,7 +1,7 @@
 Name: harbour-squarez
 Summary: Squarez
 Version: 0.1
-Release: 1
+Release: 2
 Group: Qt/Qt
 URL: http://example.org/
 License: LICENSE
@@ -21,6 +21,7 @@ Requires:
 - qt5-qtsvg-plugin-imageformat-svg
 - sailfishsilica-qt5 >= 0.10.9
 Files:
+- '%{_datadir}/harbour-squarez/img'
 - /usr/share/icons/hicolor/86x86/apps
 - /usr/share/applications
 - /usr/bin
