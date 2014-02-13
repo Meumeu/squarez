@@ -10,6 +10,8 @@ TARGET = harbour-squarez
 
 include(../common.pri)
 
+img.files += img/particle.png
+
 CONFIG += sailfishapp \
     link_pkgconfig
 
