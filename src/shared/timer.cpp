@@ -29,7 +29,7 @@ _longTerm(longTerm), _halfLife(halfLife), _bonusDuration(shortTerm - longTerm), 
 
 Timer::Timer(std::chrono::seconds duration, float percentLeft):
 _longTerm(duration), _halfLife(0), _bonusDuration(0), _begin(std::chrono::steady_clock::now()),
-_end(std::chrono::time_point_cast<std::chrono::seconds>(_begin + std::chrono::duration<float>(duration) * percentLeft)), _paused(false)
+_end(_begin + std::chrono::duration_cast<std::chrono::steady_clock::duration>(std::chrono::duration<float>(duration) * percentLeft)), _paused(false)
 {}
 
 float Timer::percentageLeft(float offset) const
