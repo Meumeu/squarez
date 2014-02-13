@@ -63,19 +63,19 @@ void squarez::MultiPlayerRules::initGame()
 	GameInit gameinit(ser);
 
 	_token = gameinit._token;
-	_board = std::move(gameinit._board);
-#ifdef SQUAREZ_QT
-	emit boardChanged(_board.get());
-#endif
+	// Swap pointers to make sure original board is destroyed after notification
+	_board.swap(gameinit._board);
+
+	_timer = squarez::Timer(gameinit._roundDuration, gameinit._roundProgress);
 
 	_numberOfRounds = gameinit._numberOfRounds;
 	_currentRound = gameinit._currentRound + 1;
+
 #ifdef SQUAREZ_QT
+	emit boardChanged(_board.get());
 	emit numberOfRoundsChanged(_numberOfRounds);
 	emit currentRoundChanged(_currentRound);
 #endif
-
-	_timer = squarez::Timer(gameinit._roundDuration, gameinit._roundProgress);
 
 	// Start the round polling loop
 	onTransitionPoll("");
