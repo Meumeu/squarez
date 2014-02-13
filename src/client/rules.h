@@ -56,7 +56,7 @@ class Rules
 	Q_PROPERTY(float percentageLeft READ getPercentageLeft)
 	Q_PROPERTY(unsigned int score READ getScore NOTIFY scoreChanged)
 	Q_PROPERTY(bool gameOver READ gameOver NOTIFY gameOverChanged)
-	Q_PROPERTY(QString playerName READ playerName WRITE setPlayerName)
+	Q_PROPERTY(QString playerName READ playerName WRITE setPlayerName NOTIFY playerNameChanged)
 	Q_PROPERTY(bool pause READ pause WRITE setPause NOTIFY pauseChanged)
 signals:
 	void boardChanged(GameBoard * board);
@@ -71,6 +71,7 @@ signals:
 	void message(QString message);
 	void nameRequired(QString previousName);
 	void pauseChanged(bool);
+	void playerNameChanged(QString);
 
 public slots:
 	void select(const QVariantList &);
