@@ -9,10 +9,11 @@ Page
     id: page
     property string coverText: header.title
     property alias playerName: multiPlayerRules.playerName
+    Settings {id: settings}
     MultiPlayer
     {
         id: multiPlayerRules
-        url: "http://squarez.meumeu.org/"
+        url: settings.url
     }
 
     Column

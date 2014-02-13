@@ -32,10 +32,13 @@ import QtQuick 2.0
 import Sailfish.Silica 1.0
 
 import harbour.squarez 1.0
+import "../squarez"
 
 Page {
     id: page
     property string coverText: ""
+    property bool serverReachable: false
+    Settings { id: settings }
 
     SilicaListView {
         SinglePlayer { id: rules}
@@ -73,9 +76,16 @@ Page {
                 text: "How to play"
                 onClicked: pageStack.push(Qt.resolvedUrl("TutorialPage.qml"))
             }
+
+            MenuLabel
+            {
+                text: "Multiplayer (server unreachable)"
+                visible: ! page.serverReachable
+            }
             MenuItem
             {
                 text: "Multiplayer"
+                visible: page.serverReachable
                 onClicked: {
                     var dialog = pageStack.push("../pages/NameInput.qml")
                     dialog.title = "Enter your name"
@@ -95,6 +105,18 @@ Page {
             }
         }
         VerticalScrollDecorator {}
+    }
+
+    Component.onCompleted: {
+        var xhr = new XMLHttpRequest()
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200)
+            {
+                page.serverReachable = true;
+            }
+        }
+        xhr.open("GET", settings.url + "squarez/num_players");
+        xhr.send();
     }
 }
 

@@ -38,4 +38,5 @@ OTHER_FILES += qml/squarez.qml \
     qml/pages/TutorialPage.qml \
     rpm/harbour-squarez.yaml \
     qml/pages/MultiPlayerPage.qml \
-    qml/squarez/SingleSquare.qml
+    qml/squarez/SingleSquare.qml \
+    qml/squarez/Settings.qml
