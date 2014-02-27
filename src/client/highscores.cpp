@@ -23,10 +23,8 @@
 #include <algorithm>
 
 #ifdef SQUAREZ_QT
-#include <iterator>
 #include <QDateTime>
 #include <QDir>
-#include "shared/score.h"
 #endif
 
 #ifndef PACKAGE

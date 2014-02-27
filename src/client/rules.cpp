@@ -21,7 +21,9 @@
 #include "shared/selection.h"
 #include "shared/timer.h"
 
-#ifndef SQUAREZ_QT
+#ifdef SQUAREZ_QT
+#include <QPoint>
+#else
 #include "client/ui.h"
 #endif
 

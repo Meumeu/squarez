@@ -28,8 +28,6 @@
 
 #ifdef SQUAREZ_QT
 #include <QObject>
-#include <QList>
-#include <QPoint>
 #include "qt/cell.h"
 
 namespace squarez {

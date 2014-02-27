@@ -53,16 +53,16 @@ public:
 	// Return true if the score is eligible to be a new high score
 	bool mayBeSaved(unsigned int score);
 
-    // Sorted from highest to lowest score
-    std::vector<Score> const& getScores() const { return _scores; }
+	// Sorted from highest to lowest score
+	std::vector<Score> const& getScores() const { return _scores; }
 
 private:
 	// Store the score list to deserialize later
 	void persist();
 
-    const std::string _saveName;
-    unsigned int _maxScores;
-    std::vector<Score> _scores;
+	const std::string _saveName;
+	unsigned int _maxScores;
+	std::vector<Score> _scores;
 };
 
 }
