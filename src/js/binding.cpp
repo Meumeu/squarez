@@ -130,20 +130,20 @@ struct UIWrapper: public emscripten::wrapper<UI>
 EMSCRIPTEN_BINDINGS(UI) {
 	emscripten::class_<UI>("UI")
 	.function("setRules", &UI::setRules)
-	.allow_subclass<UIWrapper>()
+	.allow_subclass<UIWrapper>("UIWrapper")
 	;
 }
 
 EMSCRIPTEN_BINDINGS(Rules) {
 	emscripten::class_<Rules>("Rules")
-	.smart_ptr<std::shared_ptr<Rules>>()
+	.smart_ptr<std::shared_ptr<Rules>>("shared_ptr<Rules>")
 	.function("getBoard", emscripten::select_overload<GameBoard const*()const>(&Rules::getBoard), emscripten::allow_raw_pointers())
 	.function("getGameOver", &Rules::gameOver)
 	.function("getPercentageLeft", &Rules::getPercentageLeft)
 	;
 
 	emscripten::class_<SinglePlayerRules, emscripten::base<Rules>>("SinglePlayerRules")
-	.smart_ptr_constructor(&std::make_shared<SinglePlayerRules,int,int,int,int,int>)
+	.smart_ptr_constructor("shared_ptr<Rules>", &std::make_shared<SinglePlayerRules,int,int,int,int,int>)
 	.function("onSelect", &SinglePlayerRules::onSelect)
 	.function("setPlayerName", &SinglePlayerRules::setPlayerName)
 	.function("getHighScores", &SinglePlayerRules::getHighScores, emscripten::allow_raw_pointers())
@@ -152,7 +152,7 @@ EMSCRIPTEN_BINDINGS(Rules) {
 	;
 
 	emscripten::class_<MultiPlayerRules, emscripten::base<Rules>>("MultiPlayerRules")
-	.smart_ptr_constructor(&std::make_shared<MultiPlayerRules,std::string,std::string>)
+	.smart_ptr_constructor("shared_ptr<Rules>", &std::make_shared<MultiPlayerRules,std::string,std::string>)
 	.function("onSelect", &MultiPlayerRules::onSelect)
 	.function("setPlayerName", &MultiPlayerRules::setPlayerName)
 	.property("currentRound", &MultiPlayerRules::currentRound)
@@ -160,7 +160,7 @@ EMSCRIPTEN_BINDINGS(Rules) {
 	;
 
 	emscripten::class_<TutorialRules, emscripten::base<Rules>>("TutorialRules")
-	.smart_ptr_constructor(&std::make_shared<TutorialRules,int,int>)
+	.smart_ptr_constructor("shared_ptr<Rules>", &std::make_shared<TutorialRules,int,int>)
 	.function("next", &TutorialRules::next)
 	.function("onSelect", &TutorialRules::onSelect)
 	.function("setPlayerName", &TutorialRules::setPlayerName)
