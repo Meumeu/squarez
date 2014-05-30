@@ -365,19 +365,29 @@ SquarezUI.prototype =
 		this.timerEl.style.right = ""+((1-percentageLeft)*100)+"%";
 		this.timerEl.style.top = this.timerEl.style.right;
 		var that = this;
-		setTimeout(function()
+		if (this.rules.pause)
 		{
-			that.timerEl.style.transition = "right " + msLeft + "ms linear, top " + msLeft + "ms linear";
-			that.timerEl.style.webkitTransition = "right " + msLeft + "ms linear, top " + msLeft + "ms linear";
-			that.timerEl.style.right = "100%";
-			that.timerEl.style.top = "100%";
-		}, animDuration
-		)
-		if (this.gameOverFunc !== null)
-		{
-			window.clearTimeout(this.gameOverFunc);
+			if (this.gameOverFunc !== null)
+			{
+				window.clearTimeout(this.gameOverFunc);
+			}
 		}
-		this.gameOverFunc = window.setTimeout(function() { that.rules.getGameOver();}, msLeft + 1);
+		else
+		{
+			setTimeout(function()
+			{
+				that.timerEl.style.transition = "right " + msLeft + "ms linear, top " + msLeft + "ms linear";
+				that.timerEl.style.webkitTransition = "right " + msLeft + "ms linear, top " + msLeft + "ms linear";
+				that.timerEl.style.right = "100%";
+				that.timerEl.style.top = "100%";
+			}, animDuration
+			)
+			if (this.gameOverFunc !== null)
+			{
+				window.clearTimeout(this.gameOverFunc);
+			}
+			this.gameOverFunc = window.setTimeout(function() { that.rules.getGameOver();}, msLeft + 1);
+		}
 	},
 
 	onScoreListChanged: drawScoreList
