@@ -23,7 +23,6 @@
 
 #include "rules.h"
 #include "httprequest.h"
-#include "shared/timer.h"
 
 #ifdef SQUAREZ_QT
 #include "client/highscores.h"
@@ -57,7 +56,6 @@ private:
 	std::unique_ptr<HighScores> _highScores;
 #endif
 private:
-	Timer _timer;
 #ifndef EMSCRIPTEN
 	std::shared_ptr<std::mutex> _mutex;
 #endif
@@ -76,7 +74,6 @@ private:
 
 public:
 	virtual bool gameOver();
-	virtual const squarez::Timer& getTimer() { return _timer; }
 	virtual void onSelect(const squarez::Selection& selection);
 	
 	MultiPlayerRules(const std::string& url = "", const std::string& username = "");

@@ -23,7 +23,6 @@
 #include "rules.h"
 
 #include "shared/selection.h"
-#include "shared/timer.h"
 
 #ifndef SQUAREZ_QT
 #define Q_INVOKABLE /*ignored*/
@@ -46,12 +45,10 @@ signals:
 #endif
 private:
 	Selection _selection;
-	Timer _timer;
 	unsigned int _step;
 public:
 	TutorialRules(int board_size = 8, int nb_symbols = 3);
 	virtual void onSelect(Selection const& /*selection*/) {}
-	virtual const Timer & getTimer() {return _timer;}
 	virtual void setPlayerName(std::string const& /*name*/) {}
 
 	//Move to the next hint

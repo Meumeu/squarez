@@ -66,7 +66,7 @@ void squarez::MultiPlayerRules::initGame()
 	// Swap pointers to make sure original board is destroyed after notification
 	_board.swap(gameinit._board);
 
-	_timer = squarez::Timer(gameinit._roundDuration, gameinit._roundProgress);
+	this->setTimer(squarez::Timer(gameinit._roundDuration, gameinit._roundProgress));
 
 	_numberOfRounds = gameinit._numberOfRounds;
 	_currentRound = gameinit._currentRound + 1;
@@ -84,11 +84,10 @@ void squarez::MultiPlayerRules::initGame()
 	onScoreListPoll("");
 }
 
-squarez::MultiPlayerRules::MultiPlayerRules(const std::string& url, const std::string& username): Rules(0,0, username),
+squarez::MultiPlayerRules::MultiPlayerRules(const std::string& url, const std::string& username): Rules(0,0, Timer(std::chrono::seconds(1)), username),
 #ifdef SQUAREZ_QT
 	_highScores(new HighScores(std::vector<Score>())),
 #endif
-	_timer(std::chrono::seconds(1)),
 #ifndef EMSCRIPTEN
 	_mutex(new std::mutex()), _xhr(_mutex),
 #endif
@@ -109,7 +108,7 @@ void squarez::MultiPlayerRules::onTransitionPoll(const std::string& serializedTr
 		{
 			this->setScore(0);
 		}
-		_timer.refill(200);
+		this->refillTimer(200);
 #ifdef SQUAREZ_QT
 		emit currentRoundChanged(_currentRound);
 #endif

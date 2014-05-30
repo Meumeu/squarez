@@ -27,19 +27,19 @@
 #include "client/ui.h"
 #endif
 
-squarez::Rules::Rules(int board_size, int nb_symbols, std::string name) :
+squarez::Rules::Rules(int board_size, int nb_symbols, Timer timer, std::string name) :
 #ifndef SQUAREZ_QT
 	_ui(nullptr),
 #endif
-	 _score(0),_board(new squarez::GameBoard(board_size, nb_symbols)), _playerName(name)
+	_score(0), _timer(timer), _board(new squarez::GameBoard(board_size, nb_symbols)), _playerName(name)
 {
 }
 
-squarez::Rules::Rules(std::unique_ptr<GameBoard> &&board, std::string name) :
+squarez::Rules::Rules(std::unique_ptr<GameBoard> &&board, Timer timer, std::string name) :
 #ifndef SQUAREZ_QT
 	_ui(nullptr),
 #endif
-	_score(0), _board(std::move(board)), _playerName(name)
+	_score(0), _timer(timer), _board(std::move(board)), _playerName(name)
 {
 }
 
@@ -92,8 +92,35 @@ void squarez::Rules::applyTransition(const Transition &transition)
 
 float squarez::Rules::getPercentageLeft(float offset)
 {
-	return getTimer().percentageLeft(offset);
+	return _timer.percentageLeft(offset);
 }
+
+void squarez::Rules::pauseTimer(bool pause)
+{
+	if (pause != _timer.paused())
+	{
+		_timer.setPause(pause);
+		notifyTimer();
+	}
+}
+
+void squarez::Rules::notifyTimer()
+{
+#ifdef SQUAREZ_QT
+#else
+	if (_ui)
+		_ui->onTimerUpdated(_timer.percentageLeft(), _timer.msLeft());
+#endif
+}
+
+void squarez::Rules::refillTimer(unsigned int percentage)
+{
+	if (percentage == 0)
+		return;
+	_timer.refill(percentage);
+	notifyTimer();
+}
+
 
 #ifdef SQUAREZ_QT
 

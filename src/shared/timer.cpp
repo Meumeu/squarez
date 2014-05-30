@@ -53,6 +53,17 @@ uint16_t Timer::secondsLeft() const
 	return 0;
 }
 
+unsigned int Timer::msLeft() const
+{
+	auto res = (std::chrono::duration_cast<std::chrono::milliseconds>(_end - std::chrono::steady_clock::now())).count();
+	if (_paused)
+		res = (std::chrono::duration_cast<std::chrono::milliseconds>(_end - _pauseTime)).count();
+	if (res > 0)
+		return res;
+	return 0;
+}
+
+
 void Timer::refill(unsigned int percentage)
 {
 	auto newBegin(std::chrono::steady_clock::now());

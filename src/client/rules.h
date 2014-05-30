@@ -25,6 +25,7 @@
 #include <memory>
 #include <string>
 #include "shared/gameboard.h"
+#include "shared/timer.h"
 
 #ifdef SQUAREZ_QT
 #include <QObject>
@@ -78,7 +79,6 @@ public:
 	QString playerName() const {return QString::fromStdString(_playerName);}
 	void setPlayerName(QString name);
 
-	virtual bool pause() const {return false;}
 	virtual void setPause(bool) {}
 
 #else
@@ -86,35 +86,43 @@ public:
 	friend class UI;
 protected:
 	UI * _ui;
-	virtual void setUI(UI * ui) { _ui = ui;}
+	virtual void setUI(UI * ui) { _ui = ui; notifyTimer();}
 #endif
 private:
 	unsigned int _score;
 	bool _gameOver;
+	Timer _timer;
+
+	void notifyTimer();
 
 protected:
 	std::unique_ptr<GameBoard> _board;
 	std::string _playerName;
 	void setScore(unsigned int score);
 	void setGameOver(bool status);
-	virtual Timer const& getTimer() = 0;
+	bool getGameOver() const { return _gameOver;}
 
 	void acceptSelection(const Selection & selection);
 	void rejectSelection(const Selection & selection);
 	void applySelection(const Selection & selection);
 	void applyTransition(const Transition & transition);
 
+	void pauseTimer(bool pause);
+	void refillTimer(unsigned int percentage);
+	void setTimer(Timer && timer) { _timer = timer;}
+
+	Rules(int board_size, int nb_symbols, Timer timer, std::string name = "");
+	Rules(std::unique_ptr<GameBoard> && _board, Timer timer, std::string name = "");
+
 public:
+	bool pause() const {return _timer.paused();}
 	float getPercentageLeft(float offset = 0);
-	bool gameOver() const {return _gameOver;}
+	virtual bool gameOver() {return _gameOver;}
 	virtual void onSelect(Selection const& selection) = 0;
 	unsigned int getScore() const {return _score;}
 	GameBoard const* getBoard() const { return _board.get(); }
 	GameBoard * getBoard() { return _board.get(); }
 	virtual void setPlayerName(std::string const& name) = 0;
-
-	Rules(int board_size, int nb_symbols, std::string name = "");
-	Rules(std::unique_ptr<GameBoard> && _board, std::string name = "");
 	
 	virtual ~Rules() {}
 };

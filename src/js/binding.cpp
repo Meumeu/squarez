@@ -121,6 +121,10 @@ struct UIWrapper: public emscripten::wrapper<UI>
 	{
 		return call<void>("onMessage", message);
 	}
+	void onTimerUpdated(float currentPercentage, int msLeft)
+	{
+		return call<void>("onTimerUpdated", currentPercentage, msLeft);
+	}
 	void nameRequired(std::string const& lastName)
 	{
 		return call<void>("onNameRequired", lastName);

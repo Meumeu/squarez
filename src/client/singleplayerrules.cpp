@@ -23,11 +23,9 @@
 #ifndef SQUAREZ_QT
 #include "client/ui.h"
 #endif
-#include "shared/timer.h"
 
 squarez::SinglePlayerRules::SinglePlayerRules(int board_size, int nb_symbols, int long_term, int short_term, int duration) :
-	Rules(board_size, nb_symbols),
-	timer(std::chrono::seconds(long_term), std::chrono::seconds(short_term), std::chrono::seconds(duration)),
+	Rules(board_size, nb_symbols, Timer(std::chrono::seconds(long_term), std::chrono::seconds(short_term), std::chrono::seconds(duration))),
 	_scoreSaved(false)
 {}
 
@@ -44,12 +42,12 @@ void squarez::SinglePlayerRules::setUI(squarez::UI* ui)
 }
 #endif
 
-bool squarez::SinglePlayerRules::checkGameOver()
+bool squarez::SinglePlayerRules::gameOver()
 {
-	if (gameOver())
+	if (getGameOver())
 		return true;
 
-	if (timer.percentageLeft() > 0)
+	if (this->getPercentageLeft() > 0)
 		return false;
 
 	setGameOver(true);
@@ -95,37 +93,26 @@ void squarez::SinglePlayerRules::setPlayerName(const std::string& name)
 
 void squarez::SinglePlayerRules::onSelect(const squarez::Selection& selection)
 {
-	if (checkGameOver())
+	if (gameOver())
 		return;
 	Transition const& tr = _board->selectSquare(selection, false);
 	if (tr._score)
 	{
-		timer.refill(tr._score * 2);
+		this->refillTimer(tr._score * 2);
 		setScore(getScore() + tr._score);
 
 		this->applyTransition(tr);
 	}
 }
 
-bool squarez::SinglePlayerRules::pause() const
-{
-	return timer.paused();
-}
-
 void squarez::SinglePlayerRules::setPause(bool state)
 {
 	if (state == pause())
 		return;
-	timer.setPause(state);
+	this->pauseTimer(state);
 #ifdef SQUAREZ_QT
 	emit pauseChanged(state);
 #endif
-}
-
-const squarez::Timer& squarez::SinglePlayerRules::getTimer()
-{
-	checkGameOver();
-	return timer;
 }
 
 squarez::HighScores & squarez::SinglePlayerRules::accessHighScores()

@@ -27,11 +27,10 @@
 #endif
 
 squarez::TutorialRules::TutorialRules(int board_size, int nb_symbols):
-squarez::Rules(board_size, nb_symbols, "Tutorial"),
-_timer(std::chrono::seconds(10), std::chrono::seconds(60), std::chrono::seconds(180)),
+squarez::Rules(board_size, nb_symbols, squarez::Timer(std::chrono::seconds(10), std::chrono::seconds(60), std::chrono::seconds(180)), "Tutorial"),
 _step(0)
 {
-	_timer.setPause(true);
+	this->pauseTimer(true);
 }
 
 static squarez::Transition findHorizontalTransition(squarez::GameBoard const & board)
@@ -92,7 +91,7 @@ void squarez::TutorialRules::next()
 			break;
 		case 9:
 			MESSAGE("Time is limited\nEach square you select refills time based on its score");
-			_timer.setPause(false);
+			this->pauseTimer(false);
 			break;
 		case 10:
 			MESSAGE("Total amount of available time gets shorter as you progress");
@@ -109,7 +108,7 @@ void squarez::TutorialRules::next()
 				MESSAGE("");
 				auto const & transition = _board->selectSquare(_selection, false);
 				this->setScore(getScore() + transition._score);
-				_timer.refill(transition._score * 2);
+				this->refillTimer(transition._score * 2);
 				this->applyTransition(transition);;
 				_selection = squarez::Selection();
 			}

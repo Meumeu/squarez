@@ -49,8 +49,9 @@ public:
 	// Get the percentage of time left in offset s
 	float percentageLeft(float offset = 0) const;
 	uint16_t secondsLeft() const;
+	unsigned int msLeft() const;
 	
-    void setPause(bool state);
+	void setPause(bool state);
 	bool paused() const { return _paused; }
 private:
 	std::chrono::seconds _longTerm;

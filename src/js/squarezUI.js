@@ -59,8 +59,7 @@ function SquarezUI(rootElement, scoreElement, timerCheat, gameRules)
 			tutorialOverlay[i].ontouchstart= function() {that.rules.next();};
 	}
 
-
-	this.updateTimer();
+	var gameOverFunc = null
 
 }
 
@@ -277,21 +276,6 @@ SquarezUI.prototype =
 	},
 
 	getGlobalTimeLeft: function(offset) { return this.rules.getPercentageLeft(offset); },
-
-	updateTimer: function()
-	{
-		if (!this.timerFunc)
-		{
-			var that = this;
-			this.timerEl.style.transition = "right 0.5s linear, top 0.5s linear";
-			this.timerEl.style.webkitTransition = "right 0.5s linear, top 0.5s linear";
-			this.timerFunc = setInterval(function() {that.updateTimer();}, 500);
-		}
-		
-		var timeLeft = this.getGlobalTimeLeft(0.5);
-		this.timerEl.style.right = ""+((1-timeLeft)*100)+"%";
-		this.timerEl.style.top = this.timerEl.style.right;
-	},
 	
 	clearSelection: function()
 	{
@@ -323,8 +307,6 @@ SquarezUI.prototype =
 	{
 		if (gameOver)
 		{
-			clearInterval(this.timerFunc);
-			this.timerFunc = null;
 			this.root.getElementsByClassName("gameOver")[0].style.display = "";
 		}
 	},
@@ -340,13 +322,10 @@ SquarezUI.prototype =
 		{
 			this.rules.pause = false;
 			this.root.getElementsByClassName("pause")[0].style.display = "none";
-			this.updateTimer();
 		}
 		else
 		{
 			this.rules.pause = true;
-			clearInterval(this.timerFunc);
-			this.timerFunc = null;
 			this.root.getElementsByClassName("pause")[0].style.display = "";
 		}
 	},
@@ -376,6 +355,29 @@ SquarezUI.prototype =
 			container.style.display = "none";
 		else
 			container.style.display = "";
+	},
+
+	onTimerUpdated: function(percentageLeft, msLeft)
+	{
+		var animDuration = 300;//ms
+		this.timerEl.style.transition = "right "+ animDuration + "ms ease-out, "+ animDuration + "ms ease-out";
+		this.timerEl.style.webkitTransition = "right "+ animDuration + "ms ease-out, "+ animDuration + "ms ease-out";;
+		this.timerEl.style.right = ""+((1-percentageLeft)*100)+"%";
+		this.timerEl.style.top = this.timerEl.style.right;
+		var that = this;
+		setTimeout(function()
+		{
+			that.timerEl.style.transition = "right " + msLeft + "ms linear, top " + msLeft + "ms linear";
+			that.timerEl.style.webkitTransition = "right " + msLeft + "ms linear, top " + msLeft + "ms linear";
+			that.timerEl.style.right = "100%";
+			that.timerEl.style.top = "100%";
+		}, animDuration
+		)
+		if (this.gameOverFunc !== null)
+		{
+			window.clearTimeout(this.gameOverFunc);
+		}
+		this.gameOverFunc = window.setTimeout(function() { that.rules.getGameOver();}, msLeft + 1);
 	},
 
 	onScoreListChanged: drawScoreList
