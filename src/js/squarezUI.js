@@ -35,28 +35,22 @@ function SquarezUI(rootElement, scoreElement, timerCheat, gameRules)
 	var clearButtons = document.getElementsByClassName("jsClear");
 	for (var i = 0 ; i < clearButtons.length; i++)
 	{
-		if (this.root.ontouchstart === undefined)
-			clearButtons[i].onclick = function() {that.clearSelection();};
-		else
-			clearButtons[i].ontouchstart = function() {that.clearSelection();};
+		clearButtons[i].onclick = function() {that.clearSelection();};
+		clearButtons[i].ontouchstart = function(event) {event.preventDefault(); that.clearSelection();};
 	}
 
 	var pauseButtons = document.getElementsByClassName("jsPause");
 	for (var i = 0 ; i < pauseButtons.length; i++)
 	{
-		if (this.root.ontouchstart === undefined)
-			pauseButtons[i].onclick = function() {that.pause();};
-		else
-			pauseButtons[i].ontouchstart = function() {that.pause();};
+		pauseButtons[i].onclick = function() {that.pause();};
+		pauseButtons[i].ontouchstart = function(event) {event.preventDefault(); that.pause();};
 	}
 
 	var tutorialOverlay = document.getElementsByClassName("tutorialOverlay");
 	for (var i = 0 ; i < tutorialOverlay.length; i++)
 	{
-		if (this.root.ontouchstart === undefined)
-			tutorialOverlay[i].onclick = function() {that.rules.next();};
-		else
-			tutorialOverlay[i].ontouchstart= function() {that.rules.next();};
+		tutorialOverlay[i].onclick = function() {that.rules.next();};
+		tutorialOverlay[i].ontouchstart= function(event) {event.preventDefault(); that.rules.next();};
 	}
 
 	var gameOverFunc = null
@@ -106,14 +100,8 @@ SquarezUI.prototype =
 		n.style.top=y+"em";
 		n.classList.add("symbol"+symbol);
 		var that = this;
-		if (n.ontouchstart !== undefined)
-		{
-			n.ontouchstart = function(event) {event.preventDefault(); that.select(this);};
-		}
-		else
-		{
-			n.onclick = function() {that.select(n);}
-		}
+		n.ontouchstart = function(event) {event.preventDefault(); that.select(this);};
+		n.onclick = function() {that.select(n);}
 		this.root.appendChild(n);
 		return n;
 	},
