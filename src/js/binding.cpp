@@ -121,9 +121,9 @@ struct UIWrapper: public emscripten::wrapper<UI>
 	{
 		return call<void>("onMessage", message);
 	}
-	void onTimerUpdated(float currentPercentage, int msLeft)
+	void onTimerUpdated(float currentPercentage)
 	{
-		return call<void>("onTimerUpdated", currentPercentage, msLeft);
+		return call<void>("onTimerUpdated", currentPercentage);
 	}
 	void nameRequired(std::string const& lastName)
 	{
@@ -144,6 +144,7 @@ EMSCRIPTEN_BINDINGS(Rules) {
 	.function("getBoard", emscripten::select_overload<GameBoard const*()const>(&Rules::getBoard), emscripten::allow_raw_pointers())
 	.function("getGameOver", &Rules::gameOver)
 	.function("getPercentageLeft", &Rules::getPercentageLeft)
+	.function("msLeft", &Rules::msLeft)
 	;
 
 	emscripten::class_<SinglePlayerRules, emscripten::base<Rules>>("SinglePlayerRules")

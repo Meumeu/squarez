@@ -86,7 +86,7 @@ public:
 	friend class UI;
 protected:
 	UI * _ui;
-	virtual void setUI(UI * ui) { _ui = ui; notifyTimer();}
+	virtual void setUI(UI * ui) { _ui = ui;}
 #endif
 private:
 	unsigned int _score;
@@ -117,6 +117,7 @@ protected:
 public:
 	bool pause() const {return _timer.paused();}
 	float getPercentageLeft(float offset = 0);
+	int msLeft() { return _timer.msLeft();}
 	virtual bool gameOver() {return _gameOver;}
 	virtual void onSelect(Selection const& selection) = 0;
 	unsigned int getScore() const {return _score;}

@@ -61,6 +61,22 @@ function SquarezUI(rootElement, scoreElement, timerCheat, gameRules)
 
 	var gameOverFunc = null
 
+	var timerFunc = function()
+	{
+		if ( !that.rules.pause)
+		{
+			var msLeft = that.rules.msLeft();
+			that.timerEl.style.transition = "right " + msLeft + "ms linear, top " + msLeft + "ms linear";
+			that.timerEl.style.webkitTransition = "right " + msLeft + "ms linear, top " + msLeft + "ms linear";
+			that.timerEl.style.right = "100%";
+			that.timerEl.style.top = "100%";
+			that.rules.getGameOver();
+		}
+	};
+	this.timerEl.addEventListener("transitionend", timerFunc, false);
+
+	setTimeout(timerFunc, 100);
+
 }
 
 function drawScoreList(scoreList)
@@ -357,37 +373,13 @@ SquarezUI.prototype =
 			container.style.display = "";
 	},
 
-	onTimerUpdated: function(percentageLeft, msLeft)
+	onTimerUpdated: function(percentageLeft)
 	{
-		var animDuration = 300;//ms
+		var animDuration = 200;//ms
 		this.timerEl.style.transition = "right "+ animDuration + "ms ease-out, "+ animDuration + "ms ease-out";
-		this.timerEl.style.webkitTransition = "right "+ animDuration + "ms ease-out, "+ animDuration + "ms ease-out";;
+		this.timerEl.style.webkitTransition = "right "+ animDuration + "ms ease-out, "+ animDuration + "ms ease-out";
 		this.timerEl.style.right = ""+((1-percentageLeft)*100)+"%";
 		this.timerEl.style.top = this.timerEl.style.right;
-		var that = this;
-		if (this.rules.pause)
-		{
-			if (this.gameOverFunc !== null)
-			{
-				window.clearTimeout(this.gameOverFunc);
-			}
-		}
-		else
-		{
-			setTimeout(function()
-			{
-				that.timerEl.style.transition = "right " + msLeft + "ms linear, top " + msLeft + "ms linear";
-				that.timerEl.style.webkitTransition = "right " + msLeft + "ms linear, top " + msLeft + "ms linear";
-				that.timerEl.style.right = "100%";
-				that.timerEl.style.top = "100%";
-			}, animDuration
-			)
-			if (this.gameOverFunc !== null)
-			{
-				window.clearTimeout(this.gameOverFunc);
-			}
-			this.gameOverFunc = window.setTimeout(function() { that.rules.getGameOver();}, msLeft + 1);
-		}
 	},
 
 	onScoreListChanged: drawScoreList

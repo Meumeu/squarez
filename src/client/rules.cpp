@@ -109,7 +109,7 @@ void squarez::Rules::notifyTimer()
 #ifdef SQUAREZ_QT
 #else
 	if (_ui)
-		_ui->onTimerUpdated(_timer.percentageLeft(), _timer.msLeft());
+		_ui->onTimerUpdated(_timer.percentageLeft());
 #endif
 }
 

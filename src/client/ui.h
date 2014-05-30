@@ -46,7 +46,7 @@ public:
 	virtual void onSelectionApplied(Selection const& selection) = 0;
 	virtual void onSelectionRejected(Selection const& selection) = 0;
 	virtual void onMessage(std::string const& message) = 0;
-	virtual void onTimerUpdated(float currentPercentage, int msLeft) = 0;
+	virtual void onTimerUpdated(float currentPercentage) = 0;
 
 	// Called to notify the user interface that rules need the player name
 	virtual void nameRequired(std::string const& lastName) = 0 ;
