@@ -121,6 +121,12 @@ void squarez::Rules::refillTimer(unsigned int percentage)
 	notifyTimer();
 }
 
+void squarez::Rules::setTimer(squarez::Timer&& timer)
+{
+	_timer = timer;
+	notifyTimer();
+}
+
 
 #ifdef SQUAREZ_QT
 

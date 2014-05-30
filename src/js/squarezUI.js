@@ -68,8 +68,8 @@ function SquarezUI(rootElement, scoreElement, timerCheat, gameRules)
 			var msLeft = that.rules.msLeft();
 			that.timerEl.style.transition = "right " + msLeft + "ms linear, top " + msLeft + "ms linear";
 			that.timerEl.style.webkitTransition = "right " + msLeft + "ms linear, top " + msLeft + "ms linear";
-			that.timerEl.style.right = "100%";
-			that.timerEl.style.top = "100%";
+			that.timerEl.style.right = that.toGlobalTime(1) * 100 + "%";
+			that.timerEl.style.top = that.timerEl.style.right;
 			that.rules.getGameOver();
 		}
 	};
@@ -95,6 +95,7 @@ function drawScoreList(scoreList)
 
 SquarezUI.prototype =
 {
+	toGlobalTime: function(percent) { return percent;},
 	addElement: function(x,y,symbol)
 	{
 		var n = document.createElement("div");
@@ -290,8 +291,6 @@ SquarezUI.prototype =
 			moveTo.apply(null, moves[i]);
 		}
 	},
-
-	getGlobalTimeLeft: function(offset) { return this.rules.getPercentageLeft(offset); },
 	
 	clearSelection: function()
 	{
@@ -378,7 +377,7 @@ SquarezUI.prototype =
 		var animDuration = 200;//ms
 		this.timerEl.style.transition = "right "+ animDuration + "ms ease-out, "+ animDuration + "ms ease-out";
 		this.timerEl.style.webkitTransition = "right "+ animDuration + "ms ease-out, "+ animDuration + "ms ease-out";
-		this.timerEl.style.right = ""+((1-percentageLeft)*100)+"%";
+		this.timerEl.style.right = this.toGlobalTime(1 - percentageLeft) * 100 + "%";
 		this.timerEl.style.top = this.timerEl.style.right;
 	},
 

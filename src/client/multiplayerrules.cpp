@@ -66,10 +66,10 @@ void squarez::MultiPlayerRules::initGame()
 	// Swap pointers to make sure original board is destroyed after notification
 	_board.swap(gameinit._board);
 
-	this->setTimer(squarez::Timer(gameinit._roundDuration, gameinit._roundProgress));
-
 	_numberOfRounds = gameinit._numberOfRounds;
 	_currentRound = gameinit._currentRound + 1;
+
+	this->setTimer(squarez::Timer(gameinit._roundDuration, gameinit._roundProgress));
 
 #ifdef SQUAREZ_QT
 	emit boardChanged(_board.get());

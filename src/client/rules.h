@@ -109,7 +109,7 @@ protected:
 
 	void pauseTimer(bool pause);
 	void refillTimer(unsigned int percentage);
-	void setTimer(Timer && timer) { _timer = timer;}
+	void setTimer(Timer && timer);
 
 	Rules(int board_size, int nb_symbols, Timer timer, std::string name = "");
 	Rules(std::unique_ptr<GameBoard> && _board, Timer timer, std::string name = "");
