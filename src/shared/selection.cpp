@@ -35,9 +35,6 @@ bool Selection::addPoint(unsigned int x, unsigned int y)
 		return false;
 	}
 	
-	if (_points.size() >= 4)
-		return false;
-	
 	_points.insert(point);
 	return true;
 }

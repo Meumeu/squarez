@@ -295,12 +295,12 @@ SquarezUI.prototype =
 		if (selected)
 		{
 			el.classList.add("selected");
-			this.rules.onSelect(this.selection);
 		}
 		else
 		{
 			el.classList.remove("selected");
 		}
+		this.rules.onSelect(this.selection);
 	},
 
 	onGameOverChanged: function(gameOver)
