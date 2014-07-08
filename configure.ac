@@ -68,7 +68,7 @@ LT_PREREQ([2.4.2])
 LT_INIT
 
 CFLAGS="$CFLAGS -Wall -Wextra"
-CXXFLAGS="$CXXFLAGS -Wall -Wextra"
+CXXFLAGS="$CXXFLAGS -Wall -Wextra -fno-use-cxa-atexit"
 CPPFLAGS=""
 
 AS_IF([test "x$enable_werror" = "xyes"], [
