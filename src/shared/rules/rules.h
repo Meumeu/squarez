@@ -25,8 +25,8 @@
 #include <memory>
 #include <random>
 #include <string>
-#include "shared/gameboard.h"
-#include "shared/timer.h"
+#include "shared/board/gameboard.h"
+#include "shared/board/timer.h"
 
 #ifdef SQUAREZ_QT
 #include <QObject>

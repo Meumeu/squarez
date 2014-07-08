@@ -19,7 +19,7 @@
 
 #include "transition.h"
 
-#include "shared/gameboard.h"
+#include "shared/board/gameboard.h"
 #include "shared/serializer.h"
 
 #include <map>

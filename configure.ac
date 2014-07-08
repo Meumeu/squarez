@@ -3,7 +3,7 @@
 
 AC_PREREQ([2.69])
 AC_INIT([Squarez], [2.4.1], [squarez@meumeu.org])
-AC_CONFIG_SRCDIR([src/shared/gameboard.cpp])
+AC_CONFIG_SRCDIR([src/shared/board/gameboard.cpp])
 AM_INIT_AUTOMAKE
 AC_CONFIG_HEADERS([src/config.h])
 AM_SILENT_RULES([yes])

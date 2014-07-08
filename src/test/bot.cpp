@@ -17,12 +17,14 @@
  *
  */
 
-#include "shared/gameboard.h"
+#include "shared/board/gameboard.h"
 #include <iostream>
+#include <random>
 
 int main()
 {
-	squarez::GameBoard board(8, 3);
+	std::mt19937 generator = std::mt19937(std::random_device()());
+	squarez::GameBoard board(8, 3, generator);
 	int score = 0;
 	int nbIter = 0;
 	

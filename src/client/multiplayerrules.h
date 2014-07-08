@@ -21,7 +21,7 @@
 #ifndef SQUAREZ_MULTIPLAYERRULES_H
 #define SQUAREZ_MULTIPLAYERRULES_H
 
-#include "rules.h"
+#include "shared/rules/rules.h"
 #include "httprequest.h"
 
 #ifdef SQUAREZ_QT

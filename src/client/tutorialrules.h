@@ -20,9 +20,9 @@
 #ifndef SQUAREZ_TUTORIAL_RULES_H
 #define SQUAREZ_TUTORIAL_RULES_H
 
-#include "rules.h"
+#include "shared/rules/rules.h"
 
-#include "shared/selection.h"
+#include "shared/board/selection.h"
 
 #ifndef SQUAREZ_QT
 #define Q_INVOKABLE /*ignored*/

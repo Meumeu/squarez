@@ -23,7 +23,7 @@
 #include <string>
 #include <vector>
 
-#include "shared/score.h"
+#include "shared/board/score.h"
 
 #ifdef SQUAREZ_QT
 #include <QAbstractListModel>

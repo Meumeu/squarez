@@ -22,8 +22,9 @@
 #include <sstream>
 #include <future>
 #include <cmath>
+#include <random>
 
-#include "shared/gameboard.h"
+#include "shared/board/gameboard.h"
 #include "client/httprequest.h"
 #include "shared/network/urltools.h"
 #include "shared/serializer.h"
@@ -31,10 +32,10 @@
 #define SIZE 8
 #define SYMBOLS 3
 
-void testScore()
+void testScore(std::mt19937 & generator)
 {
 	std::cout << "Score calculation testing... ";
-	squarez::GameBoard board(SIZE, 1);
+	squarez::GameBoard board(SIZE, 1, generator);
 	
 	for(int x1 = 0; x1 < SIZE; x1++)
 		for(int y1 = 0; y1 < SIZE; y1++)
@@ -61,7 +62,7 @@ void testScore()
 					if (x1 != x2 and x1 != x3 and x1 != x4 and y1 != y2 and y1 != y3 and y1 != y4)
 						score *= 2;
 					
-					auto t = board.selectSquare(s, true);
+					auto t = board.selectSquare(s, generator, true);
 					
 					if (t._score != score)
 					{
@@ -74,10 +75,10 @@ void testScore()
 	std::cout << "passed" << std::endl;
 }
 
-void testSelection()
+void testSelection(std::mt19937 & generator)
 {
 	std::cout << "Selection validation testing... ";
-	squarez::GameBoard board(SIZE, SYMBOLS);
+	squarez::GameBoard board(SIZE, SYMBOLS, generator);
 	
 	// Not matching symbols
 	squarez::Selection s;
@@ -86,7 +87,7 @@ void testSelection()
 	s.addPoint(1,0);
 	s.addPoint(1,1);
 	
-	auto t = board.selectSquare(s, true);
+	auto t = board.selectSquare(s, generator, true);
 	if (t._score)
 	{
 		std::stringstream text;
@@ -101,7 +102,7 @@ void testSelection()
 	s.addPoint(1,0); board.set(1,0,0);
 	s.addPoint(2,1); board.set(2,1,0);
 	
-	t = board.selectSquare(s, true);
+	t = board.selectSquare(s, generator, true);
 	if (t._score)
 	{
 		std::stringstream text;
@@ -112,10 +113,10 @@ void testSelection()
 	std::cout << "passed" << std::endl;
 }
 
-void testSquareFinding()
+void testSquareFinding(std::mt19937 & generator)
 {
 	std::cout << "Square finding testing... ";
-	squarez::GameBoard board(3, 2);
+	squarez::GameBoard board(3, 2, generator);
 	
 	//No square can be found
 	unsigned int situation0[] =
@@ -157,7 +158,7 @@ void testSquareFinding()
 	}
 	
 	// This transition leads to a situation with no square, test no-shuffle/shuffle cases
-	board = squarez::GameBoard(4,3);
+	board = squarez::GameBoard(4,3, generator);
 	auto init_lost = [](squarez::GameBoard & board)
 	{
 		unsigned int situation2[] =
@@ -177,7 +178,7 @@ void testSquareFinding()
 	
 	// allowDefeat = true
 	init_lost(board);
-	board.applyTransition(board.selectSquare(s, true));
+	board.applyTransition(board.selectSquare(s, generator, true));
 	if (board.hasTransition())
 	{
 		std::stringstream text;
@@ -187,7 +188,7 @@ void testSquareFinding()
 	
 	// allowDefeat = false
 	init_lost(board);
-	board.applyTransition(board.selectSquare(s, false));
+	board.applyTransition(board.selectSquare(s, generator, false));
 	if (not board.hasTransition())
 	{
 		std::stringstream text;
@@ -238,11 +239,11 @@ void testSerialization1()
 	std::cout << "passed" << std::endl;
 }
 
-void testSerialization2()
+void testSerialization2(std::mt19937 & generator)
 {
 	std::cout << "Serialization validation 2 testing... ";
 	
-	squarez::GameBoard board(SIZE, SYMBOLS);
+	squarez::GameBoard board(SIZE, SYMBOLS, generator);
 
 	squarez::StringSerializer stream;
 	stream << board;
@@ -329,13 +330,14 @@ void testUrlEncode()
 }
 
 int main() {
+	std::mt19937 generator = std::mt19937(std::random_device()());
 	try
 	{
-		testSelection();
-		testScore();
-		testSquareFinding();
+		testSelection(generator);
+		testScore(generator);
+		testSquareFinding(generator);
 		testSerialization1();
-		testSerialization2();
+		testSerialization2(generator);
 		testHttpRequest();
 		testUrlEncode();
 	}

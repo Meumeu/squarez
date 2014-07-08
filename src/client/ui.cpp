@@ -18,7 +18,7 @@
  */
 
 #include "ui.h"
-#include "client/rules.h"
+#include "shared/rules/rules.h"
 
 squarez::UI::UI(std::shared_ptr<squarez::Rules> rules) : rules(rules)
 {

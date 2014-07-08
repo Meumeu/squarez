@@ -23,7 +23,7 @@
 #include <sstream>
 
 #include "shared/network/urltools.h"
-#include "shared/selection.h"
+#include "shared/board/selection.h"
 #include "shared/serializer.h"
 
 static const std::string request_path = "squarez/";

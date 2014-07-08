@@ -18,8 +18,8 @@
  */
 
 #include "rules.h"
-#include "shared/selection.h"
-#include "shared/timer.h"
+#include "shared/board/selection.h"
+#include "shared/board/timer.h"
 
 #ifdef SQUAREZ_QT
 #include <QPoint>

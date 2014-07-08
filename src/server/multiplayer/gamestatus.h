@@ -23,7 +23,7 @@
 #include <boost/noncopyable.hpp>
 #include <boost/function.hpp>
 
-#include "shared/gameboard.h"
+#include "shared/board/gameboard.h"
 
 #include "player.h"
 

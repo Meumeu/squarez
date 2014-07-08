@@ -35,18 +35,18 @@ img.files = \
 img.path = /usr/share/$${TARGET}/img
 
 SOURCES += \
-    $$PWD/src/shared/gameboard.cpp \
+    $$PWD/src/shared/board/gameboard.cpp \
     $$PWD/src/client/highscores.cpp \
     $$PWD/src/client/httprequest.cpp \
     $$PWD/src/client/multiplayerrules.cpp \
-    $$PWD/src/client/rules.cpp \
-    $$PWD/src/client/singleplayerrules.cpp \
+    $$PWD/src/shared/rules/rules.cpp \
+    $$PWD/src/shared/rules/singleplayerrules.cpp \
     $$PWD/src/client/tutorialrules.cpp \
-    $$PWD/src/shared/score.cpp \
-    $$PWD/src/shared/selection.cpp \
+    $$PWD/src/shared/board/score.cpp \
+    $$PWD/src/shared/board/selection.cpp \
     $$PWD/src/shared/serializer.cpp \
-    $$PWD/src/shared/timer.cpp \
-    $$PWD/src/shared/transition.cpp \
+    $$PWD/src/shared/board/timer.cpp \
+    $$PWD/src/shared/board/transition.cpp \
     $$PWD/src/shared/network/methods.cpp \
     $$PWD/src/shared/network/urltools.cpp \
     $$PWD/src/qt/cell.cpp
@@ -55,15 +55,15 @@ HEADERS += \
     $$PWD/src/client/highscores.h \
     $$PWD/src/client/httprequest.h \
     $$PWD/src/client/multiplayerrules.h \
-    $$PWD/src/client/rules.h \
-    $$PWD/src/client/singleplayerrules.h \
+    $$PWD/src/shared/rules/rules.h \
+    $$PWD/src/shared/rules/singleplayerrules.h \
     $$PWD/src/client/tutorialrules.h \
-    $$PWD/src/shared/gameboard.h \
-    $$PWD/src/shared/score.h \
-    $$PWD/src/shared/selection.h \
+    $$PWD/src/shared/board/gameboard.h \
+    $$PWD/src/shared/board/score.h \
+    $$PWD/src/shared/board/selection.h \
     $$PWD/src/shared/serializer.h \
-    $$PWD/src/shared/timer.h \
-    $$PWD/src/shared/transition.h \
+    $$PWD/src/shared/board/timer.h \
+    $$PWD/src/shared/board/transition.h \
     $$PWD/src/shared/network/methods.h \
     $$PWD/src/shared/network/urltools.h \
     $$PWD/src/qt/cell.h

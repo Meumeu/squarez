@@ -27,8 +27,8 @@
 #include <utility>
 #include <vector>
 
-#include "shared/gameboard.h"
-#include "shared/score.h"
+#include "shared/board/gameboard.h"
+#include "shared/board/score.h"
 
 namespace squarez
 {

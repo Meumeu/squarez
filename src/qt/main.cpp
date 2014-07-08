@@ -4,7 +4,7 @@
 
 #include "client/singleplayerrules.h"
 #include "client/highscores.h"
-#include "shared/gameboard.h"
+#include "shared/board/gameboard.h"
 #include "qt/cell.h"
 
 int main(int argc, char *argv[])

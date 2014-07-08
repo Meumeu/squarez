@@ -19,7 +19,7 @@
 
 #include "gameboard.h"
 #include "selection.h"
-#include "serializer.h"
+#include "shared/serializer.h"
 #include <stdexcept>
 #include <ctime>
 #include <iostream>
