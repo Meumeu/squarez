@@ -25,6 +25,7 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <random>
 
 namespace squarez
 {
@@ -63,10 +64,10 @@ public:
 	Transition() : _score(0) {}
 	
 	//Create a "move" transition, by removing the selection and pushing down the elements
-	Transition(GameBoard const& board, Selection const& selection, unsigned int score);
+	Transition(GameBoard const& board, Selection const& selection, std::mt19937 & generator, unsigned int score);
 	
 	//Creates a "shuffle" transition, by randomly moving elements
-	Transition(unsigned int size);
+	Transition(unsigned int size, std::mt19937 & generator);
 
 	Transition(DeSerializer & serialized);
 

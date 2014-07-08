@@ -22,7 +22,6 @@
 #include "shared/gameboard.h"
 #include "shared/serializer.h"
 
-#include <cstdlib>
 #include <map>
 #include <algorithm>
 #include <sstream>
@@ -30,11 +29,13 @@
 namespace squarez
 {
 
-Transition::Transition(const GameBoard& board, const Selection& selection, uint32_t score): _score(score), _selection(selection)
+Transition::Transition(const GameBoard& board, const Selection& selection, std::mt19937 & generator, uint32_t score): _score(score), _selection(selection)
 {
 	auto it1 = selection.getPoints().begin();
 	auto it2 = it1; it2++;
 	auto end = selection.getPoints().end();
+
+	std::uniform_int_distribution<unsigned int> dist(0, board.symbol() - 1);
 	while (it1 != end)
 	{
 		const auto x = it1->first;
@@ -42,8 +43,8 @@ Transition::Transition(const GameBoard& board, const Selection& selection, uint3
 		if (it2 != end and x == it2->first)
 		{
 			_cells.push_back(CellTransition(x, it2->second));
-			_cells.push_back(CellTransition(x, -2, x, 0, std::rand() % board.symbol()));
-			_cells.push_back(CellTransition(x, -1, x, 1, std::rand() % board.symbol()));
+			_cells.push_back(CellTransition(x, -2, x, 0, dist(generator)));
+			_cells.push_back(CellTransition(x, -1, x, 1, dist(generator)));
 			for (unsigned int y = 0; y < it1->second ; y++)
 				_cells.push_back(CellTransition(x, y, x, y+2));
 			for (unsigned int y = it1->second + 1 ; y < it2->second ; y ++)
@@ -52,7 +53,7 @@ Transition::Transition(const GameBoard& board, const Selection& selection, uint3
 		}
 		else
 		{
-			_cells.push_back(CellTransition(x, -1, x, 0, std::rand() % board.symbol()));
+			_cells.push_back(CellTransition(x, -1, x, 0, dist(generator)));
 			for (unsigned int y = 0; y < it1->second ; y++)
 				_cells.push_back(CellTransition(x, y, x, y+1));
 		}
@@ -60,14 +61,14 @@ Transition::Transition(const GameBoard& board, const Selection& selection, uint3
 	}
 }
 
-Transition::Transition(unsigned int size): _score(0)
+Transition::Transition(unsigned int size, std::mt19937 & generator): _score(0)
 {
 	std::vector<std::pair<unsigned int,unsigned int>> positions(size*size);
 	for (unsigned int y = 0; y < size ; ++y)
 		for (unsigned int x = 0; x < size ; ++x)
 			positions[x * size + y] = std::pair<unsigned int, unsigned int>(x,y);
 
-	std::random_shuffle(positions.begin(), positions.end());
+	std::shuffle(positions.begin(), positions.end(), generator);
 	
 	for (unsigned int y = 0; y < size ; ++y)
 		for (unsigned int x = 0; x < size ; ++x)

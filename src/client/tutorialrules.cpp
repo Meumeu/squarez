@@ -27,7 +27,8 @@
 #endif
 
 squarez::TutorialRules::TutorialRules(int board_size, int nb_symbols):
-squarez::Rules(board_size, nb_symbols, squarez::Timer(std::chrono::seconds(10), std::chrono::seconds(60), std::chrono::seconds(180)), "Tutorial"),
+squarez::Rules(board_size, nb_symbols, 0 // Hardcoded random seed
+		, squarez::Timer(std::chrono::seconds(10), std::chrono::seconds(60), std::chrono::seconds(180)), "Tutorial"),
 _step(0)
 {
 	this->pauseTimer(true);
@@ -75,7 +76,7 @@ void squarez::TutorialRules::next()
 		case 8:
 		{
 			MESSAGE("");
-			squarez::Transition const & transition = _board->selectSquare(_selection, false);
+			squarez::Transition const & transition = _board->selectSquare(_selection, _random_generator, false);
 			this->setScore(getScore() + transition._score);
 			this->applyTransition(transition);
 			break;
@@ -106,7 +107,7 @@ void squarez::TutorialRules::next()
 			else
 			{
 				MESSAGE("");
-				auto const & transition = _board->selectSquare(_selection, false);
+				auto const & transition = _board->selectSquare(_selection, _random_generator, false);
 				this->setScore(getScore() + transition._score);
 				this->refillTimer(transition._score * 2);
 				this->applyTransition(transition);;

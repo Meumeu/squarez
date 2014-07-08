@@ -27,19 +27,19 @@
 #include "client/ui.h"
 #endif
 
-squarez::Rules::Rules(int board_size, int nb_symbols, Timer timer, std::string name) :
+squarez::Rules::Rules(int board_size, int nb_symbols, std::uint_fast32_t random_seed, Timer timer, std::string name) :
 #ifndef SQUAREZ_QT
 	_ui(nullptr),
 #endif
-	_score(0), _timer(timer), _board(new squarez::GameBoard(board_size, nb_symbols)), _playerName(name)
+	_score(0), _timer(timer), _random_generator(random_seed), _board(new squarez::GameBoard(board_size, nb_symbols, _random_generator)), _playerName(name)
 {
 }
 
-squarez::Rules::Rules(std::unique_ptr<GameBoard> &&board, Timer timer, std::string name) :
+squarez::Rules::Rules(std::unique_ptr<GameBoard> &&board, std::uint_fast32_t random_seed, Timer timer, std::string name) :
 #ifndef SQUAREZ_QT
 	_ui(nullptr),
 #endif
-	_score(0), _timer(timer), _board(std::move(board)), _playerName(name)
+	_score(0), _timer(timer), _random_generator(random_seed), _board(std::move(board)), _playerName(name)
 {
 }
 

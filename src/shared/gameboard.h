@@ -23,6 +23,7 @@
 #include <vector>
 #include <set>
 #include <iostream>
+#include <random>
 
 #include "transition.h"
 
@@ -67,7 +68,7 @@ public:
 	GameBoard(DeSerializer & serialized);
 
 	// Create a new random gameboard with given size and possible different symbols
-	GameBoard(unsigned int size, unsigned int numberOfSymbols);
+	GameBoard(unsigned int size, unsigned int numberOfSymbols, std::mt19937 & generator);
 
 	~GameBoard();
 	
@@ -75,7 +76,7 @@ public:
 	// Score is 0 only if selection is invalid
 	// If allowDefeat is false, a selection that would lead to an impossible grid
 	// will create a shuffle transition instead
-	Transition selectSquare(Selection const& selection, bool allowDefeat = true) const;
+	Transition selectSquare(Selection const& selection, std::mt19937 & generator, bool allowDefeat = true) const;
 
 	std::vector<Transition> findTransitions() const;
 	bool hasTransition() const;

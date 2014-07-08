@@ -37,7 +37,7 @@ bool squarez::MultiPlayerRules::gameOver()
 
 void squarez::MultiPlayerRules::onSelect(const squarez::Selection& selection)
 {
-	Transition tr = _board->selectSquare(selection, true);
+	Transition tr = _board->selectSquare(selection, _random_generator, true);
 	
 	if (tr._score == 0)
 		return;
@@ -84,7 +84,7 @@ void squarez::MultiPlayerRules::initGame()
 	onScoreListPoll("");
 }
 
-squarez::MultiPlayerRules::MultiPlayerRules(const std::string& url, const std::string& username): Rules(0,0, Timer(std::chrono::seconds(1)), username),
+squarez::MultiPlayerRules::MultiPlayerRules(const std::string& url, const std::string& username): Rules(0,0,0, Timer(std::chrono::seconds(1)), username),
 #ifdef SQUAREZ_QT
 	_highScores(new HighScores(std::vector<Score>())),
 #endif

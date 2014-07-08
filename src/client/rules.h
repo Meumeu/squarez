@@ -23,6 +23,7 @@
 
 #include <chrono>
 #include <memory>
+#include <random>
 #include <string>
 #include "shared/gameboard.h"
 #include "shared/timer.h"
@@ -96,6 +97,7 @@ private:
 	void notifyTimer();
 
 protected:
+	std::mt19937 _random_generator;
 	std::unique_ptr<GameBoard> _board;
 	std::string _playerName;
 	void setScore(unsigned int score);
@@ -111,8 +113,8 @@ protected:
 	void refillTimer(unsigned int percentage);
 	void setTimer(Timer && timer);
 
-	Rules(int board_size, int nb_symbols, Timer timer, std::string name = "");
-	Rules(std::unique_ptr<GameBoard> && _board, Timer timer, std::string name = "");
+	Rules(int board_size, int nb_symbols, std::uint_fast32_t random_seed, Timer timer, std::string name = "");
+	Rules(std::unique_ptr<GameBoard> && _board, std::uint_fast32_t random_seed, Timer timer, std::string name = "");
 
 public:
 	bool pause() const {return _timer.paused();}

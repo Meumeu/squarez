@@ -25,7 +25,7 @@
 #endif
 
 squarez::SinglePlayerRules::SinglePlayerRules(int board_size, int nb_symbols, int long_term, int short_term, int duration) :
-	Rules(board_size, nb_symbols, Timer(std::chrono::seconds(long_term), std::chrono::seconds(short_term), std::chrono::seconds(duration))),
+	Rules(board_size, nb_symbols, std::random_device()(), Timer(std::chrono::seconds(long_term), std::chrono::seconds(short_term), std::chrono::seconds(duration))),
 	_scoreSaved(false)
 {}
 
@@ -95,7 +95,7 @@ void squarez::SinglePlayerRules::onSelect(const squarez::Selection& selection)
 {
 	if (gameOver())
 		return;
-	Transition const& tr = _board->selectSquare(selection, false);
+	Transition const& tr = _board->selectSquare(selection, _random_generator, false);
 	if (tr._score)
 	{
 		this->refillTimer(tr._score * 2);

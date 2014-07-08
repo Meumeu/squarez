@@ -21,10 +21,9 @@
 #include "selection.h"
 #include "serializer.h"
 #include <stdexcept>
-#include <cstdlib>
 #include <ctime>
 #include <iostream>
-#include <sstream>
+#include <random>
 
 #ifdef SQUAREZ_QT
 #include "qt/cell.h"
@@ -33,13 +32,13 @@
 namespace squarez
 {
 
-GameBoard::GameBoard(unsigned int size, unsigned int numberOfSymbols): _symbols(numberOfSymbols), _size(size)
+GameBoard::GameBoard(unsigned int size, unsigned int numberOfSymbols, std::mt19937 & generator): _symbols(numberOfSymbols), _size(size)
 {
 	_cells.resize(size * size);
-	std::srand(std::time(0));
+	std::uniform_int_distribution<unsigned int> dist(0, numberOfSymbols -1);
 	for (auto & cell : _cells)
 	{
-		cell = std::rand() % numberOfSymbols;
+		cell = dist(generator);
 	}
 #ifdef SQUAREZ_QT
 	for (unsigned int x = 0 ; x < _size ; ++x)
@@ -133,23 +132,23 @@ static unsigned int computeScore(GameBoard const& board, Selection const& select
 	return score;
 }
 
-Transition GameBoard::selectSquare(const Selection& selection, bool allowDefeat) const
+Transition GameBoard::selectSquare(const Selection& selection, std::mt19937 & generator, bool allowDefeat) const
 {
 	auto score = computeScore(*this, selection);
 	if (score == 0)
 		return Transition();
 
 	if (allowDefeat)
-		return Transition(*this, selection, score);
+		return Transition(*this, selection, generator, score);
 	
 	// We do not allow defeat, test if the transition leads to a defeat scenario
 
 	GameBoard after(*this);
-	Transition res(*this, selection, score);
+	Transition res(*this, selection, generator, score);
 	after.applyTransition(res);
 	while (not after.hasTransition())
 	{
-		res = Transition(_size);
+		res = Transition(_size, generator);
 		after._cells = _cells; // The model will be out of sync but who cares
 		after.applyTransition(res);
 	}
@@ -239,6 +238,7 @@ std::ostream& operator<<(std::ostream& out, GameBoard const& board)
 std::vector<Transition> GameBoard::findTransitions() const
 {
 	std::vector<Transition> res;
+	std::mt19937 generator;
 	
 	for(unsigned int x1 = 0; x1 < _size - 1; x1++)
 		for(unsigned int y1 = 0; y1 < _size; y1++)
@@ -262,7 +262,7 @@ std::vector<Transition> GameBoard::findTransitions() const
 					s.addPoint(x3, y3);
 					s.addPoint(x4, y4);
 					
-					squarez::Transition const& t = this->selectSquare(s, true);
+					squarez::Transition const& t = this->selectSquare(s, generator, true);
 					
 					if (t._score)
 						res.push_back(t);
