@@ -35,18 +35,6 @@ AC_ARG_ENABLE([server],
 AC_MSG_RESULT($enable_server)
 AM_CONDITIONAL([SERVER], [test "x$enable_server" = "xyes"])
 
-AC_MSG_CHECKING([whether to build SDL client])
-AC_ARG_ENABLE([sdlclient],
-	AS_HELP_STRING([--enable-sdlclient], [build SDL client]))
-AC_MSG_RESULT($enable_sdlclient)
-AM_CONDITIONAL([SDLCLIENT], [test "x$enable_sdlclient" = "xyes"])
-
-AC_MSG_CHECKING([whether ths SDL client uses SDL2 or SDL1.2])
-AC_ARG_WITH([sdl2],
-	AS_HELP_STRING([--with-sdl2], [use SDL2]))
-AC_MSG_RESULT($with_sdl2)
-AM_CONDITIONAL([SDL2], [test "x$with_sdl2" = "xyes"])
-
 AC_MSG_CHECKING([whether to enable server socket activation (systemd)])
 AC_ARG_ENABLE([systemd],
 	AS_HELP_STRING([--enable-systemd], [enable socket activation]))
@@ -63,7 +51,7 @@ AM_INIT_AUTOMAKE([subdir-objects])
 
 AS_IF([test "x$enable_javascript" = "xyes"], [
 	AS_IF([test "x$enable_release" = "xyes"], [
-		CXXFLAGS=-O2])
+		CXXFLAGS=-Oz])
 	AC_CONFIG_FILES([manifest.webapp:src/web/manifest.webapp.in]
 		[manifest.appcache:src/web/manifest.appcache.in])
 	AS_IF([test "x$wwwdir" = "x"], [
@@ -95,21 +83,8 @@ AS_IF([test "x$enable_server" = "xyes"], [
 	BOOST_PROGRAM_OPTIONS]
 )
 
-# SDL2 and OpenGL
-AS_IF([test "x$enable_sdlclient" = "xyes"], [
-	AS_IF([test "x$with_sdl2" = "xyes"],
-	[
-		PKG_CHECK_MODULES([SDL2], [sdl2])
-	],
-	[
-		PKG_CHECK_MODULES([SDL], [sdl])
-	])
-	PKG_CHECK_MODULES([GLES], glesv2)
-	BOOST_REQUIRE([])]
-)
-
 # Curl
-AS_IF([test "x$enable_sdlcient" = "xyes" -o "x$enable_tests" = "xyes"], [
+AS_IF([test "x$enable_tests" = "xyes"], [
 	PKG_CHECK_MODULES([CURL], libcurl)]
 )
 

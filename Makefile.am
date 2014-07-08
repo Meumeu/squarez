@@ -11,7 +11,7 @@ if JAVASCRIPT
 squarez_js_SOURCES =  $(shared_sources) $(client_sources) src/js/binding.cpp
 squarez_js_LDFLAGS = --bind
 if RELEASE
-squarez_js_LDFLAGS += --closure 0 --llvm-lto 1
+squarez_js_LDFLAGS += --closure 1 --llvm-lto 3
 else
 squarez_js_LDFLAGS += --closure 0 --llvm-lto 0
 endif
@@ -41,23 +41,6 @@ bin_PROGRAMS += squarezd
 squarezd_SOURCES = $(shared_sources) src/server/server.cpp src/server/requesthandler.cpp src/server/gamestatus.cpp src/server/player.cpp
 squarezd_CPPFLAGS = $(AM_CPPFLAGS) $(SYSTEMD_CFLAGS) $(SERVER_CFLAGS) $(BOOST_CPPFLAGS)
 squarezd_LDFLAGS = $(SERVER_LIBS) $(SYSTEMD_LIBS) $(BOOST_PROGRAM_OPTIONS_LIBS)
-endif
-
-if SDLCLIENT
-bin_PROGRAMS += squarez
-squarez_SOURCES = $(shared_sources) $(client_sources) src/sdl/main.cpp src/sdl/sdlui.cpp src/sdl/window.cpp src/sdl/shader.cpp src/sdl/animatable.cpp \
-	src/sdl/cell.cpp src/sdl/colour.cpp src/sdl/demo.cpp
-squarez_CPPFLAGS = $(AM_CPPFLAGS) $(GLES_CFLAGS) $(CURL_CFLAGS) -DGL_GLEXT_PROTOTYPES=1
-squarez_LDFLAGS = $(SDL2_LIBS) $(GLES_LIBS) $(CURL_LIBS)
-if SDL2
-squarez_CPPFLAGS += $(SDL2_CFLAGS) -DUSE_SDL2
-squarez_LDFLAGS += $(SDL2_LIBS)
-else
-squarez_CPPFLAGS += $(SDL_CFLAGS)
-squarez_LDFLAGS += $(SDL_LIBS)
-endif
-squarezdir = $(datadir)/squarez
-squarez_DATA = src/sdl/roundrect.frag.glsl src/sdl/roundrect.vert.glsl
 endif
 
 if TESTS
