@@ -26,7 +26,7 @@ namespace squarez
 GameStatus* GameStatus::_instance = nullptr;
 
 GameStatus::GameStatus(unsigned int size, unsigned int numSymbols, std::chrono::seconds roundDuration, unsigned int roundsPerGame):
-	_roundsPerGame(roundsPerGame), _running(true), _board(size, numSymbols), _round(0), _roundDuration(roundDuration)
+	_roundsPerGame(roundsPerGame), _random_generator(std::random_device()()), _running(true), _board(size, numSymbols, _random_generator), _round(0), _roundDuration(roundDuration)
 {
 	if (_instance)
 		throw std::runtime_error("GameStatus already initialized");
@@ -44,7 +44,7 @@ GameStatus::~GameStatus()
 
 uint16_t GameStatus::pushSelection(const Selection& selection, unsigned int token)
 {
-	auto const& transition = _board.selectSquare(selection, true);
+	auto const& transition = _board.selectSquare(selection, _random_generator, true);
 
 	// If the selection gives a better score than the stored one, keep it
 	if (transition._score > _bestTransition._score)
@@ -105,7 +105,7 @@ void GameStatus::run()
 				}
 
 				// Shuffle the board
-				_lastRoundTransition = Transition(_board.size());
+				_lastRoundTransition = Transition(_board.size(), _random_generator);
 			}
 			else
 			{
@@ -117,7 +117,7 @@ void GameStatus::run()
 				}
 
 				// Make sure the transition can not end the game
-				_lastRoundTransition = _board.selectSquare(_bestTransition._selection, false);
+				_lastRoundTransition = _board.selectSquare(_bestTransition._selection, _random_generator, false);
 			}
 
 			// Return the scores, they may be updated and we don't want to timeout if nothing happens

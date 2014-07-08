@@ -18,7 +18,7 @@
  */
 
 #include "requesthandler.h"
-#include "gamestatus.h"
+#include "multiplayer/gamestatus.h"
 
 #include "shared/serializer.h"
 

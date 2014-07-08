@@ -25,7 +25,7 @@
 
 #include "shared/gameboard.h"
 
-#include "server/player.h"
+#include "player.h"
 
 #include <memory>
 #include <stdexcept>
@@ -34,6 +34,7 @@
 #include <thread>
 #include <atomic>
 #include <map>
+#include <random>
 
 namespace Fastcgipp {
 struct Message;}
@@ -100,6 +101,7 @@ public:
 
 	const unsigned int _roundsPerGame;
 private:
+	std::mt19937 _random_generator;
 	// Game main loop
 	void run();
 	std::thread _mainLoop;

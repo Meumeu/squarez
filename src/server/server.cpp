@@ -36,8 +36,8 @@
 
 #include <boost/program_options.hpp>
 
-#include "server/requesthandler.h"
-#include "gamestatus.h"
+#include "requesthandler.h"
+#include "multiplayer/gamestatus.h"
 
 int main(int argc, char ** argv)
 {
