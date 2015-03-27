@@ -3,9 +3,9 @@ ACLOCAL_AMFLAGS = -I m4
 
 AM_CPPFLAGS = -I$(top_srcdir)/src -DDATADIR=\"$(datadir)\"
 
-shared_sources = src/shared/board/transition.cpp src/shared/board/gameboard.cpp src/shared/board/selection.cpp src/shared/board/timer.cpp src/shared/serializer.cpp src/shared/network/methods.cpp src/shared/network/urltools.cpp src/shared/board/score.cpp
+shared_sources = src/game/cell.cpp src/game/gameboard.cpp src/game/highscores.cpp src/game/score.cpp src/game/selection.cpp src/game/transition.cpp src/utils/serializer.cpp
 
-client_sources = src/client/httprequest.cpp src/shared/rules/rules.cpp src/client/multiplayerrules.cpp src/shared/rules/singleplayerrules.cpp src/client/tutorialrules.cpp src/client/ui.cpp src/client/highscores.cpp
+client_sources = src/rules/rules.cpp src/rules/singleplayerrules.cpp src/rules/timer.cpp
 
 if JAVASCRIPT
 squarez_js_SOURCES =  $(shared_sources) $(client_sources) src/js/binding.cpp
@@ -44,11 +44,8 @@ squarezd_LDFLAGS = $(SERVER_LIBS) $(SYSTEMD_LIBS) $(BOOST_PROGRAM_OPTIONS_LIBS)
 endif
 
 if TESTS
-bin_PROGRAMS += squareztest squareztest_bot
-squareztest_SOURCES = src/test/main.cpp $(shared_sources) $(client_sources)
-squareztest_CPPFLAGS = $(AM_CPPFLAGS) $(CURL_CFLAGS)
-squareztest_LDFLAGS = $(CURL_LIBS)
-squareztest_bot_SOURCES = src/test/bot.cpp $(shared_sources)
+bin_PROGRAMS += squareztest_bot
+squareztest_bot_SOURCES = src/test/bot.cpp $(shared_sources) $(client_sources)
 squareztest_bot_CPPFLAGS = $(AM_CPPFLAGS) $(CURL_CFLAGS)
 squareztest_bot_LDFLAGS = $(CURL_LIBS)
 endif
