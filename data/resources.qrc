@@ -5,6 +5,6 @@
 		<file>qml/GameArea.qml</file>
 		<file>qml/SingleSquare.qml</file>
 		
-		<file alias="img/particle.png">data/img/particle.png</file>
+		<file alias="img/particle.png">img/particle.png</file>
 	</qresource>
 </RCC>

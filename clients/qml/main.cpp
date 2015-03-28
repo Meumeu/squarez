@@ -21,8 +21,8 @@
 #include <QApplication>
 #include <QQmlApplicationEngine>
 
-#include "proxy/qt/rulesproxy.h"
-#include "proxy/qt/cellproxy.h"
+#include "proxy/rulesproxy.h"
+#include "proxy/cellproxy.h"
 
 int main(int argc, char ** argv)
 {
