@@ -18,37 +18,24 @@
  *
  */
 
-#ifndef SQUAREZ_SINGLEPLAYERRULES_H
-#define SQUAREZ_SINGLEPLAYERRULES_H
+import QtQuick 2.0
+import QtQuick.Window 2.0
+import QtQuick.Controls 1.3
 
-#include "rules.h"
-#include "game/selection.h"
+import harbour.squarez 1.0
 
-namespace squarez {
+ApplicationWindow {
+	width: 400; height: 400
+	visible: true
+	title: qsTr("Squarez")
 
-class HighScores;
-
-class SinglePlayerRules : public squarez::Rules
-{
-private:
-	bool _scoreSaved;
-	Selection _selection;
-
-	static HighScores & accessHighScores();
-	void saveScore();
+	Rules {
+		id: rules
+		type: "singlePlayer"
+	}
 	
-public:
-	SinglePlayerRules(Proxy & proxy, int board_size = 8, int nb_symbols = 3, int long_term = 10, int short_term = 60, int duration = 180);
-	
-	virtual void onClick(Cell & cell) override;
-	virtual void resetSelection() override;
-	virtual void setPlayerName(std::string const& name) override;
-	bool gameOver();
-
-	HighScores * getHighScores() {return &accessHighScores();}
-	
-	void setPause(bool state);
-};
+	GameArea {
+		anchors.fill: parent
+		rules: rules
+	}
 }
-
-#endif // SQUAREZ_SINGLEPLAYERRULES_H

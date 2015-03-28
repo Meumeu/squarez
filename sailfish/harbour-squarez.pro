@@ -23,7 +23,9 @@ HEADERS +=
 
 DEFINES += \
     PACKAGE=\\\"harbour-squarez\\\"\
-    USERAGENT=\\\"jolla-squarez\\\"
+    USERAGENT=\\\"jolla-squarez\\\"\
+    override=
+# override keyword is supported in gcc >= 4.7
 
 OTHER_FILES += qml/squarez.qml \
     qml/cover/CoverPage.qml \

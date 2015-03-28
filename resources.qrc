@@ -1,0 +1,10 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+	<qresource prefix="/">
+		<file>qml/main.qml</file>
+		<file>qml/GameArea.qml</file>
+		<file>qml/SingleSquare.qml</file>
+		
+		<file alias="img/particle.png">data/img/particle.png</file>
+	</qresource>
+</RCC>

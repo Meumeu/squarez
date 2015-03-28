@@ -24,12 +24,12 @@
 #include <algorithm>
 
 squarez::Rules::Rules(Proxy & proxy, int board_size, int nb_symbols, std::uint_fast32_t random_seed, Timer timer, std::string name):
-	_score(0), _timer(timer), _proxy(proxy), _random_generator(random_seed), _board(new squarez::GameBoard(board_size, nb_symbols, _random_generator, *this)), _playerName(name)
+	_score(0), _gameOver(false), _timer(timer), _proxy(proxy), _random_generator(random_seed), _board(new squarez::GameBoard(board_size, nb_symbols, _random_generator, *this)), _playerName(name)
 {
 }
 
 squarez::Rules::Rules(Proxy & proxy, std::unique_ptr<GameBoard> &&board, std::uint_fast32_t random_seed, Timer timer, std::string name):
-	_score(0), _timer(timer),_proxy(proxy), _random_generator(random_seed), _board(std::move(board)), _playerName(name)
+	_score(0), _gameOver(false), _timer(timer),_proxy(proxy), _random_generator(random_seed), _board(std::move(board)), _playerName(name)
 {
 }
 
@@ -46,7 +46,7 @@ void squarez::Rules::setGameOver(bool status)
 	if (status == _gameOver)
 		return;
 	_gameOver = status;
-	_proxy.gameOver(_gameOver);
+	_proxy.gameOverChanged(_gameOver);
 }
 
 void squarez::Rules::applyTransition(const Transition &transition)
@@ -54,9 +54,8 @@ void squarez::Rules::applyTransition(const Transition &transition)
 	if (transition._selection.isValid())
 	{
 		std::array<Cell *, 4> square;
-		const auto & points = transition._selection.getPoints();
-		std::transform(points.begin(), points.end(), square.begin(),
-			[this](decltype(*points.begin()) point){return &_board->access(point);}
+		std::transform(transition._selection.begin(), transition._selection.end(), square.begin(),
+			[this](decltype(*transition._selection.begin()) point){return &_board->access(point);}
 		);
 
 		_proxy.animateSquare(square);
@@ -64,7 +63,7 @@ void squarez::Rules::applyTransition(const Transition &transition)
 	_board->applyTransition(transition);
 }
 
-float squarez::Rules::getPercentageLeft(float offset)
+float squarez::Rules::percentageLeft(float offset)
 {
 	return _timer.percentageLeft(offset);
 }
@@ -90,4 +89,8 @@ void squarez::Rules::setTimer(squarez::Timer&& timer)
 {
 	_timer = timer;
 	_proxy.timerUpdated();
+}
+
+squarez::Rules::Proxy::~Proxy()
+{
 }

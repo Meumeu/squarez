@@ -1,6 +1,6 @@
 /*
  * Squarez puzzle game
- * Copyright (C) 2013  Guillaume Meunier <guillaume.meunier@centraliens.net>
+ * Copyright (C) 2013-2015  Guillaume Meunier <guillaume.meunier@centraliens.net>
  * Copyright (C) 2013-2015  Patrick Nicolas <patricknicolas@laposte.net>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -21,6 +21,7 @@
 #ifndef SQUAREZ_RULES_H
 #define SQUAREZ_RULES_H
 
+#include <array>
 #include <chrono>
 #include <memory>
 #include <random>
@@ -42,9 +43,9 @@ public:
 	class Proxy
 	{
 	public:
-		virtual ~Proxy() = default;
+        virtual ~Proxy();
 		virtual void scoreChanged(unsigned int score) = 0;
-		virtual void gameOver(bool status) = 0;
+        virtual void gameOverChanged(bool status) = 0;
 		virtual void timerUpdated() = 0;
 		virtual void nameRequired() = 0;
 		virtual void animateSquare(std::array<Cell *, 4>) = 0;
@@ -73,15 +74,18 @@ protected:
 	Rules(Proxy & proxy, std::unique_ptr<GameBoard> && _board, std::uint_fast32_t random_seed, Timer timer, std::string name = "");
 
 public:
-	bool pause() const {return _timer.paused();}
-	float getPercentageLeft(float offset = 0);
-	int msLeft() { return _timer.msLeft();}
-	virtual bool gameOver() {return _gameOver;}
-	virtual void onClick(Cell & cell) = 0;
-	unsigned int getScore() const {return _score;}
+	bool pause() const { return _timer.paused(); }
+	float percentageLeft(float offset = 0);
+	int msLeft() { return _timer.msLeft(); }
+	virtual bool gameOver() { return _gameOver; }
+	unsigned int score() const { return _score; }
+
 	virtual void setPlayerName(std::string const& name) = 0;
-	Cell::proxy_factory getCellProxyFactory() { return [this](Cell & cell){return _proxy.cellProxyFactory(cell);};}
-	
+
+	virtual void onClick(Cell & cell) = 0;
+	virtual void resetSelection() {};
+	Cell::proxy_factory cellProxyFactory() { return [this](Cell & cell){return _proxy.cellProxyFactory(cell); }; }
+
 	virtual ~Rules() {}
 };
 }

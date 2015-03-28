@@ -1,7 +1,6 @@
 /*
  * Squarez puzzle game
  * Copyright (C) 2015  Guillaume Meunier <guillaume.meunier@centraliens.net>
- * Copyright (C) 2015  Patrick Nicolas <patricknicolas@laposte.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,29 +17,19 @@
  *
  */
 
-#include "cell.h"
-#include <rules/rules.h>
+#include <qqml.h>
+#include <QApplication>
+#include <QQmlApplicationEngine>
 
-void squarez::Cell::move(int x, int y)
-{
-	_x = x;
-	_y = y;
-	_proxy->moved(x, y);
-}
+#include "proxy/qt/rulesproxy.h"
+#include "proxy/qt/cellproxy.h"
 
-void squarez::Cell::click()
+int main(int argc, char ** argv)
 {
-	_rules.onClick(*this);
-}
-
-void squarez::Cell::setSelected(bool status)
-{
-	if (_selected == status)
-		return;
-	_selected = status;
-	_proxy->selectChanged(_selected);
-}
-
-squarez::Cell::Proxy::~Proxy()
-{
+	qmlRegisterType<squarez::qt::RulesProxy>("harbour.squarez", 1,0, "Rules");
+	qmlRegisterUncreatableType<squarez::qt::CellProxy>("harbour.squarez", 1,0, "Cell", "");
+	
+	QApplication app(argc, argv);
+	QQmlApplicationEngine engine(QUrl("qrc:/qml/main.qml"));
+	return app.exec();
 }

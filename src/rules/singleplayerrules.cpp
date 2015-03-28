@@ -1,6 +1,6 @@
 /*
  * Squarez puzzle game
- * Copyright (C) 2013  Guillaume Meunier <guillaume.meunier@centraliens.net>
+ * Copyright (C) 2013-2015  Guillaume Meunier <guillaume.meunier@centraliens.net>
  * Copyright (C) 2013-2015  Patrick Nicolas <patricknicolas@laposte.net>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -32,7 +32,7 @@ bool squarez::SinglePlayerRules::gameOver()
 	if (squarez::Rules::gameOver())
 		return true;
 
-	if (this->getPercentageLeft() > 0)
+	if (this->percentageLeft() > 0)
 		return false;
 
 	setGameOver(true);
@@ -44,7 +44,7 @@ bool squarez::SinglePlayerRules::gameOver()
 void squarez::SinglePlayerRules::saveScore()
 {
     HighScores & scores = accessHighScores();
-    if (_scoreSaved or not scores.mayBeSaved(getScore()))
+    if (_scoreSaved or not scores.mayBeSaved(score()))
 		return;
 
 	if (_playerName.empty())
@@ -53,7 +53,7 @@ void squarez::SinglePlayerRules::saveScore()
 		return;
 	}
 
-	if (scores.save(getScore(), _playerName))
+	if (scores.save(score(), _playerName))
 	{
 		//FIXME: notify UI
 	}
@@ -70,18 +70,28 @@ void squarez::SinglePlayerRules::setPlayerName(const std::string& name)
 		saveScore();
 }
 
+void squarez::SinglePlayerRules::resetSelection()
+{
+	for(auto& i: _selection)
+		_board->access(i).setSelected(false);
+
+	_selection = Selection();
+}
+
+
 void squarez::SinglePlayerRules::onClick(squarez::Cell& cell)
 {
 	if (gameOver())
 		return;
-	_selection.addPoint(cell.x(), cell.y());
+	cell.setSelected(_selection.togglePoint(cell.x(), cell.y()));
 	Transition const& tr = _board->selectSquare(_selection, _random_generator, false);
 	if (tr._score)
 	{
 		this->refillTimer(tr._score * 2);
-		setScore(getScore() + tr._score);
+		setScore(score() + tr._score);
 
 		this->applyTransition(tr);
+		resetSelection();
 	}
 }
 

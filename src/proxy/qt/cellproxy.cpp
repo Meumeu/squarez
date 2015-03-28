@@ -1,7 +1,6 @@
 /*
  * Squarez puzzle game
  * Copyright (C) 2015  Guillaume Meunier <guillaume.meunier@centraliens.net>
- * Copyright (C) 2015  Patrick Nicolas <patricknicolas@laposte.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,29 +17,37 @@
  *
  */
 
-#include "cell.h"
-#include <rules/rules.h>
+#include "cellproxy.h"
+#include "rulesproxy.h"
 
-void squarez::Cell::move(int x, int y)
+
+namespace squarez {
+namespace qt {
+
+CellProxy::CellProxy(Cell& owner, RulesProxy& rules): QObject(), Proxy(owner), _rules(rules)
 {
-	_x = x;
-	_y = y;
-	_proxy->moved(x, y);
 }
 
-void squarez::Cell::click()
+CellProxy::~CellProxy()
 {
-	_rules.onClick(*this);
+	_rules.removeCell(this);
 }
 
-void squarez::Cell::setSelected(bool status)
+void CellProxy::moved(int x, int y)
 {
-	if (_selected == status)
-		return;
-	_selected = status;
-	_proxy->selectChanged(_selected);
+	emit onXChanged(x);
+	emit onYChanged(y);
 }
 
-squarez::Cell::Proxy::~Proxy()
+void CellProxy::selectChanged(bool status)
 {
+	emit onSelectedChanged(status);
+}
+
+void CellProxy::clicked()
+{
+	owner.click();
+}
+
+}
 }

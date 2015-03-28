@@ -1,6 +1,6 @@
 /*
  * Squarez puzzle game
- * Copyright (C) 2013  Guillaume Meunier <guillaume.meunier@centraliens.net>
+ * Copyright (C) 2013-2015  Guillaume Meunier <guillaume.meunier@centraliens.net>
  * Copyright (C) 2013-2015  Patrick Nicolas <patricknicolas@laposte.net>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -29,7 +29,7 @@ namespace
 	class DummyProxy : public squarez::SinglePlayerRules::Proxy
 	{
 		virtual void scoreChanged(unsigned int) override {};
-		virtual void gameOver(bool) override {};
+		virtual void gameOverChanged(bool) override {};
 		virtual void timerUpdated() override {};
 		virtual void nameRequired() override {};
 		virtual void animateSquare(std::array<squarez::Cell *, 4>) override {};
@@ -60,10 +60,10 @@ namespace
 							continue;
 
 						squarez::Selection s;
-						s.addPoint(x1, y1);
-						s.addPoint(x2, y2);
-						s.addPoint(x3, y3);
-						s.addPoint(x4, y4);
+						s.togglePoint(x1, y1);
+						s.togglePoint(x2, y2);
+						s.togglePoint(x3, y3);
+						s.togglePoint(x4, y4);
 
 						squarez::Transition const& t = board.selectSquare(s, generator, true);
 

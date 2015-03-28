@@ -1,5 +1,6 @@
 /*
  * Squarez puzzle game
+ * Copyright (C) 2015  Guillaume Meunier <guillaume.meunier@centraliens.net>
  * Copyright (C) 2013-2015  Patrick Nicolas <patricknicolas@laposte.net>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,6 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+
+
 
 #include "gameboard.h"
 #include "selection.h"
@@ -50,7 +53,7 @@ _symbols(numberOfSymbols), _size(size), _rules(rules)
 	for (unsigned int x = 0 ; x < _size ; ++x)
 		for (unsigned int y = 0 ; y < _size ; ++y)
 			_cells[idx(x, y, _size)] = std::make_shared<Cell>(
-						dist(generator), x, y, _rules, _rules.getCellProxyFactory());
+						dist(generator), x, y, _rules, _rules.cellProxyFactory());
 }
 
 const Cell & GameBoard::get(unsigned int x, unsigned int y) const
@@ -78,22 +81,20 @@ static bool isSquareAngle(point_t p0, point_t p1, point_t p2)
 
 static unsigned int computeScore(GameBoard const& board, Selection const& selection)
 {
-	auto const& points = selection.getPoints();
-
 	// Check that we are actually selecting 4 points
-	if (points.size() != 4)
+	if (!selection.isValid())
 		return 0;
 
-	auto it = points.begin();
+	auto it = selection.begin();
 	auto p0 = *(it++);
 	auto p1 = *(it++);
 	auto p2 = *(it++);
 	auto p3 = *it;
 
 	// Check that symbols are all the same
-	if (board.get(p0)._symbol != board.get(p1)._symbol
-			or board.get(p2)._symbol != board.get(p3)._symbol
-			or board.get(p0)._symbol != board.get(p2)._symbol)
+	if (board.get(p0).symbol != board.get(p1).symbol
+			or board.get(p2).symbol != board.get(p3).symbol
+			or board.get(p0).symbol != board.get(p2).symbol)
 		return 0;
 
 	// Now verify that it is a square: 4 edges with the same length and a square angle
@@ -139,7 +140,7 @@ void GameBoard::applyTransition(const Transition& transition, bool updateProxy)
 		return;
 
 	auto cellProxyFactory = updateProxy ?
-		_rules.getCellProxyFactory() :
+		_rules.cellProxyFactory() :
 		[](Cell & owner) { return std::unique_ptr<Cell::Proxy>(new Cell::Proxy(owner));};
 
 	auto oldCells = _cells;
@@ -152,7 +153,8 @@ void GameBoard::applyTransition(const Transition& transition, bool updateProxy)
 			if (cellTransition.isNew())
 			{
 				_cells[idx(tox, toy, _size)] = std::make_shared<Cell>(
-					cellTransition._symbol, tox, toy, _rules, cellProxyFactory);
+					cellTransition._symbol, cellTransition._fromx, cellTransition._fromy, _rules, cellProxyFactory);
+				_cells[idx(tox, toy, _size)]->move(tox, toy);
 			}
 			else
 			{
@@ -169,7 +171,7 @@ std::ostream& operator<<(std::ostream& out, GameBoard const& board)
 	for (unsigned int y = 0 ; y< board._size ; ++y)
 	{
 		for (unsigned int x = 0 ; x< board._size ; ++x)
-			out << board.get(x,y)._symbol << " ";
+			out << board.get(x,y).symbol << " ";
 		out << std::endl;
 	}
 	return out;
@@ -194,10 +196,10 @@ bool GameBoard::hasTransition() const
 						continue;
 
 					squarez::Selection s;
-					s.addPoint(x1, y1);
-					s.addPoint(x2, y2);
-					s.addPoint(x3, y3);
-					s.addPoint(x4, y4);
+					s.togglePoint(x1, y1);
+					s.togglePoint(x2, y2);
+					s.togglePoint(x3, y3);
+					s.togglePoint(x4, y4);
 
 					if (computeScore(*this, s) != 0)
 						return true;

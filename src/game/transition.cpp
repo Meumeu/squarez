@@ -1,6 +1,7 @@
 /*
  * Squarez puzzle game
- * Copyright (C) 2013  Patrick Nicolas <patricknicolas@laposte.net>
+ * Copyright (C) 2015  Guillaume Meunier <guillaume.meunier@centraliens.net>
+ * Copyright (C) 2013-2015  Patrick Nicolas <patricknicolas@laposte.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,9 +32,9 @@ namespace squarez
 
 Transition::Transition(const GameBoard& board, const Selection& selection, std::mt19937 & generator, uint32_t score): _score(score), _selection(selection)
 {
-	auto it1 = selection.getPoints().begin();
+	auto it1 = selection.begin();
 	auto it2 = it1; it2++;
-	auto end = selection.getPoints().end();
+	auto end = selection.end();
 
 	std::uniform_int_distribution<unsigned int> dist(0, board._symbols - 1);
 	while (it1 != end)

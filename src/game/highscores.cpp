@@ -1,5 +1,6 @@
 /*
  * Squarez puzzle game
+ * Copyright (C) 2015  Guillaume Meunier <guillaume.meunier@centraliens.net>
  * Copyright (C) 2013-2015  Patrick Nicolas <patricknicolas@laposte.net>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,6 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+
+
 
 #include "highscores.h"
 #include "utils/serializer.h"
@@ -97,12 +100,13 @@ void mkdir(const std::string & dir)
 #if defined(EMSCRIPTEN)
 	// mkdir is not required for javascript, just silence the warning
 	(void)dir;
-	return;
+#elif defined(SQUAREZ_BOT)
+	// mkdir is not required for testing, just silence the warning
+	(void)dir;
 #elif defined(SQUAREZ_QT)
 	QDir().mkpath(QString::fromStdString(dir));
 #else
-	#warning mkdir not implemented
-	return;
+#error mkdir not implemented
 #endif
 }
 

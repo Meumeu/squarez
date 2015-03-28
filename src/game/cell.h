@@ -1,6 +1,7 @@
 /*
  * Squarez puzzle game
- * Copyright (C) 2015  Patrick Niyas <patrickniyas@laposte.net>
+ * Copyright (C) 2015  Guillaume Meunier <guillaume.meunier@centraliens.net>
+ * Copyright (C) 2015  Patrick Nicolas <patricknicolas@laposte.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,33 +34,33 @@ class Cell
 		class Proxy
 		{
 			public:
-				virtual ~Proxy() = default;
-				Proxy(Cell & owner): _owner(owner) {}
-				Cell & _owner;
+				virtual ~Proxy();
+				Proxy(Cell & owner): owner(owner) {}
+				Cell & owner;
 
-				virtual void moved(unsigned int /*x*/, unsigned int /*y*/) {}
+				virtual void moved(int /*x*/, int /*y*/) {}
 				virtual void selectChanged(bool /*status*/) {}
 		};
 		typedef std::function<std::unique_ptr<Proxy>(Cell &)> proxy_factory;
 
-		Cell(unsigned int symbol, unsigned int x, unsigned int y, Rules & rules, proxy_factory factory):
-			_symbol(symbol), _x(x), _y(y), _selected(false), _rules(rules), _proxy(factory(*this)) {}
+		Cell(unsigned int symbol, int x, int y, Rules & rules, proxy_factory factory):
+			symbol(symbol), _x(x), _y(y), _selected(false), _rules(rules), _proxy(factory(*this)) {}
 
 		Cell(Cell &&) = delete;
 
-		void move(unsigned int x, unsigned int y);
+		void move(int x, int y);
 
 		void click();
 		void setSelected(bool status);
 		bool selected() const { return _selected;}
-		unsigned int x() const { return _x;}
-		unsigned int y() const { return _y;}
+		int x() const { return _x;}
+		int y() const { return _y;}
 
-		const unsigned int _symbol;
+		const unsigned int symbol;
 	private:
 
-		unsigned int _x;
-		unsigned int _y;
+		int _x;
+		int _y;
 		bool _selected;
 		Rules & _rules;
 		std::unique_ptr<Proxy> _proxy;
