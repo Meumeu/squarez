@@ -19,11 +19,9 @@
  */
 
 #include "singleplayerrules.h"
-#include "game/highscores.h"
 
 squarez::SinglePlayerRules::SinglePlayerRules(Proxy & proxy, int board_size, int nb_symbols, int long_term, int short_term, int duration) :
-	Rules(proxy, board_size, nb_symbols, std::random_device()(), Timer(std::chrono::seconds(long_term), std::chrono::seconds(short_term), std::chrono::seconds(duration))),
-	_scoreSaved(false)
+	Rules(proxy, board_size, nb_symbols, std::random_device()(), Timer(std::chrono::seconds(long_term), std::chrono::seconds(short_term), std::chrono::seconds(duration)))
 {}
 
 
@@ -36,28 +34,8 @@ bool squarez::SinglePlayerRules::gameOver()
 		return false;
 
 	setGameOver(true);
-	saveScore();
 
 	return true;
-}
-
-void squarez::SinglePlayerRules::saveScore()
-{
-    HighScores & scores = accessHighScores();
-    if (_scoreSaved or not scores.mayBeSaved(score()))
-		return;
-
-	if (_playerName.empty())
-	{
-		_proxy.nameRequired();
-		return;
-	}
-
-	if (scores.save(score(), _playerName))
-	{
-		//FIXME: notify UI
-	}
-	_scoreSaved = true;
 }
 
 void squarez::SinglePlayerRules::setPlayerName(const std::string& name)
@@ -66,8 +44,6 @@ void squarez::SinglePlayerRules::setPlayerName(const std::string& name)
 	{
 		_playerName = name;
 	}
-	if (gameOver())
-		saveScore();
 }
 
 void squarez::SinglePlayerRules::resetSelection()
@@ -100,10 +76,4 @@ void squarez::SinglePlayerRules::setPause(bool state)
 	if (state == pause())
 		return;
 	pauseTimer(state);
-}
-
-squarez::HighScores & squarez::SinglePlayerRules::accessHighScores()
-{
-	static HighScores * scores = new HighScores("singlePlayer", 10);
-	return *scores;
 }

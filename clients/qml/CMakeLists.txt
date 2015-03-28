@@ -13,7 +13,7 @@ set(qt_sources main.cpp proxy/rulesproxy.cpp proxy/cellproxy.cpp)
 
 add_executable(squarezqt ${shared_sources} ${qt_sources} ${resource_sources})
 set_target_properties(squarezqt PROPERTIES AUTOMOC ON)
-set_target_properties(squarezqt PROPERTIES COMPILE_DEFINITIONS "PACKAGE=\"squarez\";SQUAREZ_QT")
+set_target_properties(squarezqt PROPERTIES COMPILE_DEFINITIONS "SQUAREZ_QT")
 target_link_libraries(squarezqt Qt5::Core Qt5::Qml Qt5::Quick Qt5::Widgets Qt5::Svg)
 
 add_dependencies(squarezqt shapes)

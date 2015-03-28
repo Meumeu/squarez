@@ -1,6 +1,5 @@
 /*
- * Squarez puzzle game
- * Copyright (C) 2013-2015  Guillaume Meunier <guillaume.meunier@centraliens.net>
+ * Squarez puzzle game server binary
  * Copyright (C) 2013-2015  Patrick Nicolas <patricknicolas@laposte.net>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -18,29 +17,22 @@
  *
  */
 
-#ifndef SQUAREZ_SINGLEPLAYERRULES_H
-#define SQUAREZ_SINGLEPLAYERRULES_H
+#ifndef SQUAREZ_REQUESTHANDLER_H
+#define SQUAREZ_REQUESTHANDLER_H
 
-#include "rules.h"
-#include "game/selection.h"
+// FastCGI
+#include <fastcgi++/request.hpp>
 
-namespace squarez {
-
-class SinglePlayerRules : public squarez::Rules
+namespace squarez
 {
-private:
-	Selection _selection;
-	
+
+class RequestHandler: public Fastcgipp::Request<char>
+{
 public:
-	SinglePlayerRules(Proxy & proxy, int board_size = 8, int nb_symbols = 3, int long_term = 10, int short_term = 60, int duration = 180);
-	
-	virtual void onClick(Cell & cell) override;
-	virtual void resetSelection() override;
-	virtual void setPlayerName(std::string const& name) override;
-	bool gameOver();
-	
-	void setPause(bool state);
+	// Process the request
+	bool response();
 };
+
 }
 
-#endif // SQUAREZ_SINGLEPLAYERRULES_H
+#endif // SQUAREZ_REQUESTHANDLER_H

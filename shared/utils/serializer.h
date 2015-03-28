@@ -1,7 +1,7 @@
 /*
  * Squarez puzzle game
  * Copyright (C) 2013  Guillaume Meunier <guillaume.meunier@centraliens.net>
- * Copyright (C) 2013  Patrick Nicolas <patricknicolas@laposte.net>
+ * Copyright (C) 2013-2015  Patrick Nicolas <patricknicolas@laposte.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
