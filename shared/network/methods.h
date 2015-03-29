@@ -62,6 +62,13 @@ struct PushSelection
 		bool gameOver);
 	const bool _gameOver;
 };
+
+struct Pause
+{
+	static std::string const & method();
+	static std::string encodeRequest(unsigned int token, bool pause, std::chrono::milliseconds msSinceEpoch);
+};
+
 }
 }
 

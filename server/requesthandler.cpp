@@ -149,6 +149,14 @@ bool squarez::RequestHandler::response()
 		Serializer ser(out);
 		onlineSinglePlayer::PushSelection::serialize(ser, gameOver);
 	}
+	else if (method == "/" + onlineSinglePlayer::Pause::method())
+	{
+		auto token = getToken(environment());
+		auto game = games.getGame(token);
+		bool pause = boost::lexical_cast<bool>(environment().findGet("pause"));
+		std::chrono::milliseconds msSinceEpoch{boost::lexical_cast<int>(environment().findGet("msSinceEpoch"))};
+		game->setPause(pause, msSinceEpoch);
+	}
 	else
 	{
 		// Unkown method, return something ?

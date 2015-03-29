@@ -50,3 +50,9 @@ bool squarez::ServerRules::playSelection(const squarez::Selection& selection, st
 
 	return false;
 }
+
+void squarez::ServerRules::setPause(bool state, std::chrono::milliseconds msSinceEpoch)
+{
+	std::chrono::steady_clock::time_point when = _epoch + msSinceEpoch;
+	_timer.setPause(state, when);
+}

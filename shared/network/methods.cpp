@@ -29,6 +29,7 @@ static const std::string request_path = "squarez/";
 
 static const std::string sp_gameinit_method = "0";
 static const std::string sp_pushselection_method = "1";
+static const std::string sp_pause_method = "2";
 
 const std::string& squarez::onlineSinglePlayer::GameInit::method()
 {
@@ -81,4 +82,19 @@ _gameOver(serialized.read<decltype(_gameOver)>())
 void squarez::onlineSinglePlayer::PushSelection::serialize(squarez::Serializer& serialized, bool gameOver)
 {
 	serialized << gameOver;
+}
+
+const std::string& squarez::onlineSinglePlayer::Pause::method()
+{
+	return sp_pause_method;
+}
+
+std::string squarez::onlineSinglePlayer::Pause::encodeRequest(unsigned int token, bool pause, std::chrono::milliseconds msSinceEpoch)
+{
+	std::stringstream stream;
+	stream << request_path << method()
+	<< "?token=" << token
+	<< "&pause=" << (pause ? "1" : "0")
+	<< "&msSinceEpoch=" << msSinceEpoch.count();
+	return stream.str();
 }

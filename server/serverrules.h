@@ -51,6 +51,8 @@ public:
 		Timer && timer);
 	bool playSelection(const Selection & selection, std::chrono::milliseconds msSinceEpoch);
 
+	void setPause(bool state, std::chrono::milliseconds msSinceEpoch);
+
 	// not applicable on server
 	virtual void setPlayerName(std::string const&) {};
 	virtual void onClick(Cell &) {};
