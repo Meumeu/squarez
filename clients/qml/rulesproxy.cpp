@@ -20,6 +20,9 @@
 #include "rulesproxy.h"
 #include "cellproxy.h"
 #include "rules/singleplayerrules.h"
+#include "rules/onlinesingleplayerrules.h"
+#include "network/methods.h"
+#include "utils/serializer.h"
 #include <assert.h>
 
 namespace squarez {
@@ -85,16 +88,43 @@ void RulesProxy::removeCell(CellProxy* cell)
 	endRemoveRows();
 }
 
-void RulesProxy::setType(QString type)
+void RulesProxy::tryStartGame()
 {
-	if (type == "singlePlayer")
+	if (_rules)
+		return;
+
+	if (_type == "singlePlayer")
 	{
 		_rules = std::unique_ptr<Rules>(new SinglePlayerRules(*this));
 		if (not _playerName.isEmpty())
 			_rules->setPlayerName(_playerName.toStdString());
+	}
+	else if (_type == "onlineSinglePlayer" and !_url.isEmpty() and !_playerName.isEmpty())
+	{
+		_gameInitHandle = squarez::http::request(_url.toStdString() + onlineSinglePlayer::GameInit::encodeRequest(_playerName.toStdString(), 8, 3),
+			[this](std::string response) // onload
+			{
+				DeSerializer s(response);
+				onlineSinglePlayer::GameInit game(s);
+				_rules = std::unique_ptr<Rules>(new OnlineSinglePlayerRules(*this, 8, 3, game._seed, _url.toStdString(), _playerName.toStdString(), game._token));
+			},
+			[]() // onerror FIXME
+			{
+			}
+		);
+	}
+}
+
+
+void RulesProxy::setType(QString type)
+{
+	if (type == "singlePlayer" or type == "onlineSinglePlayer")
+	{
 		_type = type;
 		emit onTypeChanged(_type);
 	}
+
+	tryStartGame();
 }
 
 void RulesProxy::setPlayerName(QString playerName)
@@ -103,7 +133,24 @@ void RulesProxy::setPlayerName(QString playerName)
 	if (_rules)
 		_rules->setPlayerName(playerName.toStdString());
 	emit onPlayerNameChanged(playerName);
+
+	tryStartGame();
 }
+
+void RulesProxy::setUrl(QString url)
+{
+	if (_rules)
+		return;
+
+	if (not url.endsWith('/'))
+		url += '/';
+
+	_url = url;
+	emit onUrlChanged(url);
+
+	tryStartGame();
+}
+
 
 QVariant RulesProxy::data(const QModelIndex& index, int /*role*/) const
 {

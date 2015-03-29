@@ -31,7 +31,10 @@ ApplicationWindow {
 
 	Rules {
 		id: rules
-		type: "singlePlayer"
+// 		type: "singlePlayer"
+		type: "onlineSinglePlayer"
+		url: "http://heracles/"
+		playerName: "test"
 	}
 	
 	GameArea {

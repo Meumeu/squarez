@@ -1,6 +1,6 @@
 {
-	"version": "@VERSION@",
-	"name": "@PACKAGE_NAME@",
+	"version": "@PROJECT_VERSION@",
+	"name": "@PROJECT_NAME@",
 	"description": "Squarez puzzle game",
 	"launch_path": "/index.html",
 	"developer": {

@@ -58,14 +58,6 @@ public:
 	T read() { typename std::remove_const<T>::type res; *this >> res; return res;}
 };
 
-class StringDeSerializer : public DeSerializer
-{
-public:
-	StringDeSerializer(std::string const& str): DeSerializer(_strstream), _strstream(str) {}
-private:
-	std::stringstream _strstream;
-};
-
 Serializer& operator<<(Serializer& ser, std::string const&);
 Serializer& operator<<(Serializer& ser, char const *);
 DeSerializer& operator>>(DeSerializer& ser, std::string&);

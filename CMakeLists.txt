@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 2.6)
-project(squarez)
+cmake_minimum_required(VERSION 3.0)
+project(squarez VERSION 2.99.0)
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL Emscripten)
 set(BUILD_TEST OFF CACHE BOOL "Build the test bot" FORCE)
@@ -19,8 +19,8 @@ else()
 set(ENABLE_SYSTEMD OFF CACHE BOOL "Enable systemd socket activation" FORCE)
 endif()
 
-add_definitions(-std=c++11 -g -Wall -Wextra -Werror -DPACKAGE="squarez")
-include_directories(${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/shared)
+add_definitions(-std=c++11 -g -Wall -Wextra -Werror -DPACKAGE="squarez" -DPACKAGE_VERSION="${PROJECT_VERSION}")
+include_directories(${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/shared ${CMAKE_CURRENT_SOURCE_DIR}/clients)
 
 set(shared_sources
 	${CMAKE_CURRENT_SOURCE_DIR}/shared/game/score.cpp
@@ -33,8 +33,12 @@ set(shared_sources
 	${CMAKE_CURRENT_SOURCE_DIR}/shared/rules/timer.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/shared/rules/rules.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/shared/rules/singleplayerrules.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/shared/rules/onlinesingleplayerrules.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/shared/utils/serializer.cpp)
 
+set(client_sources
+	${CMAKE_CURRENT_SOURCE_DIR}/clients/httprequest.cpp
+)
 
 if(BUILD_QML_CLIENT OR BUILD_WEB_CLIENT)
 add_subdirectory(data)

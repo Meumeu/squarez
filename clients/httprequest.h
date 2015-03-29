@@ -17,19 +17,26 @@
  *
  */
 
-#include <qqml.h>
-#include <QApplication>
-#include <QQmlApplicationEngine>
+#ifndef SQUAREZ_HTTPREQUEST_H
+#define SQUAREZ_HTTPREQUEST_H
 
-#include "rulesproxy.h"
-#include "cellproxy.h"
+#include <functional>
+#include <memory>
+#include <string>
 
-int main(int argc, char ** argv)
+namespace squarez {
+namespace http {
+
+class Handle
 {
-	qmlRegisterType<squarez::qt::RulesProxy>("harbour.squarez", 1,0, "Rules");
-	qmlRegisterUncreatableType<squarez::qt::CellProxy>("harbour.squarez", 1,0, "Cell", "");
-	
-	QApplication app(argc, argv);
-	QQmlApplicationEngine engine(QUrl("qrc:/qml/main.qml"));
-	return app.exec();
+public:
+	virtual ~Handle();
+};
+
+std::unique_ptr<Handle> request(const std::string& url, std::function<void(std::string const&)> onload, std::function<void()> onerror);
+std::string request(const std::string& url);
+
 }
+}
+
+#endif // SQUAREZ_HTTPREQUEST_H

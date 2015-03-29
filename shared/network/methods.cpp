@@ -67,7 +67,7 @@ std::string squarez::onlineSinglePlayer::PushSelection::encodeRequest(const squa
 	std::stringstream stream;
 	stream << request_path << method()
 	<< "?token=" << token
-	<< "?selection="
+	<< "&selection="
 	<< urlTools::urlencode(sel.get())
 	<< "&msSinceEpoch=" << msSinceEpoch.count();
 	return stream.str();

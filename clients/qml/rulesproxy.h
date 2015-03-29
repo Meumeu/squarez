@@ -25,6 +25,7 @@
 #include <memory>
 
 #include "rules/rules.h"
+#include "httprequest.h"
 
 namespace squarez {
 namespace qt {
@@ -41,7 +42,11 @@ class RulesProxy : public QAbstractListModel, public Rules::Proxy
 	
 	QString _type;
 	QString _playerName;
+	QString _url;
+
+	std::unique_ptr<squarez::http::Handle> _gameInitHandle;
 	
+	void tryStartGame();
 
 public:
 	explicit RulesProxy(QObject *parent = 0);
@@ -50,7 +55,8 @@ public:
 	Q_PROPERTY(bool gameOver READ gameOver NOTIFY onGameOverChanged)
 	Q_PROPERTY(QString type READ type WRITE setType NOTIFY onTypeChanged)
 	Q_PROPERTY(QString playerName READ playerName WRITE setPlayerName NOTIFY onPlayerNameChanged)
-	Q_PROPERTY(int boardSize READ boardSize NOTIFY onBoardSizeChanged)
+	Q_PROPERTY(int boardSize READ boardSize CONSTANT)
+	Q_PROPERTY(QString url READ url WRITE setUrl NOTIFY onUrlChanged)
 	
 	virtual ~RulesProxy();
 	virtual void scoreChanged(unsigned int score);
@@ -66,9 +72,11 @@ public:
 	QString type() const { return _type; }
 	QString playerName() const { return _playerName; }
 	int boardSize() const { return 8; } // FIXME
+	QString url() const { return _url; }
 
 	void setType(QString type);
 	void setPlayerName(QString playerName);
+	void setUrl(QString url);
 
 	// QAbstractListModel implementation
 	int rowCount(const QModelIndex &) const override;
@@ -85,12 +93,13 @@ signals:
 	void onTimerUpdated();
 	void onNameRequired();
 	void onBoardSizeChanged(int boardSize);
+	void onUrlChanged(QString url);
 
 public slots:
 	void resetSelection();
 };
 
-} // namespace qt
-} // namespace squarez
+}
+}
 
 #endif // SQUAREZ_QT_RULESPROXY_H
