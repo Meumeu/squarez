@@ -20,9 +20,6 @@
 #include <memory>
 #include <thread>
 
-#define SIZE 8
-#define SYMBOLS 3
-
 // Systemd socket activation
 #ifndef DISABLE_SYSTEMD
 #include <systemd/sd-daemon.h>

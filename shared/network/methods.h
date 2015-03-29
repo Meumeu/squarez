@@ -38,7 +38,7 @@ namespace onlineSinglePlayer
 struct GameInit
 {
 	static std::string const& method();
-	static std::string encodeRequest(std::string const& playerName, unsigned int size = 8, unsigned int symbols = 3);
+	static std::string encodeRequest(std::string const& playerName, unsigned int size, unsigned int symbols);
 
 	GameInit(DeSerializer & serialized);
 

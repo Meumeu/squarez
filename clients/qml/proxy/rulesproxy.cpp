@@ -19,6 +19,7 @@
 
 #include "rulesproxy.h"
 #include "cellproxy.h"
+#include "game/constants.h"
 #include "rules/singleplayerrules.h"
 #include <assert.h>
 
@@ -89,7 +90,7 @@ void RulesProxy::setType(QString type)
 {
 	if (type == "singlePlayer")
 	{
-		_rules = std::unique_ptr<Rules>(new SinglePlayerRules(*this));
+		_rules = std::unique_ptr<Rules>(new SinglePlayerRules(*this, constants::default_timer()));
 		if (not _playerName.isEmpty())
 			_rules->setPlayerName(_playerName.toStdString());
 		_type = type;

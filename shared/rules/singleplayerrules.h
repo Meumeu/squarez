@@ -23,6 +23,7 @@
 
 #include "rules.h"
 #include "game/selection.h"
+#include "game/constants.h"
 
 namespace squarez {
 
@@ -32,7 +33,10 @@ private:
 	Selection _selection;
 	
 public:
-	SinglePlayerRules(Proxy & proxy, int board_size = 8, int nb_symbols = 3, int long_term = 10, int short_term = 60, int duration = 180);
+	SinglePlayerRules(Proxy & proxy,
+		Timer && timer,
+		int board_size = constants::default_board_size,
+		int nb_symbols = constants::default_symbols);
 	
 	virtual void onClick(Cell & cell) override;
 	virtual void resetSelection() override;

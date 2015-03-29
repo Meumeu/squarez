@@ -25,6 +25,7 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/shar
 set(shared_sources
 	${CMAKE_CURRENT_SOURCE_DIR}/shared/game/score.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/shared/game/cell.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/shared/game/constants.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/shared/game/gameboard.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/shared/game/selection.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/shared/game/transition.cpp

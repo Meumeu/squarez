@@ -19,6 +19,7 @@
 
 #include "requesthandler.h"
 #include "serverrules.h"
+#include "game/constants.h"
 #include "network/methods.h"
 #include "utils/serializer.h"
 
@@ -84,7 +85,8 @@ bool squarez::RequestHandler::response()
 		unsigned int symbols = boost::lexical_cast<unsigned int>(environment().findGet("symbols"));
 		unsigned int token = ++last_token;
 		auto seed = getSeed();
-		games[token] = std::unique_ptr<ServerRules>(new ServerRules(name, seed, size, symbols));
+		games[token] = std::unique_ptr<ServerRules>(
+			new ServerRules(name, seed, size, symbols, constants::default_timer()));
 		Serializer ser(out);
 		onlineSinglePlayer::GameInit::serialize(ser, token, seed);
 		return true;
