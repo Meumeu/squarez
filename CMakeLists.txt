@@ -29,6 +29,7 @@ set(shared_sources
 	${CMAKE_CURRENT_SOURCE_DIR}/shared/game/selection.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/shared/game/transition.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/shared/network/methods.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/shared/network/urltools.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/shared/rules/timer.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/shared/rules/rules.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/shared/rules/singleplayerrules.cpp

@@ -11,7 +11,7 @@ else()
 endif()
 
 include_directories(SYSTEM ${Boost_INCLUDE_DIRS} ${fastcgipp_INCLUDE_DIRS})
-add_executable(squarezd server.cpp requesthandler.cpp ${shared_sources})
+add_executable(squarezd server.cpp requesthandler.cpp serverrules.cpp ${shared_sources})
 target_link_libraries(squarezd ${Boost_LIBRARIES} ${fastcgipp_LIBRARIES})
 
 if (ENABLE_SYSTEMD)

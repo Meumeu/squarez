@@ -45,13 +45,15 @@ public:
 	Timer(std::chrono::seconds duration, float percentLeft = 1);
 	
 	void refill(unsigned int percentage);
+	void refill(unsigned int percentage, std::chrono::steady_clock::time_point when);
 	
-	// Get the percentage of time left in offset s
-	float percentageLeft(float offset = 0) const;
-	uint16_t secondsLeft() const;
-	unsigned int msLeft() const;
+	float percentageLeft() const;
+	float percentageLeft(std::chrono::steady_clock::time_point when) const;
+	int msLeft() const;
+	int msLeft(std::chrono::steady_clock::time_point when) const;
 	
 	void setPause(bool state);
+	void setPause(bool state, std::chrono::steady_clock::time_point when);
 	bool paused() const { return _paused; }
 private:
 	std::chrono::seconds _longTerm;

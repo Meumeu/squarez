@@ -32,41 +32,24 @@ _longTerm(duration), _halfLife(0), _bonusDuration(0), _begin(std::chrono::steady
 _end(_begin + std::chrono::duration_cast<std::chrono::steady_clock::duration>(std::chrono::duration<float>(duration) * percentLeft)), _paused(false)
 {}
 
-float Timer::percentageLeft(float offset) const
+float Timer::percentageLeft() const { return percentageLeft(std::chrono::steady_clock::now()); }
+float Timer::percentageLeft(std::chrono::steady_clock::time_point when) const
 {
-	std::chrono::duration<float> offset_chrono(offset);
-	float res =  (std::chrono::duration<float>(_end - std::chrono::steady_clock::now()) - offset_chrono) / std::chrono::duration<float>(_longTerm + _bonusDuration);
-	if (_paused)
-		res = std::chrono::duration<float>(_end - _pauseTime) / std::chrono::duration<float>(_longTerm + _bonusDuration);
+	float res =  std::chrono::duration<float>(_end - (_paused ? _pauseTime : when)) / std::chrono::duration<float>(_longTerm + _bonusDuration);
 	if (res > 0)
 		return res;
 	return 0;
 }
 
-uint16_t Timer::secondsLeft() const
+int Timer::msLeft() const { return msLeft(std::chrono::steady_clock::now()); }
+int Timer::msLeft(std::chrono::steady_clock::time_point when) const
 {
-	auto res = (std::chrono::duration_cast<std::chrono::seconds>(_end - std::chrono::steady_clock::now())).count();
-	if (_paused)
-		res = (std::chrono::duration_cast<std::chrono::seconds>(_end - _pauseTime)).count();
-	if (res > 0)
-		return res;
-	return 0;
+	return (std::chrono::duration_cast<std::chrono::milliseconds>(_end - (_paused ? _pauseTime : when))).count();
 }
 
-unsigned int Timer::msLeft() const
+void Timer::refill(unsigned int percentage) { refill(percentage, std::chrono::steady_clock::now()); }
+void Timer::refill(unsigned int percentage, std::chrono::steady_clock::time_point newBegin)
 {
-	auto res = (std::chrono::duration_cast<std::chrono::milliseconds>(_end - std::chrono::steady_clock::now())).count();
-	if (_paused)
-		res = (std::chrono::duration_cast<std::chrono::milliseconds>(_end - _pauseTime)).count();
-	if (res > 0)
-		return res;
-	return 0;
-}
-
-
-void Timer::refill(unsigned int percentage)
-{
-	auto newBegin(std::chrono::steady_clock::now());
 	//Calculate decay of remaining time
 	if (_bonusDuration.count())
 	{
@@ -84,7 +67,8 @@ void Timer::refill(unsigned int percentage)
 		_end = _begin + _longTerm + _bonusDuration;
 }
 
-void Timer::setPause(bool state)
+void Timer::setPause(bool state) { setPause(state, std::chrono::steady_clock::now()); }
+void Timer::setPause(bool state, std::chrono::steady_clock::time_point when)
 {
     if (state == _paused)
         return;
@@ -93,11 +77,11 @@ void Timer::setPause(bool state)
 
     if (_paused)
     {
-        _pauseTime = std::chrono::steady_clock::now();
+        _pauseTime = when;
     }
     else
     {
-        auto elapsed = std::chrono::steady_clock::now() - _pauseTime;
+        auto elapsed = when - _pauseTime;
         _begin += elapsed;
         _end += elapsed;
     }

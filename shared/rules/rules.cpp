@@ -63,9 +63,9 @@ void squarez::Rules::applyTransition(const Transition &transition)
 	_board->applyTransition(transition);
 }
 
-float squarez::Rules::percentageLeft(float offset)
+float squarez::Rules::percentageLeft()
 {
-	return _timer.percentageLeft(offset);
+	return _timer.percentageLeft();
 }
 
 void squarez::Rules::pauseTimer(bool pause)
@@ -82,12 +82,6 @@ void squarez::Rules::refillTimer(unsigned int percentage)
 	if (percentage == 0)
 		return;
 	_timer.refill(percentage);
-	_proxy.timerUpdated();
-}
-
-void squarez::Rules::setTimer(squarez::Timer&& timer)
-{
-	_timer = timer;
 	_proxy.timerUpdated();
 }
 
