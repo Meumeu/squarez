@@ -21,6 +21,7 @@
 #define private public
 #define protected public
 
+#include "game/constants.h"
 #include "rules/singleplayerrules.h"
 #include <iostream>
 
@@ -78,7 +79,7 @@ namespace
 int main()
 {
 	DummyProxy proxy;
-	squarez::SinglePlayerRules rules(proxy);
+	squarez::SinglePlayerRules rules(proxy, squarez::constants::default_timer());
 	int score = 0;
 	int nbIter = 0;
 	auto & board = *rules._board;

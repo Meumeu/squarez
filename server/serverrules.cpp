@@ -24,8 +24,8 @@ std::unique_ptr< squarez::Cell::Proxy > squarez::DummyProxy::cellProxyFactory(sq
 	return std::unique_ptr<squarez::Cell::Proxy>(new squarez::Cell::Proxy(cell));
 }
 
-squarez::ServerRules::ServerRules(std::string playerName, std::mt19937::result_type seed, int board_size, int nb_symbols, int long_term, int short_term, int duration):
-	Rules(*this, board_size, nb_symbols, seed, Timer(std::chrono::seconds(long_term), std::chrono::seconds(short_term), std::chrono::seconds(duration))),
+squarez::ServerRules::ServerRules(std::string playerName, std::mt19937::result_type seed, int board_size, int nb_symbols, Timer && timer):
+	Rules(*this, board_size, nb_symbols, seed, std::move(timer)),
 	_epoch(std::chrono::steady_clock::now())
 {
 	_playerName = std::move(playerName);

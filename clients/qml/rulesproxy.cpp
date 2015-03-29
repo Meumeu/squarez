@@ -19,6 +19,7 @@
 
 #include "rulesproxy.h"
 #include "cellproxy.h"
+#include "game/constants.h"
 #include "rules/singleplayerrules.h"
 #include "rules/onlinesingleplayerrules.h"
 #include "network/methods.h"
@@ -95,7 +96,7 @@ void RulesProxy::tryStartGame()
 
 	if (_type == "singlePlayer")
 	{
-		_rules = std::unique_ptr<Rules>(new SinglePlayerRules(*this));
+		_rules = std::unique_ptr<Rules>(new SinglePlayerRules(*this, constants::default_timer()));
 		if (not _playerName.isEmpty())
 			_rules->setPlayerName(_playerName.toStdString());
 	}

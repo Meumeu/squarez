@@ -20,8 +20,8 @@
 
 #include "singleplayerrules.h"
 
-squarez::SinglePlayerRules::SinglePlayerRules(Proxy & proxy, int board_size, int nb_symbols, int long_term, int short_term, int duration) :
-	Rules(proxy, board_size, nb_symbols, std::random_device()(), Timer(std::chrono::seconds(long_term), std::chrono::seconds(short_term), std::chrono::seconds(duration)))
+squarez::SinglePlayerRules::SinglePlayerRules(Proxy & proxy, Timer && timer, int board_size, int nb_symbols) :
+	Rules(proxy, board_size, nb_symbols, std::random_device()(), std::move(timer))
 {}
 
 

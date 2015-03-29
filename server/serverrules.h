@@ -44,7 +44,11 @@ class ServerRules : public DummyProxy, public squarez::Rules
 {
 
 public:
-	ServerRules(std::string playerName, std::mt19937::result_type seed, int board_size = 8, int nb_symbols = 3, int long_term = 10, int short_term = 60, int duration = 180);
+	ServerRules(std::string playerName,
+		std::mt19937::result_type seed,
+		int board_size,
+		int nb_symbols,
+		Timer && timer);
 	bool playSelection(const Selection & selection, std::chrono::milliseconds msSinceEpoch);
 
 	// not applicable on server
