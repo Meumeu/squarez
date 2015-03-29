@@ -50,7 +50,7 @@ void RulesProxy::gameOverChanged(bool status)
 
 void RulesProxy::timerUpdated()
 {
-	emit onTimerUpdated();
+	emit onPausedChanged(paused());
 }
 
 void RulesProxy::nameRequired()
@@ -68,7 +68,6 @@ void RulesProxy::resetSelection()
 	if (_rules)
 		_rules->resetSelection();
 }
-
 
 std::unique_ptr<Cell::Proxy> RulesProxy::cellProxyFactory(Cell & cell)
 {
@@ -119,6 +118,9 @@ void RulesProxy::tryStartGame()
 
 void RulesProxy::setType(QString type)
 {
+	if (_rules)
+		return;
+	
 	if (type == "singlePlayer" or type == "onlineSinglePlayer")
 	{
 		_type = type;
@@ -150,6 +152,21 @@ void RulesProxy::setUrl(QString url)
 	emit onUrlChanged(url);
 
 	tryStartGame();
+}
+
+void RulesProxy::setPaused(bool paused)
+{
+	if (!_rules)
+		return;
+	
+	if (_type == "singlePlayer")
+	{
+		((SinglePlayerRules*)_rules.get())->setPause(paused);
+	}
+	else if(_type == "onlineSinglePlayer")
+	{
+		((OnlineSinglePlayerRules*)_rules.get())->setPause(paused);
+	}
 }
 
 

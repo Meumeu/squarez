@@ -25,7 +25,8 @@ import QtQuick.Controls 1.3
 import harbour.squarez 1.0
 
 ApplicationWindow {
-	width: 400; height: 400
+	id: root
+	width: 600; height: 400
 	visible: true
 	title: qsTr("Squarez")
 
@@ -37,8 +38,67 @@ ApplicationWindow {
 		playerName: "test"
 	}
 	
-	GameArea {
+	Rectangle {
 		anchors.fill: parent
+		color: "#000000"
+	}
+	GameArea {
+		id: area
+		anchors.left: parent.left
+		anchors.top: parent.top
+		anchors.bottom: parent.bottom
+		width: height
 		rules: rules
+	}
+	
+	property var msLeft
+	
+	Timer {
+		interval: 16
+		repeat: true
+		running: !rules.paused && !rules.gameOver
+		onTriggered: {
+			root.msLeft = rules.msLeft
+		}
+	}
+	
+	Column {
+		anchors.left: area.right
+		anchors.top: parent.top
+		anchors.bottom: parent.bottom
+		anchors.right: parent.right
+		
+		Text {
+			color: "#ffffff"
+			text: "Score: " + rules.score
+		}
+		
+		Text {
+			color: "#ffffff"
+			text: "Player name: " + rules.playerName
+		}
+		
+		Text {
+			color: "#ffffff"
+			text: "Time remaining: " + (root.msLeft / 1000) + " s"
+		}
+	}
+	
+	Rectangle {
+		anchors.fill: parent
+		color: rules.gameOver ? "#80000000" : rules.paused ? "#ff000000" : "#00000000"
+		Text {
+			anchors.centerIn: parent
+			color: "#ffffff"
+			font.pointSize: 36
+			text: rules.gameOver ? "Game over" : rules.paused ? "Paused" : ""
+			visible: rules.paused || rules.gameOver
+		}
+		
+		focus: true
+		Keys.onPressed: {
+			if (event.key == Qt.Key_Pause)
+				rules.paused = !rules.paused;
+		}
 	}
 }

@@ -57,6 +57,9 @@ public:
 	Q_PROPERTY(QString playerName READ playerName WRITE setPlayerName NOTIFY onPlayerNameChanged)
 	Q_PROPERTY(int boardSize READ boardSize CONSTANT)
 	Q_PROPERTY(QString url READ url WRITE setUrl NOTIFY onUrlChanged)
+	Q_PROPERTY(float percentageLeft READ percentageLeft)
+	Q_PROPERTY(float msLeft READ msLeft)
+	Q_PROPERTY(bool paused READ paused WRITE setPaused NOTIFY onPausedChanged)
 	
 	virtual ~RulesProxy();
 	virtual void scoreChanged(unsigned int score);
@@ -73,10 +76,14 @@ public:
 	QString playerName() const { return _playerName; }
 	int boardSize() const { return 8; } // FIXME
 	QString url() const { return _url; }
+	float percentageLeft() const { return _rules ? std::max(_rules->percentageLeft(), 0.0f) : 0; }
+	float msLeft() const { return _rules ? std::max(_rules->msLeft(), 0) : 0; }
+	bool paused() const { return _rules ? _rules->pause() : false; }
 
 	void setType(QString type);
 	void setPlayerName(QString playerName);
 	void setUrl(QString url);
+	void setPaused(bool paused);
 
 	// QAbstractListModel implementation
 	int rowCount(const QModelIndex &) const override;
@@ -86,14 +93,15 @@ public:
 	void removeCell(CellProxy * cell);
 
 signals:
+	void onNameRequired();
+	
 	void onScoreChanged(unsigned int score);
 	void onGameOverChanged(bool gameOver);
 	void onTypeChanged(QString type);
 	void onPlayerNameChanged(QString playerName);
-	void onTimerUpdated();
-	void onNameRequired();
 	void onBoardSizeChanged(int boardSize);
 	void onUrlChanged(QString url);
+	void onPausedChanged(bool paused);
 
 public slots:
 	void resetSelection();

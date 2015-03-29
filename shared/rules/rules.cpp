@@ -65,7 +65,15 @@ void squarez::Rules::applyTransition(const Transition &transition)
 
 float squarez::Rules::percentageLeft()
 {
+	gameOver();
 	return _timer.percentageLeft();
+}
+
+
+int squarez::Rules::msLeft()
+{
+	gameOver();
+	return _timer.msLeft();
 }
 
 void squarez::Rules::pauseTimer(bool pause)

@@ -49,7 +49,7 @@ bool squarez::OnlineSinglePlayerRules::gameOver()
 	if (squarez::Rules::gameOver())
 		return true;
 
-	if (this->percentageLeft() > 0)
+	if (_timer.msLeft() > 0)
 		return false;
 
 	setGameOver(true);
@@ -92,6 +92,23 @@ void squarez::OnlineSinglePlayerRules::resetSelection()
 		_board->access(i).setSelected(false);
 
 	_selection = Selection();
+}
+
+void squarez::OnlineSinglePlayerRules::setPause(bool state)
+{
+	if (state == pause())
+		return;
+	pauseTimer(state);
+	
+	_requestHandle = http::request(_url + onlineSinglePlayer::Pause::encodeRequest(_token, pause(), std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - _epoch)),
+			[](std::string /*response*/) // onload
+			{
+			},
+			[]() // onerror
+			{
+				// FIXME
+			}
+		);
 }
 
 void squarez::OnlineSinglePlayerRules::setPlayerName(const std::string& /*name*/)

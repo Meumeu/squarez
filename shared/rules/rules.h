@@ -75,7 +75,7 @@ protected:
 public:
 	bool pause() const { return _timer.paused(); }
 	float percentageLeft();
-	int msLeft() { return _timer.msLeft(); }
+	int msLeft();
 	virtual bool gameOver() { return _gameOver; }
 	unsigned int score() const { return _score; }
 

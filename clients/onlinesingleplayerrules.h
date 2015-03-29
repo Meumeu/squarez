@@ -41,6 +41,8 @@ public:
 	void onClick(Cell & cell) override;
 	void resetSelection() override;
 	bool gameOver() override;
+	
+	void setPause(bool state);
 };
 }
 

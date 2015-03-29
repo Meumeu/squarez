@@ -30,7 +30,7 @@ bool squarez::SinglePlayerRules::gameOver()
 	if (squarez::Rules::gameOver())
 		return true;
 
-	if (this->percentageLeft() > 0)
+	if (_timer.msLeft() > 0)
 		return false;
 
 	setGameOver(true);
