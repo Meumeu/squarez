@@ -23,43 +23,81 @@
 #include "network/methods.h"
 #include "utils/serializer.h"
 
+#include <condition_variable>
 #include <memory>
+#include <mutex>
 #include <random>
+#include <thread>
 #include <unordered_map>
 
-#ifndef MAX_CONCURRENT_GAMES
-#define MAX_CONCURRENT_GAMES 1024
-#endif
-
-typedef std::unordered_map<unsigned int, std::unique_ptr<squarez::ServerRules>> games_t;
-
-static unsigned int last_token = 0;
-static games_t games;
 
 namespace
 {
-	unsigned int getToken(Fastcgipp::Http::Environment<char> const& env)
+	class Games
 	{
-		return boost::lexical_cast<unsigned int>(env.findGet("token"));
-	}
-	squarez::ServerRules & getGame(unsigned int token)
-	{
-		// Cleanup finished games
-		if (games.size() > MAX_CONCURRENT_GAMES)
+		std::mutex _mutex;
+		unsigned int _last_token;
+		std::unordered_map<unsigned int, std::shared_ptr<squarez::ServerRules>> _games;
+		bool _alive;
+		std::condition_variable _gcWait;
+		std::thread _gc;
+
+	public:
+		Games(): _last_token(0), _alive(true), _gc([this](){return gcThread();}) {}
+		~Games()
+		{
+			std::unique_lock<std::mutex> lock(_mutex);
+			_alive = false;
+			lock.unlock();
+			_gcWait.notify_all();
+
+			_gc.join();
+		}
+
+		void eraseGame(unsigned int token)
+		{
+			std::unique_lock<std::mutex> lock(_mutex);
+			_games.erase(token);
+		}
+
+		std::shared_ptr<squarez::ServerRules> getGame(unsigned int token)
+		{
+			std::unique_lock<std::mutex> lock(_mutex);
+			return _games.at(token);
+		}
+
+		unsigned int storeGame(std::shared_ptr<squarez::ServerRules> game)
+		{
+			std::unique_lock<std::mutex> lock(_mutex);
+			_games[++_last_token] = game;
+			return _last_token;
+		}
+	private:
+		void gcThread()
+		{
+			std::unique_lock<std::mutex> lock(_mutex);
+			while(_alive)
+			{
+				garbageCollect();
+				_gcWait.wait_for(lock, std::chrono::minutes(1));
+			}
+		}
+		void garbageCollect()
 		{
 			std::vector<unsigned int> endedGames;
-			for (const auto & game : games)
+			for (const auto & game : _games)
 			{
 				if (game.second->msLeft() < -60000)
 					endedGames.push_back(game.first);
 			}
 			for (auto i : endedGames)
-				games.erase(i);
+				_games.erase(i);
 		}
-		auto game = games.find(token);
-		if (game == games.end())
-			throw std::runtime_error("No game for token");
-		return *game->second;
+	};
+
+	unsigned int getToken(Fastcgipp::Http::Environment<char> const& env)
+	{
+		return boost::lexical_cast<unsigned int>(env.findGet("token"));
 	}
 
 	std::mt19937::result_type getSeed()
@@ -69,6 +107,8 @@ namespace
 		return distribution(generator);
 	}
 }
+
+static Games games;
 
 bool squarez::RequestHandler::response()
 {
@@ -83,35 +123,36 @@ bool squarez::RequestHandler::response()
 		std::string const& name = environment().findGet("name");
 		unsigned int size = boost::lexical_cast<unsigned int>(environment().findGet("size"));
 		unsigned int symbols = boost::lexical_cast<unsigned int>(environment().findGet("symbols"));
-		unsigned int token = ++last_token;
 		auto seed = getSeed();
-		games[token] = std::unique_ptr<ServerRules>(
-			new ServerRules(name, seed, size, symbols, constants::default_timer()));
+		unsigned int token = games.storeGame(std::make_shared<ServerRules>(
+			name, seed, size, symbols, constants::default_timer()));
 		Serializer ser(out);
 		onlineSinglePlayer::GameInit::serialize(ser, token, seed);
-		return true;
 	}
 	else if (method == "/" + onlineSinglePlayer::PushSelection::method())
 	{
 		auto token = getToken(environment());
-		auto & game = getGame(token);
+		auto game = games.getGame(token);
 
 		// Read the selection from parameters
 		std::stringstream selectionString(environment().findGet("selection"));
 		DeSerializer deSer(selectionString);
 		Selection selection(deSer);
 		std::chrono::milliseconds msSinceEpoch{boost::lexical_cast<int>(environment().findGet("msSinceEpoch"))};
-		bool gameOver = game.playSelection(selection, msSinceEpoch);
+		bool gameOver = game->playSelection(selection, msSinceEpoch);
 
 		if (gameOver)
 		{
-			games.erase(token);
+			games.eraseGame(token);
 		}
 
 		Serializer ser(out);
 		onlineSinglePlayer::PushSelection::serialize(ser, gameOver);
 	}
-	// Unkown method, return something ?
-	err << "Unkown method [" << method << "]" << std::endl;
+	else
+	{
+		// Unkown method, return something ?
+		err << "Unkown method [" << method << "]" << std::endl;
+	}
 	return true;
 }
