@@ -25,6 +25,7 @@
 #include <memory>
 
 #include "rules/rules.h"
+#include "game/constants.h"
 #include "httprequest.h"
 
 namespace squarez {
@@ -74,7 +75,7 @@ public:
 	bool gameOver() const { return _rules ? _rules->gameOver() : false; }
 	QString type() const { return _type; }
 	QString playerName() const { return _playerName; }
-	int boardSize() const { return 8; } // FIXME
+	int boardSize() const { return constants::default_board_size; }
 	QString url() const { return _url; }
 	float percentageLeft() const { return _rules ? std::max(_rules->percentageLeft(), 0.0f) : 0; }
 	float msLeft() const { return _rules ? std::max(_rules->msLeft(), 0) : 0; }
