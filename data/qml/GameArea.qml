@@ -105,7 +105,10 @@ Item {
 			MouseArea
 			{
 				anchors.fill: cell
-				onClicked: modelData.clicked()
+				onClicked: {
+					gameArea.animate = true
+					modelData.clicked()
+				}
 			}
 		}
 	}
