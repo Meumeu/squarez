@@ -20,10 +20,10 @@
 #include "onlinesingleplayerrules.h"
 #include "network/methods.h"
 #include "utils/serializer.h"
+#include "game/constants.h"
 
 squarez::OnlineSinglePlayerRules::~OnlineSinglePlayerRules()
 {
-
 }
 
 
@@ -36,12 +36,25 @@ squarez::OnlineSinglePlayerRules::OnlineSinglePlayerRules(
 	std::string name,
 	unsigned int token) :
 	
-	Rules(proxy, board_size, nb_symbols, random_seed, Timer(std::chrono::seconds(10), std::chrono::seconds(60), std::chrono::seconds(180)), name),
+	Rules(proxy, board_size, nb_symbols, random_seed, constants::default_timer(), name),
 	_url(url),
 	_token(token),
 	_epoch(std::chrono::steady_clock::now())
 {
 	
+}
+
+bool squarez::OnlineSinglePlayerRules::gameOver()
+{
+	if (squarez::Rules::gameOver())
+		return true;
+
+	if (this->percentageLeft() > 0)
+		return false;
+
+	setGameOver(true);
+
+	return true;
 }
 
 void squarez::OnlineSinglePlayerRules::onClick(squarez::Cell& cell)

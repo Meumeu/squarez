@@ -20,9 +20,9 @@
 #ifndef SQUAREZ_ONLINESINGLEPLAYERRULES_H
 #define SQUAREZ_ONLINESINGLEPLAYERRULES_H
 
-#include "rules.h"
+#include "rules/rules.h"
 #include "httprequest.h"
-#include "timer.h"
+#include "rules/timer.h"
 
 namespace squarez {
 
@@ -40,6 +40,7 @@ public:
 	void setPlayerName(std::string const& name) override;
 	void onClick(Cell & cell) override;
 	void resetSelection() override;
+	bool gameOver() override;
 };
 }
 

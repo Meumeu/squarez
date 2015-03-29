@@ -21,7 +21,7 @@
 #include "cellproxy.h"
 #include "game/constants.h"
 #include "rules/singleplayerrules.h"
-#include "rules/onlinesingleplayerrules.h"
+#include "onlinesingleplayerrules.h"
 #include "network/methods.h"
 #include "utils/serializer.h"
 #include <assert.h>
@@ -102,7 +102,7 @@ void RulesProxy::tryStartGame()
 	}
 	else if (_type == "onlineSinglePlayer" and !_url.isEmpty() and !_playerName.isEmpty())
 	{
-		_gameInitHandle = squarez::http::request(_url.toStdString() + onlineSinglePlayer::GameInit::encodeRequest(_playerName.toStdString(), 8, 3),
+		_gameInitHandle = squarez::http::request(_url.toStdString() + onlineSinglePlayer::GameInit::encodeRequest(_playerName.toStdString(), constants::default_board_size, constants::default_symbols),
 			[this](std::string response) // onload
 			{
 				DeSerializer s(response);
