@@ -42,6 +42,8 @@ squarez::SinglePlayerRules::SinglePlayerRules(
 	_token(token),
 	_epoch(std::chrono::steady_clock::now())
 {
+	// Silence warning about unused field with NO_HTTP_REQUEST
+	(void)_token;
 }
 
 bool squarez::SinglePlayerRules::gameOver()
