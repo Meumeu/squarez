@@ -37,7 +37,7 @@ class RulesProxy : public QAbstractListModel, public Rules::Proxy
 {
 	Q_OBJECT
 
-	// _cells has to be before _rules because the destructor of _rules calls removeCell() so _cells be destroyed last
+	// _cells has to be before _rules because the destructor of _rules calls removeCell() so _cells must be destroyed last
 	QList<CellProxy *> _cells;
 	std::unique_ptr<Rules> _rules;
 	
@@ -63,13 +63,14 @@ public:
 	Q_PROPERTY(bool paused READ paused WRITE setPaused NOTIFY onPausedChanged)
 	
 	virtual ~RulesProxy();
-	virtual void scoreChanged(unsigned int score);
-	virtual void gameOverChanged(bool status);
-	virtual void timerUpdated();
-	virtual void nameRequired();
-	virtual void animateSquare(std::array<Cell *, 4>);
+	void scoreChanged(unsigned int score) override;
+	void gameOverChanged(bool status) override;
+	void timerUpdated() override;
+	void nameRequired() override;
+	void animateSquare(std::array<Cell *, 4>) override;
+	void networkError() override;
 
-	virtual std::unique_ptr<Cell::Proxy> cellProxyFactory(Cell & cell);
+	std::unique_ptr<Cell::Proxy> cellProxyFactory(Cell & cell) override;
 
 	unsigned int score() const { return _rules ? _rules->score() : 0; }
 	bool gameOver() const { return _rules ? _rules->gameOver() : false; }

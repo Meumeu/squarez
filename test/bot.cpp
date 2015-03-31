@@ -34,6 +34,7 @@ namespace
 		virtual void timerUpdated() override {};
 		virtual void nameRequired() override {};
 		virtual void animateSquare(std::array<squarez::Cell *, 4>) override {};
+		virtual void networkError() override {}
 
 		virtual std::unique_ptr<squarez::Cell::Proxy> cellProxyFactory(squarez::Cell & owner) override {return std::unique_ptr<squarez::Cell::Proxy>(new squarez::Cell::Proxy(owner));}
 	};

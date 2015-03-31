@@ -21,7 +21,6 @@
 #include "cellproxy.h"
 #include "game/constants.h"
 #include "rules/singleplayerrules.h"
-#include "onlinesingleplayerrules.h"
 #include "network/methods.h"
 #include "utils/serializer.h"
 #include <assert.h>
@@ -95,9 +94,12 @@ void RulesProxy::tryStartGame()
 
 	if (_type == "singlePlayer")
 	{
-		_rules = std::unique_ptr<Rules>(new SinglePlayerRules(*this, constants::default_timer()));
-		if (not _playerName.isEmpty())
-			_rules->setPlayerName(_playerName.toStdString());
+		_rules = std::unique_ptr<Rules>(new SinglePlayerRules(
+			*this,
+			constants::default_timer(),
+			constants::default_board_size,
+			constants::default_symbols,
+			_playerName.toStdString()));
 	}
 	else if (_type == "onlineSinglePlayer" and !_url.isEmpty() and !_playerName.isEmpty())
 	{
@@ -106,21 +108,39 @@ void RulesProxy::tryStartGame()
 			{
 				DeSerializer s(response);
 				onlineSinglePlayer::GameInit game(s);
-				_rules = std::unique_ptr<Rules>(new OnlineSinglePlayerRules(*this, 8, 3, game._seed, _url.toStdString(), _playerName.toStdString(), game._token));
+				_rules = std::unique_ptr<Rules>(new SinglePlayerRules(
+					*this,
+					constants::default_timer(),
+					constants::default_board_size,
+					constants::default_symbols,
+					_playerName.toStdString(),
+					game._seed,
+					_url.toStdString(),
+					game._token));
 			},
-			[]() // onerror FIXME
+			[this]() // onerror
 			{
+				_type = "singlePlayer";
+				emit onTypeChanged(_type);
+
+				networkError();
+
+				_rules = std::unique_ptr<Rules>(new SinglePlayerRules(
+					*this,
+					constants::default_timer(),
+					constants::default_board_size,
+					constants::default_symbols,
+					_playerName.toStdString()));
 			}
 		);
 	}
 }
 
-
 void RulesProxy::setType(QString type)
 {
 	if (_rules)
 		return;
-	
+
 	if (type == "singlePlayer" or type == "onlineSinglePlayer")
 	{
 		_type = type;
@@ -154,21 +174,19 @@ void RulesProxy::setUrl(QString url)
 	tryStartGame();
 }
 
+void RulesProxy::networkError()
+{
+
+}
+
 void RulesProxy::setPaused(bool paused)
 {
 	if (!_rules)
 		return;
 	
-	if (_type == "singlePlayer")
-	{
-		((SinglePlayerRules*)_rules.get())->setPause(paused);
-	}
-	else if(_type == "onlineSinglePlayer")
-	{
-		((OnlineSinglePlayerRules*)_rules.get())->setPause(paused);
-	}
+	auto rules = ((SinglePlayerRules*)_rules.get());
+	if (rules->pause() != paused) rules->setPause(paused);
 }
-
 
 QVariant RulesProxy::data(const QModelIndex& index, int /*role*/) const
 {
@@ -187,6 +205,5 @@ int RulesProxy::rowCount(const QModelIndex&) const
 	return _cells.count();
 }
 
-
-} // namespace qt
-} // namespace squarez
+}
+}

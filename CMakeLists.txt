@@ -38,7 +38,6 @@ set(shared_sources
 
 set(client_sources
 	${CMAKE_CURRENT_SOURCE_DIR}/clients/httprequest.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/clients/onlinesingleplayerrules.cpp
 )
 
 if(BUILD_QML_CLIENT OR BUILD_WEB_CLIENT)

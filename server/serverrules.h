@@ -36,6 +36,7 @@ public:
 	virtual void timerUpdated() override {}
 	virtual void nameRequired() override {}
 	virtual void animateSquare(std::array<Cell *, 4>) override {}
+	virtual void networkError() override {}
 
 	virtual std::unique_ptr<Cell::Proxy> cellProxyFactory(Cell & /*cell*/) override;
 };

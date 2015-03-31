@@ -49,6 +49,7 @@ public:
 		virtual void timerUpdated() = 0;
 		virtual void nameRequired() = 0;
 		virtual void animateSquare(std::array<Cell *, 4>) = 0;
+		virtual void networkError() = 0;
 
 		virtual std::unique_ptr<Cell::Proxy> cellProxyFactory(Cell & cell) = 0;
 	};

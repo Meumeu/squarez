@@ -1,7 +1,6 @@
 /*
- * Squarez puzzle game
- * Copyright (C) 2013-2015  Guillaume Meunier <guillaume.meunier@centraliens.net>
- * Copyright (C) 2013-2015  Patrick Nicolas <patricknicolas@laposte.net>
+ * <one line to give the program's name and a brief idea of what it does.>
+ * Copyright (C) 2015  Guillaume Meunier <guillaume.meunier@centraliens.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,11 +18,31 @@
  */
 
 #include "singleplayerrules.h"
+#include "network/methods.h"
+#include "utils/serializer.h"
+#include "game/constants.h"
 
-squarez::SinglePlayerRules::SinglePlayerRules(Proxy & proxy, Timer && timer, int board_size, int nb_symbols) :
-	Rules(proxy, board_size, nb_symbols, std::random_device()(), std::move(timer))
-{}
+squarez::SinglePlayerRules::~SinglePlayerRules()
+{
+}
 
+
+squarez::SinglePlayerRules::SinglePlayerRules(
+	squarez::Rules::Proxy& proxy,
+	Timer && timer,
+	int board_size,
+	int nb_symbols,
+	std::string name,
+	std::uint_fast32_t random_seed,
+	std::string url,
+	unsigned int token) :
+
+	Rules(proxy, board_size, nb_symbols, random_seed ? random_seed : std::random_device()(), std::move(timer), name),
+	_url(url),
+	_token(token),
+	_epoch(std::chrono::steady_clock::now())
+{
+}
 
 bool squarez::SinglePlayerRules::gameOver()
 {
@@ -38,11 +57,36 @@ bool squarez::SinglePlayerRules::gameOver()
 	return true;
 }
 
-void squarez::SinglePlayerRules::setPlayerName(const std::string& name)
+void squarez::SinglePlayerRules::onClick(squarez::Cell& cell)
 {
-	if (not name.empty())
+	if (gameOver())
+		return;
+
+	cell.setSelected(_selection.togglePoint(cell.x(), cell.y()));
+	Transition const& tr = _board->selectSquare(_selection, _random_generator, false);
+	if (tr._score)
 	{
-		_playerName = name;
+#ifndef NO_HTTP_REQUEST
+		if (not _url.empty())
+			_requestHandle = http::request(_url + onlineSinglePlayer::PushSelection::encodeRequest(_selection, _token, std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - _epoch)),
+				[this](std::string response) // onload
+				{
+					DeSerializer s(response);
+					onlineSinglePlayer::PushSelection reply(s);
+					setGameOver(reply._gameOver);
+				},
+				[this]() // onerror
+				{
+					_proxy.networkError();
+				}
+			);
+#endif
+
+		this->refillTimer(tr._score * 2);
+		setScore(score() + tr._score);
+
+		this->applyTransition(tr);
+		resetSelection();
 	}
 }
 
@@ -54,26 +98,26 @@ void squarez::SinglePlayerRules::resetSelection()
 	_selection = Selection();
 }
 
-
-void squarez::SinglePlayerRules::onClick(squarez::Cell& cell)
-{
-	if (gameOver())
-		return;
-	cell.setSelected(_selection.togglePoint(cell.x(), cell.y()));
-	Transition const& tr = _board->selectSquare(_selection, _random_generator, false);
-	if (tr._score)
-	{
-		this->refillTimer(tr._score * 2);
-		setScore(score() + tr._score);
-
-		this->applyTransition(tr);
-		resetSelection();
-	}
-}
-
 void squarez::SinglePlayerRules::setPause(bool state)
 {
 	if (state == pause())
 		return;
 	pauseTimer(state);
+
+#ifndef NO_HTTP_REQUEST
+	if (not _url.empty())
+		_requestHandle = http::request(_url + onlineSinglePlayer::Pause::encodeRequest(_token, pause(), std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - _epoch)),
+			[](std::string /*response*/) // onload
+			{
+			},
+			[this]() // onerror
+			{
+				_proxy.networkError();
+			}
+		);
+#endif
+}
+
+void squarez::SinglePlayerRules::setPlayerName(const std::string& /*name*/)
+{
 }
