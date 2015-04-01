@@ -52,8 +52,8 @@ _symbols(numberOfSymbols), _size(size), _rules(rules)
 	std::uniform_int_distribution<unsigned int> dist(0, numberOfSymbols -1);
 	for (unsigned int x = 0 ; x < _size ; ++x)
 		for (unsigned int y = 0 ; y < _size ; ++y)
-			_cells[idx(x, y, _size)] = std::make_shared<Cell>(
-						dist(generator), x, y, _rules, _rules.cellProxyFactory());
+			_cells[idx(x, y, _size)].reset(new Cell(
+						dist(generator), x, y, _rules, _rules.cellProxyFactory()));
 }
 
 const Cell & GameBoard::get(unsigned int x, unsigned int y) const
@@ -152,8 +152,8 @@ void GameBoard::applyTransition(const Transition& transition, bool updateProxy)
 			const unsigned int toy = cellTransition._toy;
 			if (cellTransition.isNew())
 			{
-				_cells[idx(tox, toy, _size)] = std::make_shared<Cell>(
-					cellTransition._symbol, cellTransition._fromx, cellTransition._fromy, _rules, cellProxyFactory);
+				_cells[idx(tox, toy, _size)].reset(new Cell(
+					cellTransition._symbol, cellTransition._fromx, cellTransition._fromy, _rules, cellProxyFactory));
 				_cells[idx(tox, toy, _size)]->move(tox, toy);
 			}
 			else

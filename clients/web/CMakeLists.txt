@@ -1,10 +1,11 @@
 configure_file(manifest.appcache.in html/manifest.appcache)
 configure_file(manifest.webapp.in html/manifest.webapp)
 
-list(REMOVE_ITEM client_sources ${CMAKE_CURRENT_SOURCE_DIR}/clients/httprequest.cpp)
+list(REMOVE_ITEM client_sources ${CMAKE_SOURCE_DIR}/clients/httprequest.cpp)
 
-add_definitions(-Wno-warn-absolute-paths)
-add_executable(webclient ${shared_sources} ${client_sources})
+add_definitions(-Wno-warn-absolute-paths --bind)
+add_executable(webclient rulesproxy.cpp cellproxy.cpp ${shared_sources} ${client_sources})
+target_link_libraries(webclient --bind)
 add_dependencies(webclient shapes)
 
 install(TARGETS webclient RUNTIME DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/html)
@@ -19,3 +20,5 @@ install(FILES
 	DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/html/img)
 
 install(FILES game.css gameSelection.css index.html multiplayer.html singleplayer.html tutorial.html DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/html)
+
+add_definitions(-DNO_HTTP_REQUEST)

@@ -2,9 +2,7 @@
 <html manifest="manifest.appcache">
 	<head>
 		<title>Squarez</title>
-		<script src="script/squarez.js"></script>
-		<script src="script/squarezUI.js"></script>
-		<script src="script/singleplayer.js"></script>
+		<script src="webclient.js"></script>
 		<link rel="stylesheet" type="text/css" href="game.css">
 		<link rel="icon" type="image/png" href="img/icon30.png">
 		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
@@ -39,7 +37,9 @@
 			</div>
 		</div>
 		<script>
-		var game = new SinglePlayerRulesUI(document.getElementById("gameArea"),  document.getElementById("score"));
+		var game = new Module.Squarez(document.getElementById("gameArea"), document.getElementById("score"), document.getElementById("timerInner"));
+		document.getElementsByClassName("pauseButton")[0].onclick = function() { game.togglePause();}
+		document.getElementsByClassName("clearButton")[0].onclick = function() { game.resetSelection();}
 		</script>
 	</body>
 </html>
