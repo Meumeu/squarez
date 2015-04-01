@@ -35,8 +35,8 @@ class Cell
 		{
 			public:
 				virtual ~Proxy();
-				Proxy(Cell & owner): owner(owner) {}
-				Cell & owner;
+				Proxy(Cell & owner): _owner(owner) {}
+				Cell & _owner;
 
 				virtual void moved(int /*x*/, int /*y*/) {}
 				virtual void selectChanged(bool /*status*/) {}

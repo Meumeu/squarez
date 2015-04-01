@@ -48,10 +48,10 @@ public:
 	virtual void moved(int x, int y) override;
 	virtual void selectChanged(bool status) override;
 
-	int x() const { return owner.x(); }
-	int y() const { return owner.y(); }
-	unsigned int symbol() const { return owner.symbol; }
-	bool isSelected() const { return owner.selected(); }
+	int x() const { return _owner.x(); }
+	int y() const { return _owner.y(); }
+	unsigned int symbol() const { return _owner.symbol; }
+	bool isSelected() const { return _owner.selected(); }
 
 signals:
 	void onXChanged(int x);

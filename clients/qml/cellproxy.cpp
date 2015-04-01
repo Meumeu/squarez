@@ -46,7 +46,7 @@ void CellProxy::selectChanged(bool status)
 
 void CellProxy::clicked()
 {
-	owner.click();
+	_owner.click();
 }
 
 }
