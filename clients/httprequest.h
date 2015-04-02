@@ -30,7 +30,7 @@ namespace http {
 class Handle
 {
 public:
-	virtual ~Handle();
+	virtual ~Handle() {}
 };
 
 std::unique_ptr<Handle> request(const std::string& url, std::function<void(std::string const&)> onload, std::function<void()> onerror);

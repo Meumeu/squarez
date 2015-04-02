@@ -21,8 +21,11 @@
 
 #include "cellproxy.h"
 #include "eventhandler.h"
+
 #include "game/constants.h"
 #include "rules/singleplayerrules.h"
+#include "network/methods.h"
+#include "utils/serializer.h"
 
 #include <sstream>
 
@@ -37,6 +40,7 @@ EMSCRIPTEN_BINDINGS(rulesproxy)
 {
 	emscripten::class_<squarez::web::RulesProxy>("Squarez")
 	.constructor<emscripten::val, emscripten::val, emscripten::val>()
+	.constructor<emscripten::val, emscripten::val, emscripten::val, std::string, std::string>()
 	.function<void>("togglePause", &squarez::web::RulesProxy::togglePause)
 	.function<void>("resetSelection", &squarez::web::RulesProxy::resetSelection);
 
@@ -54,6 +58,39 @@ squarez::web::RulesProxy::RulesProxy(emscripten::val rootElement, emscripten::va
 	// Force the transitionend event to be called at least once
 	emscripten::val::global("window").call<void>("setTimeout", emscripten::val::global("Module")["callHandler"], 0, _timerElement["transitionendHandler"], emscripten::val(""));
 }
+
+squarez::web::RulesProxy::RulesProxy(emscripten::val rootElement, emscripten::val scoreElement, emscripten::val timerElement, std::string url, std::string playerName):
+_scoreElement(scoreElement), _timerElement(timerElement), _rootElement(rootElement)
+{
+	_initHandle = squarez::http::request(url + onlineSinglePlayer::GameInit::encodeRequest(playerName, constants::default_board_size, constants::default_symbols),
+		[this, url, playerName](std::string response)
+		{
+			DeSerializer s(response);
+			onlineSinglePlayer::GameInit game(s);
+			_rules.reset(new SinglePlayerRules(
+				*this,
+				constants::default_timer(),
+				constants::default_board_size,
+				constants::default_symbols,
+				playerName,
+				game._seed,
+				url,
+				game._token));
+		},
+		[this]()
+		{
+			networkError();
+			_rules.reset(new SinglePlayerRules(*this, constants::default_timer()));
+		}
+	);
+
+	EventHandler::addEventHandler(_timerElement, "transitionend", [this](emscripten::val)
+	{ setTimer(0, _rules->msLeft()+1, "linear");}, false);
+
+	// Force the transitionend event to be called at least once
+	emscripten::val::global("window").call<void>("setTimeout", emscripten::val::global("Module")["callHandler"], 0, _timerElement["transitionendHandler"], emscripten::val(""));
+}
+
 
 squarez::web::RulesProxy::~RulesProxy()
 {

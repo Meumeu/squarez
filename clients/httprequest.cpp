@@ -33,11 +33,6 @@
 
 #define USERAGENT PACKAGE "/" PACKAGE_VERSION
 
-squarez::http::Handle::~Handle()
-{
-}
-
-
 namespace {
 class HttpRequest: public QThread
 {

@@ -21,31 +21,56 @@
 
 #include <emscripten/emscripten.h>
 #include <emscripten/val.h>
-
-typedef std::pair<std::function<void(std::string const&)>, std::function<void()>> callback_pair;
-
+#include <emscripten/bind.h>
 namespace {
-void em_callback(callback_pair* callbacks, char* data, int size)
+
+struct Callback
 {
-	std::unique_ptr<callback_pair> callbacks_ptr(callbacks);
+	std::function<void(std::string const&)> onload;
+	std::function<void()> onerror;
+	Callback *& _backReference;
+	~Callback() { _backReference = nullptr;}
+};
+
+void em_callback(Callback* callback, char* data, int size)
+{
+	std::unique_ptr<Callback> callbacks_ptr(callback);
 	std::string res(data, size);
-	callbacks_ptr->first(res);
+	callbacks_ptr->onload(res);
 }
-void em_error(callback_pair* callbacks)
+void em_error(Callback* callback)
 {
-	std::unique_ptr<callback_pair> callbacks_ptr(callbacks);
-	callbacks_ptr->second();
-}
+	std::unique_ptr<Callback> callbacks_ptr(callback);
+	callbacks_ptr->onerror();
 }
 
-// FIXME: return std::unique_ptr<Handle>
-void squarez::HttpRequest::request(const std::string& url, std::function<void(std::string const&)> onload, std::function<void()> onerror)
+class JSHandle : public squarez::http::Handle
 {
-	callback_pair * callbacks = new callback_pair(onload, onerror);
-	emscripten_async_wget_data(url.c_str(), callbacks, (void (*)(void*, void*, int))&em_callback, (void (*)(void*))&em_error);
+private:
+	Callback * callback;
+public:
+	JSHandle(const std::string& url, std::function<void(std::string const&)> onload, std::function<void()> onerror)
+	{
+		callback = new Callback{onload, onerror, callback};
+		emscripten_async_wget_data(url.c_str(), callback, (void (*)(void*, void*, int))&em_callback, (void (*)(void*))&em_error);
+	}
+	virtual ~JSHandle()
+	{
+		if (callback)
+		{
+			callback->onload = [](std::string const&){};
+			callback->onerror = [](){};
+		}
+	}
+};
 }
 
-std::string squarez::HttpRequest::request(const std::string& url)
+std::unique_ptr<squarez::http::Handle> squarez::http::request(const std::string& url, std::function<void(std::string const&)> onload, std::function<void()> onerror)
+{
+	return std::unique_ptr<squarez::http::Handle>(new JSHandle(url, onload, onerror));
+}
+
+std::string squarez::http::request(const std::string& url)
 {
 	emscripten::val xhr = emscripten::val::global("XMLHttpRequest").new_();
 	xhr.call<void>("open", std::string("get"), url, false);

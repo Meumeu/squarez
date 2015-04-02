@@ -21,6 +21,7 @@
 #define SQUAREZ_WEB_RULESPROXY_H
 
 #include "rules/rules.h"
+#include "httprequest.h"
 
 #include <functional>
 #include <memory>
@@ -33,12 +34,16 @@ namespace web {
 class RulesProxy : public squarez::Rules::Proxy
 {
 	std::unique_ptr<squarez::Rules> _rules;
+	std::unique_ptr<squarez::http::Handle> _initHandle;
 	emscripten::val _scoreElement;
 	emscripten::val _timerElement;
 public:
 	emscripten::val _rootElement;
 	// Constructor for single player game
 	RulesProxy(emscripten::val rootElement, emscripten::val scoreElement, emscripten::val timerElement);
+
+	// Constructor for online single player game
+	RulesProxy(emscripten::val rootElement, emscripten::val scoreElement, emscripten::val timerElement, std::string url, std::string playerName);
 
 	~RulesProxy();
 	virtual std::unique_ptr<Cell::Proxy> cellProxyFactory(squarez::Cell& cell) override;
