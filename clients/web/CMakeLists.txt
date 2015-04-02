@@ -4,7 +4,7 @@ configure_file(manifest.webapp.in html/manifest.webapp)
 list(REMOVE_ITEM client_sources ${CMAKE_SOURCE_DIR}/clients/httprequest.cpp)
 
 add_definitions(-Wno-warn-absolute-paths --bind)
-add_executable(webclient rulesproxy.cpp cellproxy.cpp ${shared_sources} ${client_sources})
+add_executable(webclient rulesproxy.cpp cellproxy.cpp eventhandler.cpp ${shared_sources} ${client_sources})
 target_link_libraries(webclient --bind)
 add_dependencies(webclient shapes)
 

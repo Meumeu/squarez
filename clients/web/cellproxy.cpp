@@ -18,10 +18,8 @@
  */
 
 #include "cellproxy.h"
+#include "eventhandler.h"
 #include "rulesproxy.h"
-
-#include <emscripten/emscripten.h>
-#include <emscripten/val.h>
 
 #include <sstream>
 
@@ -33,7 +31,6 @@ void setXY(squarez::web::CellProxy & proxy, int x, int y)
 EMSCRIPTEN_BINDINGS(cellproxy)
 {
 	emscripten::class_<squarez::web::CellProxy>("CellProxy")
-	.function("click", &squarez::web::CellProxy::click)
 	.function("setXY", &squarez::web::CellProxy::setXY);
 
 	emscripten::function("setXY", &setXY);
@@ -47,8 +44,7 @@ _element(emscripten::val::global("document").call<emscripten::val>("createElemen
 	elClass << "cell symbol" << owner.symbol;
 	_element.set("className", elClass.str());
 	_element.set("proxy", *this);
-	emscripten::val::global("window").set("e", _element);
-	EM_ASM(window.e.onclick = function () {this.proxy.click()});
+	EventHandler::addEventHandler(_element, "click", [this](emscripten::val){_owner.click();}, false);
 	setXY(owner.x(), owner.y());
 	rules._rootElement.call<void>("appendChild", _element);
 }
@@ -70,12 +66,6 @@ void squarez::web::CellProxy::selectChanged(bool status)
 	else
 		_element["classList"].call<void>("remove", emscripten::val("selected"));
 }
-
-void squarez::web::CellProxy::click()
-{
-	_rules.click(_owner);
-}
-
 
 void squarez::web::CellProxy::setXY (int x, int y)
 {

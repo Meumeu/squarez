@@ -20,6 +20,7 @@
 #include "rulesproxy.h"
 
 #include "cellproxy.h"
+#include "eventhandler.h"
 #include "game/constants.h"
 #include "rules/singleplayerrules.h"
 
@@ -27,18 +28,7 @@
 
 #include <emscripten/emscripten.h>
 
-class EventHandler
-{
-	std::function<void(emscripten::val)> _callback;
-public:
-	EventHandler(std::function<void(emscripten::val)> callback): _callback(callback) {}
-	void handleEvent(emscripten::val v)
-	{
-		_callback(v);
-	}
-};
-
-void callHandler(EventHandler & h, emscripten::val v)
+void callHandler(squarez::web::EventHandler & h, emscripten::val v)
 {
 	h.handleEvent(v);
 }
@@ -50,9 +40,6 @@ EMSCRIPTEN_BINDINGS(rulesproxy)
 	.function<void>("togglePause", &squarez::web::RulesProxy::togglePause)
 	.function<void>("resetSelection", &squarez::web::RulesProxy::resetSelection);
 
-	emscripten::class_<EventHandler>("EventHandler")
-	.function<void>("handleEvent", &EventHandler::handleEvent);
-
 	emscripten::function<void>("callHandler", &callHandler);
 }
 
@@ -61,11 +48,8 @@ squarez::web::RulesProxy::RulesProxy(emscripten::val rootElement, emscripten::va
 {
 	_rules.reset(new SinglePlayerRules(*this, constants::default_timer()));
 
-	// Store the transitionendHandler as a member to avoid garbage collection
-	_timerElement.set("transitionendHandler", EventHandler([this](emscripten::val)
-		{ setTimer(0, _rules->msLeft()+1, "linear");}));
-	_timerElement.call<void>("addEventListener", emscripten::val("transitionend"),
-		_timerElement["transitionendHandler"], false);
+	EventHandler::addEventHandler(_timerElement, "transitionend", [this](emscripten::val)
+		{ setTimer(0, _rules->msLeft()+1, "linear");}, false);
 
 	// Force the transitionend event to be called at least once
 	emscripten::val::global("window").call<void>("setTimeout", emscripten::val::global("Module")["callHandler"], 0, _timerElement["transitionendHandler"], emscripten::val(""));

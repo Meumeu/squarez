@@ -17,35 +17,19 @@
  *
  */
 
-#ifndef SQUAREZ_WEB_CELLPROXY_H
-#define SQUAREZ_WEB_CELLPROXY_H
+#include "eventhandler.h"
 
-#include "game/cell.h"
 
-#include <emscripten/bind.h>
-
-namespace squarez {
-
-namespace web {
-
-class RulesProxy;
-
-class CellProxy : public squarez::Cell::Proxy
+EMSCRIPTEN_BINDINGS(eventHandler)
 {
-private:
-	RulesProxy & _rules;
-	emscripten::val _element;
-public:
-	CellProxy(squarez::Cell & owner, RulesProxy & rules);
-	virtual ~CellProxy();
-
-	virtual void moved(int x, int y) override;
-	virtual void selectChanged(bool status) override;
-
-	void setXY(int x, int y);
-};
-
-}
+	emscripten::class_<squarez::web::EventHandler>("EventHandler")
+	.function<void>("handleEvent", &squarez::web::EventHandler::handleEvent);
 }
 
-#endif // SQUAREZ_WEB_CELLPROXY_H
+void squarez::web::EventHandler::addEventHandler(emscripten::val element, const std::string& event, std::function<void(emscripten::val)> handler, bool useCapture)
+{
+	std::string name = event + "Handler";
+	// Store the handler as a member to avoid garbage collection
+	element.set(name, EventHandler(handler));
+	element.call<void>("addEventListener", event, element[name], useCapture);
+}
