@@ -103,8 +103,7 @@ namespace
 	std::mt19937::result_type getSeed()
 	{
 		static std::mt19937 generator = std::mt19937(std::random_device()());
-		std::uniform_int_distribution<std::mt19937::result_type> distribution;
-		return distribution(generator);
+		return generator();
 	}
 }
 

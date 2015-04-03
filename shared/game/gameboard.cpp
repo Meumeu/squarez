@@ -49,11 +49,10 @@ GameBoard::GameBoard(unsigned int size, unsigned int numberOfSymbols, std::mt199
 _symbols(numberOfSymbols), _size(size), _rules(rules)
 {
 	_cells.resize(_size * _size);
-	std::uniform_int_distribution<unsigned int> dist(0, numberOfSymbols -1);
 	for (unsigned int x = 0 ; x < _size ; ++x)
 		for (unsigned int y = 0 ; y < _size ; ++y)
 			_cells[idx(x, y, _size)].reset(new Cell(
-						dist(generator), x, y, _rules, _rules.cellProxyFactory()));
+				generator() % numberOfSymbols, x, y, _rules, _rules.cellProxyFactory()));
 }
 
 const Cell & GameBoard::get(unsigned int x, unsigned int y) const

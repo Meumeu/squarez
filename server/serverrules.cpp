@@ -18,6 +18,7 @@
  */
 
 #include "serverrules.h"
+#include <iostream>
 
 std::unique_ptr< squarez::Cell::Proxy > squarez::DummyProxy::cellProxyFactory(squarez::Cell& cell)
 {
@@ -29,6 +30,7 @@ squarez::ServerRules::ServerRules(std::string playerName, std::mt19937::result_t
 	_epoch(std::chrono::steady_clock::now())
 {
 	_playerName = std::move(playerName);
+	std::cout << *_board << std::endl << std::endl;
 }
 
 bool squarez::ServerRules::playSelection(const squarez::Selection& selection, std::chrono::milliseconds msSinceEpoch)

@@ -35,8 +35,8 @@ Transition::Transition(const GameBoard& board, const Selection& selection, std::
 	auto it1 = selection.begin();
 	auto it2 = it1; it2++;
 	auto end = selection.end();
+	auto dist = [&board](std::mt19937 & generator){ return generator() % board._symbols; };
 
-	std::uniform_int_distribution<unsigned int> dist(0, board._symbols - 1);
 	while (it1 != end)
 	{
 		const auto x = it1->first;
@@ -69,7 +69,11 @@ Transition::Transition(unsigned int size, std::mt19937 & generator): _score(0)
 		for (unsigned int x = 0; x < size ; ++x)
 			positions[x * size + y] = std::pair<unsigned int, unsigned int>(x,y);
 
-	std::shuffle(positions.begin(), positions.end(), generator);
+	// Reimplement std::shuffle as we want it to call the URNG exactly the same way on all platforms
+	for (std::size_t i = 0; i < size * size - 1; ++i)
+	{
+		std::swap(positions[i], positions[i + generator() % (size * size - i)]);
+	}
 	
 	for (unsigned int y = 0; y < size ; ++y)
 		for (unsigned int x = 0; x < size ; ++x)
