@@ -47,11 +47,31 @@ EMSCRIPTEN_BINDINGS(rulesproxy)
 	emscripten::function<void>("callHandler", &callHandler);
 }
 
+static void setupResizeHandler(emscripten::val rootElement, unsigned int size)
+{
+	auto window = emscripten::val::global("window");
+	auto callback = [rootElement, window, size](emscripten::val)
+	{
+		std::stringstream str;
+		str << std::min(window["innerHeight"].as<int>(), window["innerWidth"].as<int>())/size << "px";
+		rootElement["classList"].call<void>("add", emscripten::val("resizing"));
+		rootElement["style"].set("fontSize", str.str());
+	};
+	squarez::web::EventHandler::addEventHandler(
+		window,
+		"resize",
+		callback,
+		false
+	);
+	callback(window);
+}
+
 squarez::web::RulesProxy::RulesProxy(emscripten::val rootElement, emscripten::val scoreElement, emscripten::val timerElement):
 	_scoreElement(scoreElement), _timerElement(timerElement), _rootElement(rootElement)
 {
 	_rules.reset(new SinglePlayerRules(*this, constants::default_timer()));
 	initTimers();
+	setupResizeHandler(rootElement, constants::default_board_size);
 }
 
 squarez::web::RulesProxy::RulesProxy(emscripten::val rootElement, emscripten::val scoreElement, emscripten::val timerElement, std::string url, std::string playerName):
@@ -80,6 +100,7 @@ _scoreElement(scoreElement), _timerElement(timerElement), _rootElement(rootEleme
 			initTimers();
 		}
 	);
+	setupResizeHandler(rootElement, constants::default_board_size);
 }
 
 void squarez::web::RulesProxy::initTimers()
