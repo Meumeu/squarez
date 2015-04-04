@@ -59,6 +59,8 @@ public:
 
 	void togglePause();
 	void resetSelection();
+private:
+	void initTimers();
 };
 }}
 

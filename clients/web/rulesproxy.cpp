@@ -51,12 +51,7 @@ squarez::web::RulesProxy::RulesProxy(emscripten::val rootElement, emscripten::va
 	_scoreElement(scoreElement), _timerElement(timerElement), _rootElement(rootElement)
 {
 	_rules.reset(new SinglePlayerRules(*this, constants::default_timer()));
-
-	EventHandler::addEventHandler(_timerElement, "transitionend", [this](emscripten::val)
-		{ setTimer(0, _rules->msLeft()+1, "linear");}, false);
-
-	// Force the transitionend event to be called at least once
-	emscripten::val::global("window").call<void>("setTimeout", emscripten::val::global("Module")["callHandler"], 0, _timerElement["transitionendHandler"], emscripten::val(""));
+	initTimers();
 }
 
 squarez::web::RulesProxy::RulesProxy(emscripten::val rootElement, emscripten::val scoreElement, emscripten::val timerElement, std::string url, std::string playerName):
@@ -76,14 +71,19 @@ _scoreElement(scoreElement), _timerElement(timerElement), _rootElement(rootEleme
 				game._seed,
 				url,
 				game._token));
+			initTimers();
 		},
 		[this]()
 		{
 			networkError();
 			_rules.reset(new SinglePlayerRules(*this, constants::default_timer()));
+			initTimers();
 		}
 	);
+}
 
+void squarez::web::RulesProxy::initTimers()
+{
 	EventHandler::addEventHandler(_timerElement, "transitionend", [this](emscripten::val)
 	{ setTimer(0, _rules->msLeft()+1, "linear");}, false);
 
