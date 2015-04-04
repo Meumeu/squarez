@@ -1,20 +1,21 @@
 /*
-    <one line to give the program's name and a brief idea of what it does.>
-    Copyright (C) 2012 Guillaume Meunier
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as
-    published by the Free Software Foundation, either version 3 of the
-    License, or (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Affero General Public License for more details.
-
-    You should have received a copy of the GNU Affero General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ * Squarez puzzle game
+ * Copyright (C) 2012-2015  Guillaume Meunier <guillaume.meunier@centraliens.net>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 
 #ifndef DATABASE_H
 #define DATABASE_H
@@ -22,6 +23,9 @@
 #include <memory>
 #include <string>
 #include <sqlite3.h>
+
+namespace squarez
+{
 
 class database
 {
@@ -36,6 +40,14 @@ public:
 	class iterator;
 	class result;
 	
+	class exception : public std::exception
+	{
+		std::string _msg;
+	public:
+		exception(const std::string& msg);
+		const char * what() const noexcept override;
+	};
+
 	class row
 	{
 		friend class iterator;
@@ -95,6 +107,7 @@ public:
 		result operator=(const result& rhs) = delete;
 
 		void bind(int n, int value);
+		void bind(int n, unsigned int value);
 		void bind(int n, int64_t value);
 		void bind(int n, uint64_t value);
 		void bind(int n, const std::string& value);
@@ -134,6 +147,7 @@ public:
 
 	database(const std::string & filename);
 };
+}
 
 #endif // DATABASE_H
 

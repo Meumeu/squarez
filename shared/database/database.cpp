@@ -1,20 +1,21 @@
 /*
-    <one line to give the program's name and a brief idea of what it does.>
-    Copyright (C) 2012 Guillaume Meunier
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as
-    published by the Free Software Foundation, either version 3 of the
-    License, or (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Affero General Public License for more details.
-
-    You should have received a copy of the GNU Affero General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ * Squarez puzzle game
+ * Copyright (C) 2012-2015  Guillaume Meunier <guillaume.meunier@centraliens.net>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 
 #include "database.h"
 #include <stdexcept>
@@ -24,17 +25,34 @@
 #include <thread>
 #include <boost/lexical_cast.hpp>
 
+namespace squarez {
+
+database::exception::exception(const std::string& msg): _msg(msg)
+{
+}
+
+const char* database::exception::what() const noexcept
+{
+	return _msg.c_str();
+}
+
+
+
 int database::check_sqlite_return_code(std::string msg, std::shared_ptr<sqlite3> db, int return_code)
 {
 	if (return_code == SQLITE_OK || return_code == SQLITE_ROW || return_code == SQLITE_DONE)
 		return return_code;
 	
 	std::stringstream ss;
-	ss << msg << std::endl << sqlite3_errmsg(db.get());
-	throw std::runtime_error(ss.str());
+
+	ss << msg;
+	if (db)
+		 ss << std::endl << sqlite3_errmsg(db.get());
+
+	throw exception(ss.str());
 }
 
-database::database(const std::string& filename) : _db()
+database::database(const std::string& filename)
 {
 	int rc;
 	sqlite3 * tmp = nullptr;
@@ -43,11 +61,11 @@ database::database(const std::string& filename) : _db()
 
 	if (rc == SQLITE_CANTOPEN)
 	{
-		check_sqlite_return_code("Cannot create database", _db, sqlite3_open_v2(filename.c_str(), &tmp, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL));
+		check_sqlite_return_code("Cannot create database", std::shared_ptr<sqlite3>(), sqlite3_open_v2(filename.c_str(), &tmp, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL));
 	}
 	else if (rc != SQLITE_OK)
 	{
-		check_sqlite_return_code("Cannot open database", _db, rc);
+		check_sqlite_return_code("Cannot open database", std::shared_ptr<sqlite3>(), rc);
 	}
 
 	_db = std::shared_ptr<sqlite3>(tmp, [](sqlite3 * db){ sqlite3_close(db); });
@@ -109,7 +127,7 @@ database::iterator& database::iterator::operator++()
 database::iterator database::result::begin()
 {
 	if (begin_called)
-		throw std::runtime_error("database::result::begin() can only be called once");
+		throw std::runtime_error("squarez::database::result::begin() can only be called once");
 
 	begin_called = true;
 	if (has_result)
@@ -139,6 +157,11 @@ database::row& database::iterator::operator*()
 void database::result::bind(int n, int value)
 {
 	check_sqlite_return_code("bind_int", _db, sqlite3_bind_int(_statement.get(), n, value));
+}
+
+void database::result::bind(int n, unsigned int value)
+{
+	check_sqlite_return_code("bind_int", _db, sqlite3_bind_int64(_statement.get(), n, value));
 }
 
 void database::result::bind(int n, uint64_t value)
@@ -195,4 +218,5 @@ template<> std::string database::row::fetch(int n)
 {
 	const char * tmp = (const char *)sqlite3_column_text(_statement.get(), n);
 	return std::string(tmp ? tmp : "");
+}
 }

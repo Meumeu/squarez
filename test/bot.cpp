@@ -80,7 +80,7 @@ namespace
 
 void test_db()
 {
-	database db("/tmp/test_squarez.db");
+	squarez::database db("/tmp/test_squarez.db");
 	try
 	{
 		db.execute("CREATE TABLE test ("

@@ -1,6 +1,6 @@
 /*
- * Squarez puzzle game server binary
- * Copyright (C) 2013-2015  Patrick Nicolas <patricknicolas@laposte.net>
+ * <one line to give the program's name and a brief idea of what it does.>
+ * Copyright (C) 2015  Guillaume Meunier <guillaume.meunier@centraliens.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,24 +17,25 @@
  *
  */
 
-#ifndef SQUAREZ_REQUESTHANDLER_H
-#define SQUAREZ_REQUESTHANDLER_H
+#ifndef SQUAREZ_HIGHSCORES_H
+#define SQUAREZ_HIGHSCORES_H
 
-// FastCGI
-#include <fastcgi++/request.hpp>
-#include "highscores.h"
+#include "database/database.h"
+#include <string>
 
-namespace squarez
+namespace squarez {
+
+class HighScores
 {
+	database db;
+	void initDatabase();
 
-class RequestHandler: public Fastcgipp::Request<char>
-{
 public:
-	static std::shared_ptr<HighScores> highScores;
-	// Process the request
-	bool response();
+	HighScores();
+	HighScores(std::string filename);
+	void addScore(std::string playerName, int score);
 };
 
 }
 
-#endif // SQUAREZ_REQUESTHANDLER_H
+#endif // SQUAREZ_HIGHSCORES_H

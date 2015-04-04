@@ -11,7 +11,7 @@ endif()
 
 add_definitions(-DNO_HTTP_REQUEST)
 include_directories(SYSTEM ${Boost_INCLUDE_DIRS} ${fastcgipp_INCLUDE_DIRS})
-add_executable(squarezd server.cpp requesthandler.cpp serverrules.cpp ${shared_sources})
+add_executable(squarezd server.cpp requesthandler.cpp serverrules.cpp highscores.cpp ${shared_sources})
 target_link_libraries(squarezd ${Boost_LIBRARIES} ${fastcgipp_LIBRARIES} ${sqlite_LIBRARIES})
 
 if (ENABLE_SYSTEMD)

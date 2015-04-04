@@ -21,6 +21,7 @@
 #define SQUAREZ_SERVERRULES_H
 
 #include "rules/rules.h"
+#include "highscores.h"
 
 #include <chrono>
 #include <random>
@@ -43,13 +44,17 @@ public:
 
 class ServerRules : public DummyProxy, public squarez::Rules
 {
+	std::shared_ptr<HighScores> _highScores;
 
 public:
 	ServerRules(std::string playerName,
 		std::mt19937::result_type seed,
 		int board_size,
 		int nb_symbols,
-		Timer && timer);
+		Timer && timer,
+		std::shared_ptr<HighScores> highScores);
+	~ServerRules();
+
 	bool playSelection(const Selection & selection, std::chrono::milliseconds msSinceEpoch);
 
 	void setPause(bool state, std::chrono::milliseconds msSinceEpoch);

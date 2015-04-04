@@ -19,18 +19,34 @@
 
 #include "serverrules.h"
 #include <iostream>
+#include <ctime>
 
 std::unique_ptr< squarez::Cell::Proxy > squarez::DummyProxy::cellProxyFactory(squarez::Cell& cell)
 {
 	return std::unique_ptr<squarez::Cell::Proxy>(new squarez::Cell::Proxy(cell));
 }
 
-squarez::ServerRules::ServerRules(std::string playerName, std::mt19937::result_type seed, int board_size, int nb_symbols, Timer && timer):
+squarez::ServerRules::ServerRules(std::string playerName, std::mt19937::result_type seed, int board_size, int nb_symbols, Timer && timer, std::shared_ptr<HighScores> highScores):
 	Rules(*this, board_size, nb_symbols, seed, std::move(timer)),
+	_highScores(highScores),
 	_epoch(std::chrono::steady_clock::now())
 {
 	_playerName = std::move(playerName);
-	std::cout << *_board << std::endl << std::endl;
+}
+
+squarez::ServerRules::~ServerRules()
+{
+	if (_highScores)
+	{
+		try
+		{
+			_highScores->addScore(_playerName, score());
+		}
+		catch(squarez::database::exception& e)
+		{
+			std::cerr << "Cannot save score: " << e.what() << std::endl;
+		}
+	}
 }
 
 bool squarez::ServerRules::playSelection(const squarez::Selection& selection, std::chrono::milliseconds msSinceEpoch)

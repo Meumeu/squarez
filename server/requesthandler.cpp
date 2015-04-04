@@ -108,6 +108,7 @@ namespace
 }
 
 static Games games;
+std::shared_ptr<squarez::HighScores> squarez::RequestHandler::highScores;
 
 bool squarez::RequestHandler::response()
 {
@@ -124,7 +125,7 @@ bool squarez::RequestHandler::response()
 		unsigned int symbols = boost::lexical_cast<unsigned int>(environment().findGet("symbols"));
 		auto seed = getSeed();
 		unsigned int token = games.storeGame(std::make_shared<ServerRules>(
-			name, seed, size, symbols, constants::default_timer()));
+			name, seed, size, symbols, constants::default_timer(), highScores));
 		Serializer ser(out);
 		onlineSinglePlayer::GameInit::serialize(ser, token, seed);
 	}
