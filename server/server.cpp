@@ -171,14 +171,7 @@ int main(int argc, char ** argv)
 
 	try
 	{
-		if (parameters.count("database"))
-		{
-			squarez::RequestHandler::highScores = std::make_shared<squarez::HighScores>(db_filename);
-		}
-		else
-		{
-			squarez::RequestHandler::highScores = std::make_shared<squarez::HighScores>();
-		}
+		squarez::RequestHandler::highScores = std::make_shared<squarez::HighScores>(db_filename);
 	}
 	catch(squarez::database::exception& e)
 	{
