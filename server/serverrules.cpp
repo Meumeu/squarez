@@ -18,6 +18,8 @@
  */
 
 #include "serverrules.h"
+#include "utils/serializer.h"
+
 #include <iostream>
 #include <ctime>
 
@@ -54,8 +56,10 @@ squarez::ServerRules::~ServerRules()
 	}
 }
 
-bool squarez::ServerRules::playSelection(const squarez::Selection& selection, std::chrono::milliseconds msSinceEpoch)
+bool squarez::ServerRules::playSelection(const std::string & serializedSelection, std::chrono::milliseconds msSinceEpoch)
 {
+	DeSerializer ser(serializedSelection);
+	Selection selection(ser, *_board);
 	std::chrono::steady_clock::time_point when = _epoch + msSinceEpoch;
 	if (_timer.msLeft(when) < 0)
 	{

@@ -55,7 +55,7 @@ public:
 		std::shared_ptr<HighScores> highScores);
 	~ServerRules();
 
-	bool playSelection(const Selection & selection, std::chrono::milliseconds msSinceEpoch);
+	bool playSelection(const std::string & serializedSelection, std::chrono::milliseconds msSinceEpoch);
 
 	void setPause(bool state, std::chrono::milliseconds msSinceEpoch);
 
