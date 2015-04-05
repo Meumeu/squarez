@@ -30,9 +30,7 @@
 namespace squarez
 {
 
-class DeSerializer;
 class GameBoard;
-class Serializer;
 
 class Transition
 {
@@ -69,8 +67,6 @@ public:
 	//Creates a "shuffle" transition, by randomly moving elements
 	Transition(unsigned int size, std::mt19937 & generator);
 
-	Transition(DeSerializer & serialized);
-
 	std::vector<CellTransition> const& getCellTransition() const { return _cells; }
 	std::size_t size() const { return _cells.size(); }
 	CellTransition const& get(std::size_t pos) const { return _cells.at(pos); }
@@ -82,10 +78,6 @@ public:
 private:
 	std::vector<CellTransition> _cells;
 };
-
-Serializer & operator<<(Serializer & out, Transition const& transition);
-Serializer & operator<<(Serializer & out, Transition::CellTransition const& cellTransition);
-DeSerializer & operator>>(DeSerializer & in, Transition::CellTransition & cellTransition);
 
 }
 #endif

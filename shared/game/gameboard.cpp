@@ -55,6 +55,11 @@ _symbols(numberOfSymbols), _size(size), _rules(rules)
 				generator() % numberOfSymbols, x, y, _rules, _rules.cellProxyFactory()));
 }
 
+std::shared_ptr<Cell> GameBoard::getPtr(unsigned int x, unsigned int y) const
+{
+	return _cells[idx(x, y, _size)];
+}
+
 const Cell & GameBoard::get(unsigned int x, unsigned int y) const
 {
 	return *_cells[idx(x, y, _size)];
@@ -67,18 +72,18 @@ Cell & GameBoard::access(unsigned int x, unsigned int y)
 
 typedef std::pair<unsigned int, unsigned int> point_t;
 
-static unsigned int norm(point_t p0, point_t p1)
+static unsigned int norm(const Cell & p0, const Cell & p1)
 {
-	return (p1.first - p0.first)*(p1.first - p0.first) + (p1.second - p0.second)*(p1.second - p0.second);
+	return (p1.x() - p0.x())*(p1.x() - p0.x()) + (p1.y() - p0.y())*(p1.y() - p0.y());
 }
 
 // Check if the angle p0p1,p1p2 is a square angle
-static bool isSquareAngle(point_t p0, point_t p1, point_t p2)
+static bool isSquareAngle(const Cell & p0, const Cell & p1, const Cell & p2)
 {
-	return ((p1.first - p0.first) * (p1.first - p2.first) + (p1.second - p0.second) * (p1.second- p2.second)) == 0;
+	return ((p1.x() - p0.x()) * (p1.x() - p2.x()) + (p1.y() - p0.y()) * (p1.y()- p2.y())) == 0;
 }
 
-static unsigned int computeScore(GameBoard const& board, Selection const& selection)
+static unsigned int computeScore(Selection const& selection)
 {
 	// Check that we are actually selecting 4 points
 	if (!selection.isValid())
@@ -91,18 +96,18 @@ static unsigned int computeScore(GameBoard const& board, Selection const& select
 	auto p3 = *it;
 
 	// Check that symbols are all the same
-	if (board.get(p0).symbol != board.get(p1).symbol
-			or board.get(p2).symbol != board.get(p3).symbol
-			or board.get(p0).symbol != board.get(p2).symbol)
+	if (p0->symbol != p1->symbol
+		or p2->symbol != p3->symbol
+		or p0->symbol != p2->symbol)
 		return 0;
 
 	// Now verify that it is a square: 4 edges with the same length and a square angle
-	auto score = norm(p0,p1);
-	if (norm(p0,p2) != score or norm(p2,p3) != score or norm(p1,p3) != score or not isSquareAngle(p0,p1,p3) or score == 0)
+	auto score = norm(*p0, *p1);
+	if (norm(*p0,*p2) != score or norm(*p2,*p3) != score or norm(*p1,*p3) != score or not isSquareAngle(*p0,*p1,*p3) or score == 0)
 		return 0;
 
 	// Simple score calculation: surface of the square, with a x2 bonus if it is not parallel to the edge nor 45 degrees
-	if (p0.first != p1.first and p0.second != p1.second and p0.first != p3.first and p0.second != p3.second)
+	if (p0->x() != p1->x() and p0->y() != p1->y() and p0->x() != p3->x() and p0->y() != p3->y())
 		return 2*score;
 
 	return score;
@@ -110,7 +115,7 @@ static unsigned int computeScore(GameBoard const& board, Selection const& select
 
 Transition GameBoard::selectSquare(const Selection& selection, std::mt19937 & generator, bool allowDefeat) const
 {
-	auto score = computeScore(*this, selection);
+	auto score = computeScore(selection);
 	if (score == 0)
 		return Transition();
 
@@ -195,12 +200,12 @@ bool GameBoard::hasTransition() const
 						continue;
 
 					squarez::Selection s;
-					s.togglePoint(x1, y1);
-					s.togglePoint(x2, y2);
-					s.togglePoint(x3, y3);
-					s.togglePoint(x4, y4);
+					s.togglePoint(getPtr(x1, y1));
+					s.togglePoint(getPtr(x2, y2));
+					s.togglePoint(getPtr(x3, y3));
+					s.togglePoint(getPtr(x4, y4));
 
-					if (computeScore(*this, s) != 0)
+					if (computeScore(s) != 0)
 						return true;
 				}
 	return false;

@@ -39,23 +39,23 @@ Transition::Transition(const GameBoard& board, const Selection& selection, std::
 
 	while (it1 != end)
 	{
-		const auto x = it1->first;
-		_cells.push_back(CellTransition(x, it1->second));
-		if (it2 != end and x == it2->first)
+		const auto x = (*it1)->x();
+		_cells.push_back(CellTransition(x, (*it1)->y()));
+		if (it2 != end and x == (*it2)->x())
 		{
-			_cells.push_back(CellTransition(x, it2->second));
+			_cells.push_back(CellTransition(x, (*it2)->y()));
 			_cells.push_back(CellTransition(x, -2, x, 0, dist(generator)));
 			_cells.push_back(CellTransition(x, -1, x, 1, dist(generator)));
-			for (unsigned int y = 0; y < it1->second ; y++)
+			for (int y = 0; y < (*it1)->y() ; y++)
 				_cells.push_back(CellTransition(x, y, x, y+2));
-			for (unsigned int y = it1->second + 1 ; y < it2->second ; y ++)
+			for (int y = (*it1)->y() + 1 ; y < (*it2)->y() ; y ++)
 				_cells.push_back(CellTransition(x, y, x, y+1));
 			it1++; it2++;
 		}
 		else
 		{
 			_cells.push_back(CellTransition(x, -1, x, 0, dist(generator)));
-			for (unsigned int y = 0; y < it1->second ; y++)
+			for (int y = 0; y < (*it1)->y() ; y++)
 				_cells.push_back(CellTransition(x, y, x, y+1));
 		}
 		it1++; it2++;
@@ -79,29 +79,4 @@ Transition::Transition(unsigned int size, std::mt19937 & generator): _score(0)
 		for (unsigned int x = 0; x < size ; ++x)
 			_cells.push_back(CellTransition(x, y, positions[x * size + y].first, positions[x * size + y].second));
 }
-
-Transition::Transition(DeSerializer & serialized)
-{
-	serialized >> _score;
-	_selection = Selection(serialized);
-	serialized >> _cells;
-}
-
-Serializer& operator<<(Serializer& out, const Transition& transition)
-{
-	out << transition._score << transition._selection << transition._cells;
-	return out;
-}
-
-Serializer & operator<<(Serializer & out, Transition::CellTransition const& cellTransition)
-{
-	out << cellTransition._fromx << cellTransition._fromy << cellTransition._tox << cellTransition._toy << cellTransition._symbol << cellTransition._removed;
-	return out;
-}
-DeSerializer & operator>>(DeSerializer & in, Transition::CellTransition & cellTransition)
-{
-	in >> cellTransition._fromx >> cellTransition._fromy >> cellTransition._tox >> cellTransition._toy >> cellTransition._symbol >> cellTransition._removed;
-	return in;
-}
-
 }

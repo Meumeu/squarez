@@ -135,11 +135,8 @@ bool squarez::RequestHandler::response()
 		auto game = games.getGame(token);
 
 		// Read the selection from parameters
-		std::stringstream selectionString(environment().findGet("selection"));
-		DeSerializer deSer(selectionString);
-		Selection selection(deSer);
 		std::chrono::milliseconds msSinceEpoch{boost::lexical_cast<int>(environment().findGet("msSinceEpoch"))};
-		bool gameOver = game->playSelection(selection, msSinceEpoch);
+		bool gameOver = game->playSelection(environment().findGet("selection"), msSinceEpoch);
 
 		if (gameOver)
 		{

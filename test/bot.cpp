@@ -65,10 +65,10 @@ namespace
 							continue;
 
 						squarez::Selection s;
-						s.togglePoint(x1, y1);
-						s.togglePoint(x2, y2);
-						s.togglePoint(x3, y3);
-						s.togglePoint(x4, y4);
+						s.togglePoint(board.getPtr(x1, y1));
+						s.togglePoint(board.getPtr(x2, y2));
+						s.togglePoint(board.getPtr(x3, y3));
+						s.togglePoint(board.getPtr(x4, y4));
 
 						squarez::Transition const& t = board.selectSquare(s, generator, true);
 
