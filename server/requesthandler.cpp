@@ -116,8 +116,6 @@ bool squarez::RequestHandler::response()
 	std::string method = uri.substr(0, uri.find_first_of('?'));
 	method = method.substr(method.find_last_of('/'));
 
-	out << "Content-Type: text/plain\r\n\r\n";
-
 	if (method == "/" + onlineSinglePlayer::GameInit::method())
 	{
 		std::string const& name = environment().findGet("name");
@@ -126,6 +124,8 @@ bool squarez::RequestHandler::response()
 		auto seed = getSeed();
 		unsigned int token = games.storeGame(std::make_shared<ServerRules>(
 			name, seed, size, symbols, constants::default_timer(), highScores));
+
+		out << "Content-Type: text/plain\r\n\r\n";
 		Serializer ser(out);
 		onlineSinglePlayer::GameInit::serialize(ser, token, seed);
 	}
@@ -143,6 +143,7 @@ bool squarez::RequestHandler::response()
 			games.eraseGame(token);
 		}
 
+		out << "Content-Type: text/plain\r\n\r\n";
 		Serializer ser(out);
 		onlineSinglePlayer::PushSelection::serialize(ser, gameOver);
 	}
@@ -153,6 +154,8 @@ bool squarez::RequestHandler::response()
 		bool pause = boost::lexical_cast<bool>(environment().findGet("pause"));
 		std::chrono::milliseconds msSinceEpoch{boost::lexical_cast<int>(environment().findGet("msSinceEpoch"))};
 		game->setPause(pause, msSinceEpoch);
+
+		out << "Content-Type: text/plain\r\n\r\n";
 	}
 	else
 	{
