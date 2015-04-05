@@ -1,0 +1,21 @@
+# Building the game
+By default, everything except the web client is built; to build only
+some part of squarez, use the following cmake options:
+
+BUILD_TEST        to build a test program
+BUILD_QML_CLIENT  to build the desktop client (requires Qt5)
+BUILD_SERVER      to build the server (requires fastcgi++, boost)
+ENABLE_SYSTEMD    to enable systemd support in the server (requires systemd)
+
+## HTML version
+An HTML/javascript version of the game can be compled using emscripten.
+
+Run:
+cmake -DCMAKE_TOOLCHAIN_FILE=/usr/lib/emscripten/cmake/Modules/Platform/Emscripten.cmake
+
+Assuming the emscripten root is /usr/lib/emscripten
+
+## Server for multiplayer mode
+The multiplayer mode requires a server, which is a fastcgi binary:
+File is squarezd and requires a --port argument, the http server must
+route all request under squarez/ to the squarezd server

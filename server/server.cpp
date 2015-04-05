@@ -107,7 +107,7 @@ int main(int argc, char ** argv)
 	else
 	{
 		std::cerr << "Failed to read configuration file: " << cfg_filename << std::endl;
-		return 2;
+		return 6;
 	}
 
 	int socket_fd = -1;
@@ -139,7 +139,7 @@ int main(int argc, char ** argv)
 		if (rc)
 		{
 			std::cerr << listen_ip << ":" << port << ": " << gai_strerror(rc) << std::endl;
-			return 4;
+			return EXIT_FAILURE;
 		}
 
 		for(struct addrinfo * i = ai; i; i = i->ai_next)
@@ -166,7 +166,7 @@ int main(int argc, char ** argv)
 	if (socket_fd < 0)
 	{
 		std::cerr << "No socket available." << std::endl;
-		return 5;
+		return EXIT_FAILURE;
 	}
 
 	try
@@ -176,7 +176,7 @@ int main(int argc, char ** argv)
 	catch(squarez::database::exception& e)
 	{
 		std::cerr << "Cannot open database: " << e.what() << std::endl;
-		return 6;
+		return 5;
 	}
 
 	struct sigaction sa;
@@ -197,11 +197,11 @@ int main(int argc, char ** argv)
 	catch (std::exception & e)
 	{
 		std::cerr << "An exception occured: " << e.what() << std::endl;
-		return 1;
+		return EXIT_FAILURE;
 	}
 	catch (...)
 	{
 		std::cerr << "An unknown exception occured." << std::endl;
-		return 1;
+		return EXIT_FAILURE;
 	}
 }

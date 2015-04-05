@@ -1,0 +1,11 @@
+[Unit]
+Description=Squarez daemon socket
+Before=squarezd.service
+Conflicts=squarezd.service
+
+[Socket]
+ListenStream=3000
+Accept=no
+
+[Install]
+WantedBy=sockets.target
