@@ -65,7 +65,7 @@ void squarez::SinglePlayerRules::onClick(squarez::Cell& cell)
 	if (gameOver())
 		return;
 
-	cell.setSelected(_selection->togglePoint(cell.x(), cell.y()));
+	cell.setSelected(_selection->togglePoint(cell.shared_from_this()));
 	Transition const& tr = _board->selectSquare(*_selection, _random_generator, false);
 	if (tr._score)
 	{
@@ -96,7 +96,7 @@ void squarez::SinglePlayerRules::onClick(squarez::Cell& cell)
 void squarez::SinglePlayerRules::resetSelection()
 {
 	for(auto& i: *_selection)
-		_board->access(i).setSelected(false);
+		i->setSelected(false);
 
 	_selection.reset(new VisibleSelection(selectionProxyFactory()));
 }

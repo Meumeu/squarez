@@ -1,6 +1,5 @@
 /*
  * Squarez puzzle game
- * Copyright (C) 2015  Guillaume Meunier <guillaume.meunier@centraliens.net>
  * Copyright (C) 2015  Patrick Nicolas <patricknicolas@laposte.net>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -18,36 +17,25 @@
  *
  */
 
-#include "cell.h"
-#include <rules/rules.h>
+#ifndef SQUAREZ_WEB_SELECTIONPROXY_H
+#define SQUAREZ_WEB_SELECTIONPROXY_H
 
-bool squarez::Cell::Compare::operator() (const squarez::Cell& left, const squarez::Cell& right) const
-{
-	if (left._x < right._x) return true;
-	if (left._x > right._x) return false;
-	return left._y < right._y;
-}
+#include "game/selection.h"
 
-void squarez::Cell::move(int x, int y)
-{
-	_x = x;
-	_y = y;
-	_proxy->moved(x, y);
-}
+namespace squarez {
+namespace web {
 
-void squarez::Cell::click()
-{
-	_rules.onClick(*this);
-}
+class RulesProxy;
 
-void squarez::Cell::setSelected(bool status)
+class SelectionProxy : public squarez::VisibleSelection::Proxy
 {
-	if (_selected == status)
-		return;
-	_selected = status;
-	_proxy->selectChanged(_selected);
-}
+public:
+	SelectionProxy(VisibleSelection & owner, RulesProxy & rules);
+	virtual ~SelectionProxy();
+private:
+	RulesProxy & _rules;
+};
 
-squarez::Cell::Proxy::~Proxy()
-{
-}
+}}
+
+#endif // SQUAREZ_WEB_SELECTIONPROXY_H

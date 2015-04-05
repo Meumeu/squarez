@@ -5,7 +5,7 @@ list(REMOVE_ITEM client_sources ${CMAKE_SOURCE_DIR}/clients/httprequest.cpp)
 list(REMOVE_ITEM shared_sources ${CMAKE_SOURCE_DIR}/shared/database/database.cpp)
 
 add_definitions(-Wno-warn-absolute-paths --bind)
-add_executable(webclient rulesproxy.cpp cellproxy.cpp eventhandler.cpp httprequest.cpp ${shared_sources} ${client_sources})
+add_executable(webclient rulesproxy.cpp cellproxy.cpp selectionproxy.cpp eventhandler.cpp httprequest.cpp ${shared_sources} ${client_sources})
 target_link_libraries(webclient --bind)
 add_dependencies(webclient shapes)
 

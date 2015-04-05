@@ -51,13 +51,6 @@ void squarez::Rules::setGameOver(bool status)
 
 void squarez::Rules::applyTransition(const Transition &transition)
 {
-	if (transition._selection.isValid())
-	{
-		std::array<Cell *, 4> square;
-		std::transform(transition._selection.begin(), transition._selection.end(), square.begin(),
-			[this](decltype(*transition._selection.begin()) point){return &_board->access(point);}
-		);
-	}
 	_board->applyTransition(transition);
 }
 

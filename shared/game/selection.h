@@ -25,8 +25,12 @@
 #include <set>
 #include <utility>
 
+#include <game/cell.h>
+
 namespace squarez
 {
+
+class GameBoard;
 
 class DeSerializer;
 class Serializer;
@@ -35,15 +39,24 @@ class Selection
 {
 	friend Serializer & operator<<(Serializer & out, Selection const& selection);
 public:
-	typedef std::set<std::pair<unsigned int, unsigned int>>::iterator iterator;
-	typedef std::set<std::pair<unsigned int, unsigned int>>::const_iterator const_iterator;
+
+	enum class State
+	{
+		incomplete,
+		validated
+	};
+	typedef std::set<std::shared_ptr<Cell>, Cell::Compare> storage_t;
+	typedef storage_t::iterator iterator;
+	typedef storage_t::const_iterator const_iterator;
 
 	Selection() {}
-	Selection(DeSerializer& serialized);
+	Selection(DeSerializer& serialized, const GameBoard & board);
 
-	virtual bool togglePoint(unsigned int x, unsigned int y);
+	virtual bool togglePoint(std::shared_ptr<Cell> cell);
+	virtual void setState(State state);
 
 	bool isValid() const { return _points.size() == 4; }
+	State state() const { return _state; }
 
 	iterator begin() { return _points.begin(); }
 	iterator end() { return _points.end(); }
@@ -53,7 +66,8 @@ public:
 	const_iterator end() const { return _points.cend(); }
 	
 private:
-	std::set<std::pair<unsigned int, unsigned int>> _points;
+	storage_t _points;
+	State _state;
 };
 
 class VisibleSelection : public Selection
@@ -66,13 +80,15 @@ public:
 		Proxy(VisibleSelection & owner): _owner(owner) {}
 		VisibleSelection & _owner;
 		virtual void changed() {}
+		virtual void stateChanged(State /*state*/) {}
 	};
 	typedef std::function<std::unique_ptr<Proxy>(VisibleSelection &)> proxy_factory;
 
 	VisibleSelection(proxy_factory factory): _proxy(factory(*this)) {}
-	VisibleSelection(proxy_factory factory, DeSerializer& serialized): Selection(serialized), _proxy(factory(*this)) { _proxy->changed();}
+	VisibleSelection(proxy_factory factory, DeSerializer& serialized, const GameBoard & board): Selection(serialized, board), _proxy(factory(*this)) { _proxy->changed();}
 
-	virtual bool togglePoint(unsigned int x, unsigned int y) override;
+	virtual bool togglePoint(std::shared_ptr<Cell>) override;
+	virtual void setState(State state) override;
 
 private:
 	std::unique_ptr<Proxy> _proxy;

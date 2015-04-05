@@ -52,10 +52,9 @@ public:
 	
 	// Get the Cell at coordinates x,y
 	const Cell & get(unsigned int x, unsigned int y) const;
-	const Cell & get(std::pair<unsigned int, unsigned int> point) const {return get(point.first, point.second);}
+	std::shared_ptr<Cell> getPtr(unsigned int x, unsigned int y) const;
 
 	Cell & access(unsigned int x, unsigned int y);
-	Cell & access(std::pair<unsigned int, unsigned int> point) {return access(point.first, point.second);}
 	
 	// Number of possible values for each cell
 	const unsigned int _symbols;

@@ -19,6 +19,7 @@
  */
 
 #include "selection.h"
+#include "gameboard.h"
 
 #include "utils/serializer.h"
 
@@ -27,35 +28,53 @@
 
 namespace squarez
 {
-bool Selection::togglePoint(unsigned int x, unsigned int y)
+bool Selection::togglePoint(std::shared_ptr<Cell> cell)
 {
-	std::pair<unsigned int, unsigned int> point(x,y);
-	if (_points.find(point) != _points.end())
+	if (_points.find(cell) != _points.end())
 	{
-		_points.erase(point);
+		_points.erase(cell);
 		return false;
 	}
 	
-	_points.insert(point);
+	_points.insert(cell);
 	return true;
+}
+
+void Selection::setState(Selection::State state)
+{
+	_state = state;
 }
 
 Serializer& operator<<(Serializer& out, const Selection& selection)
 {
-	out << selection._points;
+	std::set<std::pair<unsigned int, unsigned int>> points;
+	for (auto c : selection._points)
+		points.insert(std::make_pair<unsigned int, unsigned int>(c->x(), c->y()));
+	out << points;
 	return out;
 }
 
-Selection::Selection(DeSerializer& serialized)
+Selection::Selection(DeSerializer& serialized, const GameBoard & board)
 {
-	serialized >> _points;
+	std::set<std::pair<unsigned int, unsigned int>> points;
+	serialized >> points;
+	for (auto p : points)
+		_points.insert(board.getPtr(p.first, p.second));
 }
 
-bool VisibleSelection::togglePoint (unsigned int x, unsigned int y)
+bool VisibleSelection::togglePoint(std::shared_ptr<Cell> cell)
 {
-	bool res = squarez::Selection::togglePoint(x, y);
+	bool res = squarez::Selection::togglePoint(cell);
 	_proxy->changed();
 	return res;
+}
+
+void VisibleSelection::setState(Selection::State state)
+{
+	if (state == this->state())
+		return;
+	squarez::Selection::setState(state);
+	_proxy->stateChanged(state);
 }
 
 }

@@ -28,9 +28,14 @@ namespace squarez
 {
 class Rules;
 
-class Cell
+class Cell: public std::enable_shared_from_this<Cell>
 {
 	public:
+		struct Compare
+		{
+			bool operator() (const Cell & left, const Cell & right) const;
+			bool operator() (const std::shared_ptr<const Cell> left, const std::shared_ptr<const Cell> right) const { return (*this)(*left, *right); }
+		};
 		class Proxy
 		{
 			public:
