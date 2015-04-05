@@ -81,7 +81,13 @@ set(CPACK_DEBIAN_PACKAGE_DESCRIPTION "Squarez puzzle game
  the square is, the more time and points you will get. Squares that
  are not horizontal or 45° have bonus point and time.")
 set(CPACK_PACKAGE_CONTACT "Guillaume Meunier <>")
-set(CPACK_STRIP_FILES ON)
+
+if(${CMAKE_SYSTEM_NAME} STREQUAL Emscripten)
+	set(CPACK_STRIP_FILES OFF)
+else()
+	set(CPACK_STRIP_FILES ON)
+endif()
+set(CPACK_INCLUDE_TOPLEVEL_DIRECTORY OFF)
 set(CPACK_DEBIAN_PACKAGE_SECTION "games")
 set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
 
