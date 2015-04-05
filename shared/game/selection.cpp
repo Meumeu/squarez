@@ -51,4 +51,11 @@ Selection::Selection(DeSerializer& serialized)
 	serialized >> _points;
 }
 
+bool VisibleSelection::togglePoint (unsigned int x, unsigned int y)
+{
+	bool res = squarez::Selection::togglePoint(x, y);
+	_proxy->changed();
+	return res;
+}
+
 }

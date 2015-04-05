@@ -21,6 +21,7 @@
 #ifndef SELECTION_H
 #define SELECTION_H
 
+#include <memory>
 #include <set>
 #include <utility>
 
@@ -40,7 +41,7 @@ public:
 	Selection() {}
 	Selection(DeSerializer& serialized);
 
-	bool togglePoint(unsigned int x, unsigned int y);
+	virtual bool togglePoint(unsigned int x, unsigned int y);
 
 	bool isValid() const { return _points.size() == 4; }
 
@@ -53,6 +54,28 @@ public:
 	
 private:
 	std::set<std::pair<unsigned int, unsigned int>> _points;
+};
+
+class VisibleSelection : public Selection
+{
+public:
+	class Proxy
+	{
+	public:
+		virtual ~Proxy() {}
+		Proxy(VisibleSelection & owner): _owner(owner) {}
+		VisibleSelection & _owner;
+		virtual void changed() {}
+	};
+	typedef std::function<std::unique_ptr<Proxy>(VisibleSelection &)> proxy_factory;
+
+	VisibleSelection(proxy_factory factory): _proxy(factory(*this)) {}
+	VisibleSelection(proxy_factory factory, DeSerializer& serialized): Selection(serialized), _proxy(factory(*this)) { _proxy->changed();}
+
+	virtual bool togglePoint(unsigned int x, unsigned int y) override;
+
+private:
+	std::unique_ptr<Proxy> _proxy;
 };
 
 Serializer & operator<<(Serializer & out, Selection const& selection);

@@ -123,10 +123,10 @@ std::unique_ptr<squarez::Cell::Proxy> squarez::web::RulesProxy::cellProxyFactory
 	return std::unique_ptr<squarez::Cell::Proxy>(new CellProxy(cell, *this));
 }
 
-void squarez::web::RulesProxy::animateSquare(std::array<Cell*, 4> square)
+std::unique_ptr<squarez::VisibleSelection::Proxy> squarez::web::RulesProxy::selectionProxyFactory(squarez::VisibleSelection& selection)
 {
-	(void)square;
 	//FIXME: implement
+	return std::unique_ptr<VisibleSelection::Proxy>(new VisibleSelection::Proxy(selection));
 }
 
 void squarez::web::RulesProxy::nameRequired()
