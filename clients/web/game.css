@@ -159,8 +159,34 @@ a
 	border-width: 0.2em;
 	border-style: solid;
 	border-radius: 0.2em;
-	-webkit-transform: scale(1);
-	transform: scale(1);
+	animation: explode 0.3s ease-in;
+	-webkit-animation: explode 0.3s ease-in;
+}
+@keyframes explode
+{
+	from
+	{
+		transform: scale(1);
+		opacity: 1;
+	}
+	to
+	{
+		transform: scale(5);
+		opacity: 0;
+	}
+}
+@-webkit-keyframes explode
+{
+	from
+	{
+		-webkit-transform: scale(1);
+		opacity: 1;
+	}
+	to
+	{
+		-webkit-transform: scale(5);
+		opacity: 0;
+	}
 }
 
 .userSelection .transition-square
@@ -169,15 +195,6 @@ a
 	border-color: rgba(0,0,0,0.8);
 	border-style: dashed;
 	background: none;
-}
-.transition-removed
-{
-	opacity:0;
-}
-.transition-removed .transition-square
-{
-	-webkit-transform: scale(5);
-	transform: scale(5);
 }
 
 .scoreContainer,

@@ -21,6 +21,7 @@
 
 #include "cellproxy.h"
 #include "eventhandler.h"
+#include "selectionproxy.h"
 
 #include "game/constants.h"
 #include "rules/singleplayerrules.h"
@@ -125,8 +126,7 @@ std::unique_ptr<squarez::Cell::Proxy> squarez::web::RulesProxy::cellProxyFactory
 
 std::unique_ptr<squarez::VisibleSelection::Proxy> squarez::web::RulesProxy::selectionProxyFactory(squarez::VisibleSelection& selection)
 {
-	//FIXME: implement
-	return std::unique_ptr<VisibleSelection::Proxy>(new VisibleSelection::Proxy(selection));
+	return std::unique_ptr<VisibleSelection::Proxy>(new SelectionProxy(selection, *this));
 }
 
 void squarez::web::RulesProxy::nameRequired()

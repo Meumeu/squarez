@@ -85,6 +85,7 @@ void squarez::SinglePlayerRules::onClick(squarez::Cell& cell)
 			);
 #endif
 
+		_selection->setState(Selection::State::validated);
 		this->refillTimer(tr._score * 2);
 		setScore(score() + tr._score);
 
