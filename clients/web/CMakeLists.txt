@@ -9,7 +9,7 @@ add_executable(webclient rulesproxy.cpp cellproxy.cpp selectionproxy.cpp eventha
 target_link_libraries(webclient --bind)
 add_dependencies(webclient shapes)
 
-install(TARGETS webclient RUNTIME DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/html)
+install(TARGETS webclient DESTINATION . COMPONENT html)
 
 install(FILES
 	${CMAKE_BINARY_DIR}/data/img/shape0.svg
@@ -18,6 +18,6 @@ install(FILES
 	${CMAKE_BINARY_DIR}/data/img/shape0-selected.svg
 	${CMAKE_BINARY_DIR}/data/img/shape1-selected.svg
 	${CMAKE_BINARY_DIR}/data/img/shape2-selected.svg
-	DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/html/img)
+	DESTINATION img COMPONENT html)
 
-install(FILES game.css gameSelection.css index.html multiplayer.html singleplayer.html tutorial.html DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/html)
+install(FILES game.css gameSelection.css index.html singleplayer.html tutorial.html DESTINATION . COMPONENT html)

@@ -159,8 +159,9 @@ bool squarez::RequestHandler::response()
 	}
 	else
 	{
-		// Unkown method, return something ?
-		err << "Unkown method [" << method << "]" << std::endl;
+		std::stringstream ss;
+		ss << "Unkown method [" << method << "]";
+		throw std::runtime_error(ss.str());
 	}
 	return true;
 }

@@ -18,3 +18,10 @@ target_link_libraries(squarezd ${Boost_LIBRARIES} ${fastcgipp_LIBRARIES} ${sqlit
 if (ENABLE_SYSTEMD)
 	target_link_libraries(squarezd ${systemd_LIBRARIES})
 endif()
+
+install(TARGETS squarezd DESTINATION bin COMPONENT server)
+if (ENABLE_SYSTEMD)
+	install(FILES squarezd.conf DESTINATION /etc/squarezd COMPONENT server)
+	install(FILES squarezd.service squarezd.socket DESTINATION /lib/systemd/system COMPONENT server)
+	install(FILES tmpfiles-squarezd.conf RENAME squarezd.conf DESTINATION /usr/lib/tmpfiles.d COMPONENT server)
+endif()

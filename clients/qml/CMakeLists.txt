@@ -17,3 +17,5 @@ set_target_properties(squarezqt PROPERTIES AUTOMOC ON)
 target_link_libraries(squarezqt Qt5::Core Qt5::Qml Qt5::Quick Qt5::Widgets Qt5::Svg ${libcurl_LIBRARIES} ${sqlite_LIBRARIES})
 
 add_dependencies(squarezqt shapes)
+
+install(TARGETS squarezqt DESTINATION bin COMPONENT qt-client)

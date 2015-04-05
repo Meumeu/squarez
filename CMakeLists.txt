@@ -63,3 +63,32 @@ endif()
 if(BUILD_TEST)
 add_subdirectory(test)
 endif()
+
+set(CPACK_PACKAGE_NAME "squarez")
+set(CPACK_PACKAGE_FILE_NAME ${CPACK_PACKAGE_NAME}-${PROJECT_VERSION})
+# set(CPACK_DEB_COMPONENT_INSTALL 1)
+set(CPACK_PACKAGE_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
+set(CPACK_PACKAGE_VERSION_MINOR ${PROJECT_VERSION_MINOR})
+set(CPACK_PACKAGE_VERSION_PATCH ${PROJECT_VERSION_PATCH})
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "squarez puzzle game")
+set(CPACK_DEBIAN_PACKAGE_DESCRIPTION "Squarez puzzle game
+ .
+ This is a remake of the Squarez game by Eric Burgess
+ .
+ You are presented a 8x8 grid of 3 different symbols and a timer,
+ Selecting 4 identical elements forming the edges of the square
+ remove the edges, refill the timer and give you points. The bigger
+ the square is, the more time and points you will get. Squares that
+ are not horizontal or 45° have bonus point and time.")
+set(CPACK_PACKAGE_CONTACT "Guillaume Meunier <>")
+
+if(${CMAKE_SYSTEM_NAME} STREQUAL Emscripten)
+	set(CPACK_STRIP_FILES OFF)
+else()
+	set(CPACK_STRIP_FILES ON)
+endif()
+set(CPACK_INCLUDE_TOPLEVEL_DIRECTORY OFF)
+set(CPACK_DEBIAN_PACKAGE_SECTION "games")
+set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
+
+include(CPack)

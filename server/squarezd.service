@@ -1,0 +1,11 @@
+[Unit]
+Description=Squarez daemon
+After=network.target
+
+[Service]
+User=root
+Type=simple
+ExecStart=/usr/bin/squarezd
+
+[Install]
+WantedBy=multi-user.target
