@@ -36,8 +36,8 @@ namespace
 	class Games
 	{
 		std::mutex _mutex;
-		unsigned int _last_token;
-		std::unordered_map<unsigned int, std::shared_ptr<squarez::ServerRules>> _games;
+		std::uint32_t _last_token;
+		std::unordered_map<std::uint32_t, std::shared_ptr<squarez::ServerRules>> _games;
 		bool _alive;
 		std::condition_variable _gcWait;
 		std::thread _gc;
@@ -54,19 +54,19 @@ namespace
 			_gc.join();
 		}
 
-		void eraseGame(unsigned int token)
+		void eraseGame(std::uint32_t token)
 		{
 			std::unique_lock<std::mutex> lock(_mutex);
 			_games.erase(token);
 		}
 
-		std::shared_ptr<squarez::ServerRules> getGame(unsigned int token)
+		std::shared_ptr<squarez::ServerRules> getGame(std::uint32_t token)
 		{
 			std::unique_lock<std::mutex> lock(_mutex);
 			return _games.at(token);
 		}
 
-		unsigned int storeGame(std::shared_ptr<squarez::ServerRules> game)
+		std::uint32_t storeGame(std::shared_ptr<squarez::ServerRules> game)
 		{
 			std::unique_lock<std::mutex> lock(_mutex);
 			_games[++_last_token] = game;
@@ -84,7 +84,7 @@ namespace
 		}
 		void garbageCollect()
 		{
-			std::vector<unsigned int> endedGames;
+			std::vector<std::uint32_t> endedGames;
 			for (const auto & game : _games)
 			{
 				if (game.second->msLeft() < -60000)
@@ -95,9 +95,9 @@ namespace
 		}
 	};
 
-	unsigned int getToken(Fastcgipp::Http::Environment<char> const& env)
+	std::uint32_t getToken(Fastcgipp::Http::Environment<char> const& env)
 	{
-		return boost::lexical_cast<unsigned int>(env.findGet("token"));
+		return boost::lexical_cast<std::uint32_t>(env.findGet("token"));
 	}
 
 	std::mt19937::result_type getSeed()
@@ -122,7 +122,7 @@ bool squarez::RequestHandler::response()
 		unsigned int size = boost::lexical_cast<unsigned int>(environment().findGet("size"));
 		unsigned int symbols = boost::lexical_cast<unsigned int>(environment().findGet("symbols"));
 		auto seed = getSeed();
-		unsigned int token = games.storeGame(std::make_shared<ServerRules>(
+		auto token = games.storeGame(std::make_shared<ServerRules>(
 			name, seed, size, symbols, constants::default_timer(), highScores));
 
 		out << "Content-Type: text/plain\r\n\r\n";

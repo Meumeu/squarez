@@ -38,15 +38,15 @@ namespace onlineSinglePlayer
 struct GameInit
 {
 	static std::string const& method();
-	static std::string encodeRequest(std::string const& playerName, unsigned int size, unsigned int symbols);
+	static std::string encodeRequest(std::string const& playerName, unsigned int size, std::uint32_t symbols);
 
 	GameInit(DeSerializer & serialized);
 
 	static void serialize(Serializer & serialized,
-		unsigned int token,
+		std::uint32_t token,
 		std::mt19937::result_type seed);
 
-	const unsigned int _token;
+	const std::uint32_t _token;
 	const std::mt19937::result_type _seed;
 
 };
@@ -54,7 +54,7 @@ struct GameInit
 struct PushSelection
 {
 	static std::string const& method();
-	static std::string encodeRequest(Selection const& selection, unsigned int token, std::chrono::milliseconds msSinceEpoch);
+	static std::string encodeRequest(Selection const& selection, std::uint32_t token, std::chrono::milliseconds msSinceEpoch);
 
 	PushSelection(DeSerializer & serialized);
 
@@ -66,7 +66,7 @@ struct PushSelection
 struct Pause
 {
 	static std::string const & method();
-	static std::string encodeRequest(unsigned int token, bool pause, std::chrono::milliseconds msSinceEpoch);
+	static std::string encodeRequest(std::uint32_t token, bool pause, std::chrono::milliseconds msSinceEpoch);
 };
 
 }

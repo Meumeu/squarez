@@ -35,7 +35,7 @@ squarez::SinglePlayerRules::SinglePlayerRules(
 	std::string name,
 	std::uint_fast32_t random_seed,
 	std::string url,
-	unsigned int token) :
+	std::uint32_t token) :
 
 	Rules(proxy, board_size, nb_symbols, random_seed ? random_seed : std::random_device()(), std::move(timer), name),
 	_url(url),

@@ -36,7 +36,7 @@ const std::string& squarez::onlineSinglePlayer::GameInit::method()
 	return sp_gameinit_method;
 }
 
-std::string squarez::onlineSinglePlayer::GameInit::encodeRequest(const std::string& playerName, unsigned int size, unsigned int symbols)
+std::string squarez::onlineSinglePlayer::GameInit::encodeRequest(const std::string& playerName, std::uint32_t size, unsigned int symbols)
 {
 	std::stringstream stream;
 	stream << request_path << method()
@@ -51,7 +51,7 @@ squarez::onlineSinglePlayer::GameInit::GameInit(squarez::DeSerializer& serialize
 {
 }
 
-void squarez::onlineSinglePlayer::GameInit::serialize(squarez::Serializer& serialized, unsigned int token, uint_fast32_t seed)
+void squarez::onlineSinglePlayer::GameInit::serialize(squarez::Serializer& serialized, std::uint32_t token, uint_fast32_t seed)
 {
 	serialized << token << seed;
 }
@@ -61,7 +61,7 @@ const std::string& squarez::onlineSinglePlayer::PushSelection::method()
 	return sp_pushselection_method;
 }
 
-std::string squarez::onlineSinglePlayer::PushSelection::encodeRequest(const squarez::Selection& selection, unsigned int token, std::chrono::milliseconds msSinceEpoch)
+std::string squarez::onlineSinglePlayer::PushSelection::encodeRequest(const squarez::Selection& selection, std::uint32_t token, std::chrono::milliseconds msSinceEpoch)
 {
 	StringSerializer sel;
 	sel << selection;
@@ -89,7 +89,7 @@ const std::string& squarez::onlineSinglePlayer::Pause::method()
 	return sp_pause_method;
 }
 
-std::string squarez::onlineSinglePlayer::Pause::encodeRequest(unsigned int token, bool pause, std::chrono::milliseconds msSinceEpoch)
+std::string squarez::onlineSinglePlayer::Pause::encodeRequest(std::uint32_t token, bool pause, std::chrono::milliseconds msSinceEpoch)
 {
 	std::stringstream stream;
 	stream << request_path << method()

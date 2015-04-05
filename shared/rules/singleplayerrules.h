@@ -30,7 +30,7 @@ namespace squarez {
 class SinglePlayerRules : public squarez::Rules
 {
 	std::string _url;
-	unsigned int _token;
+	std::uint32_t _token;
 	std::unique_ptr<VisibleSelection> _selection;
 	std::unique_ptr<squarez::http::Handle> _requestHandle;
 	std::chrono::steady_clock::time_point _epoch;
@@ -44,7 +44,7 @@ public:
 		std::string name = "",
 		std::uint_fast32_t random_seed = 0,
 		std::string url = "",
-		unsigned int token = 0);
+		std::uint32_t token = 0);
 
 	void setPlayerName(std::string const& name) override;
 	void onClick(Cell & cell) override;
