@@ -1,4 +1,5 @@
 find_package(Boost REQUIRED COMPONENTS program_options)
+find_package(Threads)
 
 pkg_check_modules(fastcgipp REQUIRED fastcgi++)
 
@@ -12,7 +13,7 @@ endif()
 add_definitions(-DNO_HTTP_REQUEST)
 include_directories(SYSTEM ${Boost_INCLUDE_DIRS} ${fastcgipp_INCLUDE_DIRS})
 add_executable(squarezd server.cpp requesthandler.cpp serverrules.cpp highscores.cpp ${shared_sources})
-target_link_libraries(squarezd ${Boost_LIBRARIES} ${fastcgipp_LIBRARIES} ${sqlite_LIBRARIES})
+target_link_libraries(squarezd ${Boost_LIBRARIES} ${fastcgipp_LIBRARIES} ${sqlite_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 
 if (ENABLE_SYSTEMD)
 	target_link_libraries(squarezd ${systemd_LIBRARIES})

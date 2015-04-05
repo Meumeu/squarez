@@ -26,6 +26,11 @@ std::unique_ptr< squarez::Cell::Proxy > squarez::DummyProxy::cellProxyFactory(sq
 	return std::unique_ptr<squarez::Cell::Proxy>(new squarez::Cell::Proxy(cell));
 }
 
+std::unique_ptr< squarez::VisibleSelection::Proxy > squarez::DummyProxy::selectionProxyFactory (squarez::VisibleSelection& selection)
+{
+	return std::unique_ptr<squarez::VisibleSelection::Proxy>(new squarez::VisibleSelection::Proxy(selection));
+}
+
 squarez::ServerRules::ServerRules(std::string playerName, std::mt19937::result_type seed, int board_size, int nb_symbols, Timer && timer, std::shared_ptr<HighScores> highScores):
 	Rules(*this, board_size, nb_symbols, seed, std::move(timer)),
 	_highScores(highScores),

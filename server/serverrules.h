@@ -36,10 +36,10 @@ public:
 	virtual void gameOverChanged(bool /*status*/) override {}
 	virtual void timerUpdated() override {}
 	virtual void nameRequired() override {}
-	virtual void animateSquare(std::array<Cell *, 4>) override {}
 	virtual void networkError() override {}
 
-	virtual std::unique_ptr<Cell::Proxy> cellProxyFactory(Cell & /*cell*/) override;
+	virtual std::unique_ptr<Cell::Proxy> cellProxyFactory(Cell & cell) override;
+	virtual std::unique_ptr< VisibleSelection::Proxy > selectionProxyFactory(VisibleSelection& selection) override;
 };
 
 class ServerRules : public DummyProxy, public squarez::Rules

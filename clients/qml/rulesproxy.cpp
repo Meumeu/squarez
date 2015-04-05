@@ -57,11 +57,6 @@ void RulesProxy::nameRequired()
 	emit onNameRequired();
 }
 
-void RulesProxy::animateSquare(std::array<Cell *, 4>)
-{
-// FIXME: not implemented
-}
-
 void RulesProxy::resetSelection()
 {
 	if (_rules)
@@ -75,6 +70,12 @@ std::unique_ptr<Cell::Proxy> RulesProxy::cellProxyFactory(Cell & cell)
 	_cells.push_back(cellproxy.get());
 	endInsertRows();
 	return std::move(cellproxy);
+}
+
+std::unique_ptr<VisibleSelection::Proxy> RulesProxy::selectionProxyFactory (VisibleSelection& selection)
+{
+	//FIXME: implement
+	return std::unique_ptr<VisibleSelection::Proxy>(new VisibleSelection::Proxy(selection));
 }
 
 void RulesProxy::removeCell(CellProxy* cell)

@@ -57,8 +57,6 @@ void squarez::Rules::applyTransition(const Transition &transition)
 		std::transform(transition._selection.begin(), transition._selection.end(), square.begin(),
 			[this](decltype(*transition._selection.begin()) point){return &_board->access(point);}
 		);
-
-		_proxy.animateSquare(square);
 	}
 	_board->applyTransition(transition);
 }

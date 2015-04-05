@@ -67,10 +67,10 @@ public:
 	void gameOverChanged(bool status) override;
 	void timerUpdated() override;
 	void nameRequired() override;
-	void animateSquare(std::array<Cell *, 4>) override;
 	void networkError() override;
 
 	std::unique_ptr<Cell::Proxy> cellProxyFactory(Cell & cell) override;
+	std::unique_ptr<VisibleSelection::Proxy> selectionProxyFactory(VisibleSelection& selection) override;
 
 	unsigned int score() const { return _rules ? _rules->score() : 0; }
 	bool gameOver() const { return _rules ? _rules->gameOver() : false; }

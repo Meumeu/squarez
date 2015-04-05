@@ -30,9 +30,7 @@
 #include "game/gameboard.h"
 
 namespace squarez {
-class Cell;
 class Score;
-class Selection;
 class Transition;
 }
 
@@ -48,10 +46,10 @@ public:
 		virtual void gameOverChanged(bool status) = 0;
 		virtual void timerUpdated() = 0;
 		virtual void nameRequired() = 0;
-		virtual void animateSquare(std::array<Cell *, 4>) = 0;
 		virtual void networkError() = 0;
 
 		virtual std::unique_ptr<Cell::Proxy> cellProxyFactory(Cell & cell) = 0;
+		virtual std::unique_ptr<VisibleSelection::Proxy> selectionProxyFactory(VisibleSelection & selection) = 0;
 	};
 private:
 	unsigned int _score;
@@ -85,6 +83,7 @@ public:
 	virtual void onClick(Cell & cell) = 0;
 	virtual void resetSelection() {};
 	Cell::proxy_factory cellProxyFactory() { return [this](Cell & cell){return _proxy.cellProxyFactory(cell); }; }
+	VisibleSelection::proxy_factory selectionProxyFactory() { return [this](VisibleSelection & selection){return _proxy.selectionProxyFactory(selection); }; }
 
 	virtual ~Rules() {}
 };

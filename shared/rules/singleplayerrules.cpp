@@ -40,6 +40,7 @@ squarez::SinglePlayerRules::SinglePlayerRules(
 	Rules(proxy, board_size, nb_symbols, random_seed ? random_seed : std::random_device()(), std::move(timer), name),
 	_url(url),
 	_token(token),
+	_selection(new VisibleSelection(selectionProxyFactory())),
 	_epoch(std::chrono::steady_clock::now())
 {
 	// Silence warning about unused field with NO_HTTP_REQUEST
@@ -64,13 +65,13 @@ void squarez::SinglePlayerRules::onClick(squarez::Cell& cell)
 	if (gameOver())
 		return;
 
-	cell.setSelected(_selection.togglePoint(cell.x(), cell.y()));
-	Transition const& tr = _board->selectSquare(_selection, _random_generator, false);
+	cell.setSelected(_selection->togglePoint(cell.x(), cell.y()));
+	Transition const& tr = _board->selectSquare(*_selection, _random_generator, false);
 	if (tr._score)
 	{
 #ifndef NO_HTTP_REQUEST
 		if (not _url.empty())
-			_requestHandle = http::request(_url + onlineSinglePlayer::PushSelection::encodeRequest(_selection, _token, std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - _epoch)),
+			_requestHandle = http::request(_url + onlineSinglePlayer::PushSelection::encodeRequest(*_selection, _token, std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - _epoch)),
 				[this](std::string response) // onload
 				{
 					DeSerializer s(response);
@@ -94,10 +95,10 @@ void squarez::SinglePlayerRules::onClick(squarez::Cell& cell)
 
 void squarez::SinglePlayerRules::resetSelection()
 {
-	for(auto& i: _selection)
+	for(auto& i: *_selection)
 		_board->access(i).setSelected(false);
 
-	_selection = Selection();
+	_selection.reset(new VisibleSelection(selectionProxyFactory()));
 }
 
 void squarez::SinglePlayerRules::setPause(bool state)

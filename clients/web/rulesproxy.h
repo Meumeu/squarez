@@ -47,7 +47,7 @@ public:
 
 	~RulesProxy();
 	virtual std::unique_ptr<Cell::Proxy> cellProxyFactory(squarez::Cell& cell) override;
-	virtual void animateSquare(std::array<Cell*, 4>) override;
+	virtual std::unique_ptr<VisibleSelection::Proxy> selectionProxyFactory(VisibleSelection& selection) override;
 	virtual void nameRequired() override;
 	virtual void timerUpdated() override;
 	virtual void gameOverChanged(bool status) override;

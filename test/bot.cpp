@@ -34,10 +34,12 @@ namespace
 		virtual void gameOverChanged(bool) override {};
 		virtual void timerUpdated() override {};
 		virtual void nameRequired() override {};
-		virtual void animateSquare(std::array<squarez::Cell *, 4>) override {};
 		virtual void networkError() override {}
 
-		virtual std::unique_ptr<squarez::Cell::Proxy> cellProxyFactory(squarez::Cell & owner) override {return std::unique_ptr<squarez::Cell::Proxy>(new squarez::Cell::Proxy(owner));}
+		virtual std::unique_ptr<squarez::Cell::Proxy> cellProxyFactory(squarez::Cell & owner) override
+			{return std::unique_ptr<squarez::Cell::Proxy>(new squarez::Cell::Proxy(owner));}
+		virtual std::unique_ptr<squarez::VisibleSelection::Proxy> selectionProxyFactory (squarez::VisibleSelection& selection) override
+			{return std::unique_ptr<squarez::VisibleSelection::Proxy>(new squarez::VisibleSelection::Proxy(selection));}
 	};
 
 

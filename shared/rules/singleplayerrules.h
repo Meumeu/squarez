@@ -31,7 +31,7 @@ class SinglePlayerRules : public squarez::Rules
 {
 	std::string _url;
 	unsigned int _token;
-	Selection _selection;
+	std::unique_ptr<VisibleSelection> _selection;
 	std::unique_ptr<squarez::http::Handle> _requestHandle;
 	std::chrono::steady_clock::time_point _epoch;
 
