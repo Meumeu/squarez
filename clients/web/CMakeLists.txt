@@ -1,5 +1,5 @@
-configure_file(manifest.appcache.in html/manifest.appcache)
-configure_file(manifest.webapp.in html/manifest.webapp)
+configure_file(manifest.appcache.in manifest.appcache)
+configure_file(manifest.webapp.in manifest.webapp)
 
 list(REMOVE_ITEM client_sources ${CMAKE_SOURCE_DIR}/clients/httprequest.cpp)
 list(REMOVE_ITEM shared_sources ${CMAKE_SOURCE_DIR}/shared/database/database.cpp)
@@ -20,4 +20,12 @@ install(FILES
 	${CMAKE_BINARY_DIR}/data/img/shape2-selected.svg
 	DESTINATION img COMPONENT html)
 
-install(FILES game.css gameSelection.css index.html singleplayer.html tutorial.html DESTINATION . COMPONENT html)
+install(FILES
+	${CMAKE_CURRENT_BINARY_DIR}/manifest.appcache
+	${CMAKE_CURRENT_BINARY_DIR}/manifest.webapp
+	game.css
+	gameSelection.css
+	index.html
+	singleplayer.html
+	tutorial.html
+	DESTINATION . COMPONENT html)
