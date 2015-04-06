@@ -1,5 +1,5 @@
 body,
-.pause,
+.pauseOverlay,
 #nameForm
 {
 	margin: 0;
@@ -67,14 +67,12 @@ a
 	border-color: #0000FF;
 }
 
-.cell,
-.move-1,
-.move-2
+.cell
 {
 	position: absolute;
 }
-.gameOver,
-.pause,
+.gameOverOverlay,
+.pauseOverlay,
 #nameForm,
 .tutorialOverlay
 {
@@ -84,13 +82,8 @@ a
 	right: 0;
 	bottom: 0;
 }
-.multiplayer #nameForm
-{
-	position: fixed;
-}
-
-#gameArea:not(.paused) .pause,
-#gameArea:not(.gameOver) .gameOver
+#gameArea:not(.paused) .pauseOverlay,
+#gameArea:not(.gameOver) .gameOverOverlay
 {
 	display: none;
 }
@@ -109,37 +102,6 @@ a
 	height: 8.2em;
 	width: 8em;
 	float: left;
-}
-
-.move-1
-{
-	animation: move1 0.3s ease-in;
-	-webkit-animation: move1 0.3s ease-in;
-}
-.move-2
-{
-	animation: move2 0.42s ease-in;
-	-webkit-animation: move2 0.42s ease-in;
-}
-@-webkit-keyframes move1
-{
-	from {-webkit-transform: translateY(-1em);}
-	to {-webkit-transform: translateY(0);}
-}
-@keyframes move2
-{
-	from {transform: translateY(-2em);}
-	to {transform: translateY(0);}
-}
-@-webkit-keyframes move2
-{
-	from {-webkit-transform: translateY(-2em);}
-	to {-webkit-transform: translateY(0);}
-}
-@keyframes move1
-{
-	from {transform: translateY(-1em);}
-	to {transform: translateY(0);}
 }
 
 .cell
@@ -198,19 +160,10 @@ a
 	background: none;
 }
 
-.scoreContainer,
-#highScores h1
-{
-	font-size: 20px;
-}
 #score
 {
 	font-size: 2em;
 	font-weight: bold;
-}
-.multiplayer #highScores .date
-{
-	display: none;
 }
 
 .timeLeftOuter,
@@ -242,7 +195,7 @@ a
 }
 @media all and (orientation: portrait)
 {
-	.pause
+	.pauseOverlay
 	{
 		bottom: 0.2em;
 	}
@@ -271,7 +224,7 @@ a
 }
 @media all and (orientation: landscape)
 {
-	.pause
+	.pauseOverlay
 	{
 		right: 0.2em;
 	}
@@ -302,7 +255,7 @@ a
 		margin-right: 10px;
 	}
 }
-.gameOver
+.gameOverOverlay
 {
 	background: rgba(0,0,0, 0.5);
 }
@@ -340,8 +293,8 @@ a
 	background-color: rgba(0,0,0,0.3);
 }
 
-.pause,
-.gameOver,
+.pauseOverlay,
+.gameOverOverlay,
 .tutorialOverlay
 {
 	z-index: 1;
@@ -383,36 +336,6 @@ a
 	-webkit-transition: top 0s, left 0s;
 }
 
-.multiplayer #highScores
-{
-	margin: 10px;
-	border: 1px solid;
-	background-color: rgba(255,255,255, 0.1);
-}
-.multiplayer #highScores h1
-{
-	margin: 5px 5px 0 5px;
-}
-#highScores h1
-{
-	text-align: center;
-}
-#highScores table
-{
-	width: 100%;
-}
-table
-{
-	border-collapse: collapse;
-}
-#highScores td
-{
-	padding: 0 5px;
-}
-#highScores tr:nth-child(2n)
-{
-	background: rgba(0,0,0, 0.2);
-}
 a
 {
 	text-decoration: none;
