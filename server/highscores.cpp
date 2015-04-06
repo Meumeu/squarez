@@ -52,16 +52,60 @@ squarez::HighScores::HighScores(std::string filename) : db(filename)
 
 void squarez::HighScores::initDatabase()
 {
-	db.execute("CREATE TABLE IF NOT EXISTS scores ("
-		"id INTEGER PRIMARY KEY,"
-		"name VARCHAR(100),"
-		"score INTEGER,"
-		"timestamp INTEGER"
+	db.execute("CREATE TABLE IF NOT EXISTS config ("
+		"key VARCHAR(50) UNIQUE,"
+		"value VARCHAR(50)"
 		")"
 	);
+
+	switch(getConfig("version", 0))
+	{
+	case 0: // new database
+		db.execute("CREATE TABLE scores ("
+			"id INTEGER PRIMARY KEY,"
+			"name VARCHAR(100),"
+			"score INTEGER,"
+			"timestamp VARCHAR(20)"
+			")"
+		);
+
+		setConfig("version", 1);
+		break;
+
+	case 1: // current version
+		break;
+
+	default: // newer version
+		throw std::runtime_error("Database too new");
+		break;
+	}
+}
+
+namespace {
+	std::string time_put(std::time_t t = std::time(nullptr))
+	{
+		std::tm tmp = *std::gmtime(&t);
+		char buf[21];
+		std::strftime(buf, sizeof(buf), "%F %T", &tmp);
+		return buf;
+	}
 }
 
 void squarez::HighScores::addScore(std::string playerName, int score)
 {
-	db.execute("INSERT INTO scores(name, score, timestamp) VALUES(?,?,?)", playerName, score, (uint64_t)std::time(nullptr));
+	db.execute("INSERT INTO scores(name, score, timestamp) VALUES(?,?,?)", playerName, score, time_put());
+}
+
+std::vector<squarez::onlineSinglePlayer::GetScores::Score> squarez::HighScores::getScores()
+{
+	std::vector<squarez::onlineSinglePlayer::GetScores::Score> ret;
+	for(auto& i: db.execute("SELECT name, score, timestamp FROM scores ORDER BY score DESC LIMIT 20"))
+	{
+		squarez::onlineSinglePlayer::GetScores::Score tmp;
+		tmp._playerName = i.fetch<std::string>(0);
+		tmp._score = i.fetch<int>(1);
+		tmp._date = i.fetch<std::string>(2);
+		ret.push_back(tmp);
+	}
+	return ret;
 }

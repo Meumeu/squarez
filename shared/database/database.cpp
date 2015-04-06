@@ -154,6 +154,11 @@ database::row& database::iterator::operator*()
 	return current_row;
 }
 
+database::row* database::iterator::operator->()
+{
+	return &current_row;
+}
+
 void database::result::bind(int n, int value)
 {
 	check_sqlite_return_code("bind_int", _db, sqlite3_bind_int(_statement.get(), n, value));

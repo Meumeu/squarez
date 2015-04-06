@@ -69,6 +69,25 @@ struct Pause
 	static std::string encodeRequest(std::uint32_t token, bool pause, std::chrono::milliseconds msSinceEpoch);
 };
 
+
+struct GetScores
+{
+	struct Score
+	{
+		std::string _playerName;
+		int _score;
+		std::string _date;
+	};
+
+	static std::string const& method();
+	static std::string encodeRequest();
+
+	GetScores(DeSerializer & serialized);
+
+	static void serialize(Serializer & serialized, std::vector<Score> scores);
+	std::vector<Score> _scores;
+};
+
 }
 }
 
