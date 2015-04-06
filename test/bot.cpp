@@ -33,7 +33,6 @@ namespace
 		virtual void scoreChanged(unsigned int) override {};
 		virtual void gameOverChanged(bool) override {};
 		virtual void timerUpdated() override {};
-		virtual void nameRequired() override {};
 		virtual void networkError() override {}
 
 		virtual std::unique_ptr<squarez::Cell::Proxy> cellProxyFactory(squarez::Cell & owner) override
@@ -107,7 +106,7 @@ int main()
 	test_db();
 
 	DummyProxy proxy;
-	squarez::SinglePlayerRules rules(proxy, squarez::constants::default_timer());
+	squarez::SinglePlayerRules rules(proxy, squarez::constants::default_timer(), "bot");
 	int score = 0;
 	int nbIter = 0;
 	auto & board = *rules._board;

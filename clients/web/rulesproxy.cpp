@@ -40,7 +40,7 @@ void callHandler(squarez::web::EventHandler & h, emscripten::val v)
 EMSCRIPTEN_BINDINGS(rulesproxy)
 {
 	emscripten::class_<squarez::web::RulesProxy>("Squarez")
-	.constructor<emscripten::val, emscripten::val, emscripten::val>()
+	.constructor<emscripten::val, emscripten::val, emscripten::val, std::string>()
 	.constructor<emscripten::val, emscripten::val, emscripten::val, std::string, std::string>()
 	.function<void>("togglePause", &squarez::web::RulesProxy::togglePause)
 	.function<void>("resetSelection", &squarez::web::RulesProxy::resetSelection);
@@ -67,17 +67,20 @@ static void setupResizeHandler(emscripten::val rootElement, unsigned int size)
 	callback(window);
 }
 
-squarez::web::RulesProxy::RulesProxy(emscripten::val rootElement, emscripten::val scoreElement, emscripten::val timerElement):
+squarez::web::RulesProxy::RulesProxy(emscripten::val rootElement, emscripten::val scoreElement, emscripten::val timerElement, std::string playerName):
 	_scoreElement(scoreElement), _timerElement(timerElement), _rootElement(rootElement)
 {
-	_rules.reset(new SinglePlayerRules(*this, constants::default_timer()));
+	_rules.reset(new SinglePlayerRules(*this, constants::default_timer(), playerName));
 	initTimers();
 	setupResizeHandler(rootElement, constants::default_board_size);
 }
 
-squarez::web::RulesProxy::RulesProxy(emscripten::val rootElement, emscripten::val scoreElement, emscripten::val timerElement, std::string url, std::string playerName):
+squarez::web::RulesProxy::RulesProxy(emscripten::val rootElement, emscripten::val scoreElement, emscripten::val timerElement, std::string playerName, std::string url):
 _scoreElement(scoreElement), _timerElement(timerElement), _rootElement(rootElement)
 {
+	// SinglePlayerRules will think we are in local mode if url is empty, but in fact we want to build a relative url
+	if (url.empty())
+		url = "./";
 	_initHandle = squarez::http::request(url + onlineSinglePlayer::GameInit::encodeRequest(playerName, constants::default_board_size, constants::default_symbols),
 		[this, url, playerName](std::string response)
 		{
@@ -86,18 +89,18 @@ _scoreElement(scoreElement), _timerElement(timerElement), _rootElement(rootEleme
 			_rules.reset(new SinglePlayerRules(
 				*this,
 				constants::default_timer(),
+				playerName,
 				constants::default_board_size,
 				constants::default_symbols,
-				playerName,
 				game._seed,
 				url,
 				game._token));
 			initTimers();
 		},
-		[this]()
+		[this, playerName]()
 		{
 			networkError();
-			_rules.reset(new SinglePlayerRules(*this, constants::default_timer()));
+			_rules.reset(new SinglePlayerRules(*this, constants::default_timer(), playerName));
 			initTimers();
 		}
 	);
@@ -127,11 +130,6 @@ std::unique_ptr<squarez::Cell::Proxy> squarez::web::RulesProxy::cellProxyFactory
 std::unique_ptr<squarez::VisibleSelection::Proxy> squarez::web::RulesProxy::selectionProxyFactory(squarez::VisibleSelection& selection)
 {
 	return std::unique_ptr<VisibleSelection::Proxy>(new SelectionProxy(selection, *this));
-}
-
-void squarez::web::RulesProxy::nameRequired()
-{
-	//FIXME: implement
 }
 
 void squarez::web::RulesProxy::timerUpdated()

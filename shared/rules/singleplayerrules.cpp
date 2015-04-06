@@ -30,9 +30,9 @@ squarez::SinglePlayerRules::~SinglePlayerRules()
 squarez::SinglePlayerRules::SinglePlayerRules(
 	squarez::Rules::Proxy& proxy,
 	Timer && timer,
+	std::string name,
 	int board_size,
 	int nb_symbols,
-	std::string name,
 	std::uint_fast32_t random_seed,
 	std::string url,
 	std::uint32_t token) :
@@ -120,8 +120,4 @@ void squarez::SinglePlayerRules::setPause(bool state)
 			}
 		);
 #endif
-}
-
-void squarez::SinglePlayerRules::setPlayerName(const std::string& /*name*/)
-{
 }

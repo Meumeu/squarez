@@ -66,7 +66,6 @@ public:
 	void scoreChanged(unsigned int score) override;
 	void gameOverChanged(bool status) override;
 	void timerUpdated() override;
-	void nameRequired() override;
 	void networkError() override;
 
 	std::unique_ptr<Cell::Proxy> cellProxyFactory(Cell & cell) override;
@@ -95,7 +94,6 @@ public:
 	void removeCell(CellProxy * cell);
 
 signals:
-	void onNameRequired();
 	
 	void onScoreChanged(unsigned int score);
 	void onGameOverChanged(bool gameOver);
