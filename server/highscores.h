@@ -21,6 +21,8 @@
 #define SQUAREZ_HIGHSCORES_H
 
 #include "database/database.h"
+#include "network/methods.h"
+
 #include <string>
 
 namespace squarez {
@@ -33,7 +35,25 @@ class HighScores
 public:
 	HighScores();
 	HighScores(std::string filename);
+
+	template<typename T> T getConfig(const std::string& key, const T& default_value)
+	{
+		auto res = db.execute("SELECT value FROM config WHERE key=?", key);
+		auto it = res.begin();
+
+		if (it == res.end())
+			return default_value;
+		else
+			return it->fetch<T>(0);
+	}
+
+	template<typename T> void setConfig(const std::string& key, const T& value)
+	{
+		db.execute("INSERT OR REPLACE INTO config (key, value) VALUES (?, ?)", key, value);
+	}
+
 	void addScore(std::string playerName, int score);
+	std::vector<onlineSinglePlayer::GetScores::Score> getScores();
 };
 
 }

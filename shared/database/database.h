@@ -90,6 +90,7 @@ public:
 			return not (*this == rhs);
 		}
 		row& operator*();
+		row* operator->();
 		iterator& operator++(); // prefix
 	};
 

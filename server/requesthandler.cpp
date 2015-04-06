@@ -157,10 +157,17 @@ bool squarez::RequestHandler::response()
 
 		out << "Content-Type: text/plain\r\n\r\n";
 	}
+	else if (method == "/" + onlineSinglePlayer::GetScores::method())
+	{
+		out << "Content-Type: text/plain\r\n\r\n";
+
+		Serializer ser(out);
+		onlineSinglePlayer::GetScores::serialize(ser, highScores->getScores());
+	}
 	else
 	{
 		std::stringstream ss;
-		ss << "Unkown method [" << method << "]";
+		ss << "Unknown method [" << method << "]";
 		throw std::runtime_error(ss.str());
 	}
 	return true;

@@ -23,6 +23,7 @@
 #include "game/selection.h"
 #include "utils/serializer.h"
 
+
 #include <sstream>
 
 static const std::string request_path = "squarez/";
@@ -30,6 +31,7 @@ static const std::string request_path = "squarez/";
 static const std::string sp_gameinit_method = "0";
 static const std::string sp_pushselection_method = "1";
 static const std::string sp_pause_method = "2";
+static const std::string get_scores = "3";
 
 const std::string& squarez::onlineSinglePlayer::GameInit::method()
 {
@@ -97,4 +99,39 @@ std::string squarez::onlineSinglePlayer::Pause::encodeRequest(std::uint32_t toke
 	<< "&pause=" << (pause ? "1" : "0")
 	<< "&msSinceEpoch=" << msSinceEpoch.count();
 	return stream.str();
+}
+
+namespace squarez
+{
+static squarez::Serializer& operator<<(squarez::Serializer& ser, const squarez::onlineSinglePlayer::GetScores::Score& score)
+{
+	return ser << score._playerName << score._score << score._date;
+}
+
+static squarez::DeSerializer& operator>>(squarez::DeSerializer& ser, squarez::onlineSinglePlayer::GetScores::Score& score)
+{
+	return ser >> score._playerName >> score._score >> score._date;
+}
+}
+
+const std::string& squarez::onlineSinglePlayer::GetScores::method()
+{
+	return get_scores;
+}
+
+std::string squarez::onlineSinglePlayer::GetScores::encodeRequest()
+{
+	std::stringstream stream;
+	stream << request_path << method();
+	return stream.str();
+}
+
+squarez::onlineSinglePlayer::GetScores::GetScores(squarez::DeSerializer& serialized)
+{
+	serialized >> _scores;
+}
+
+void squarez::onlineSinglePlayer::GetScores::serialize(squarez::Serializer& serialized, std::vector<squarez::onlineSinglePlayer::GetScores::Score> scores)
+{
+	serialized << scores;
 }
