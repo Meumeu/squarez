@@ -13,8 +13,8 @@
 				<div id="timerInner" class="timeLeftInner">
 				</div>
 			</div>
-			<div class="gameOver"><div>Game over</div><div class="restartButton" onclick="location.reload()">Restart</div></div>
-			<div class="pause">Game paused</div>
+			<div class="gameOverOverlay"><div>Game over</div><div class="restartButton" onclick="location.reload()">Restart</div></div>
+			<div class="pauseOverlay">Game paused</div>
 			<form id="nameForm">
 				<h1>New game</h1>
 				<label>Enter your name: <input id="nameInput" type="text" name="name"></label>
@@ -28,12 +28,6 @@
 				<div class="pauseButton jsPause">Pause</div>
 				<div class="clearButton jsClear">Clear Selection</div>
 				<a class="backButton" href="index.html">Back</a>
-			</div>
-			<div id="highScores" style="display:none">
-				<h1>High Scores</h1>
-				<table>
-					<tbody id="scoreList"></tbody>
-				</table>
 			</div>
 		</div>
 		<script>
