@@ -48,12 +48,12 @@ install(CODE "
 	cmake_policy(SET CMP0011 NEW)
 
 	string(TIMESTAMP MANIFEST_TIMESTAMP \"%Y-%m-%dT%H:%M:%SZ\" UTC)
-	file(GLOB_RECURSE FILE_LIST RELATIVE \${CMAKE_INSTALL_PREFIX} \${CMAKE_INSTALL_PREFIX}/*)
+	file(GLOB_RECURSE FILE_LIST RELATIVE \$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX} \$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/*)
 	string(REPLACE \";\" \"\n\" FILE_LIST \"\${FILE_LIST}\")
 	configure_file(${CMAKE_CURRENT_BINARY_DIR}/manifest.appcache.in ${CMAKE_CURRENT_BINARY_DIR}/manifest.appcache)
 
 	cmake_policy(POP)
-")
+" COMPONENT html)
 
 install(FILES
 	${CMAKE_CURRENT_BINARY_DIR}/manifest.appcache
