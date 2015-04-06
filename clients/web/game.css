@@ -96,7 +96,6 @@ a
 
 #gameArea
 {
-	font-size: 100px;
 	position: relative;
 	overflow: hidden;
 	height: 8.2em;
@@ -160,6 +159,10 @@ a
 	background: none;
 }
 
+.scoreContainer
+{
+	font-size: 0.2em;
+}
 #score
 {
 	font-size: 2em;
@@ -193,6 +196,27 @@ a
 {
 	box-sizing: border-box;
 }
+
+.pauseButton,
+.clearButton,
+.backButton,
+.restartButton,
+#nameForm input[type=submit]
+{
+	border: none;
+	text-indent: -1000px;
+	overflow: hidden;
+	width: 1em;
+	height: 1em;
+	margin: 0.2em;
+	background-size: 80%;
+	background-position: center;
+	background-repeat: no-repeat;
+	cursor: pointer;
+	border-radius: 0.2em;
+	background-color: rgba(255, 255, 255, 0.1);
+}
+
 @media all and (orientation: portrait)
 {
 	.pauseOverlay
@@ -220,6 +244,14 @@ a
 	.timerScale >div:first-child
 	{
 		border-color: rgba(0,0,0,0);
+	}
+	.buttons > *
+	{
+		display: inline-block;
+	}
+	.backButton
+	{
+		margin-left: 1.4em;
 	}
 }
 @media all and (orientation: landscape)
@@ -254,6 +286,14 @@ a
 		width: 8.2em;
 		margin-right: 10px;
 	}
+	.buttons > *
+	{
+		display: block;
+	}
+	.backButton
+	{
+		margin-top: 1.4em;
+	}
 }
 .gameOverOverlay
 {
@@ -269,13 +309,13 @@ a
 }
 #nameForm input[type=text]
 {
-	padding: 5px;
-	width: 94%;
-	margin-left: 3%;
-	margin-right: 3%;
-	display: block;
-	border: 1px solid #808080;
-	border-radius: 3px;
+	display: inline-block;
+	padding: 0.2em;
+	height: 1.1em;
+	width: 80%;
+	margin: 0;
+	border: none;
+	border-radius: 0.2em;
 }
 #nameForm input
 {
@@ -299,34 +339,54 @@ a
 {
 	z-index: 1;
 	text-align: center;
+}
+.pauseOverlay
+{
+	padding-top: 3em;
+}
+.gameOverOverlay,
+.tutorialOverlay
+{
 	padding-top: 2em;
 }
-
-.pauseButton,
-.clearButton,
-.restartButton,
-#nameForm input[type=submit],
+.pauseButton:hover,
+.clearButton:hover,
+.backButton:hover,
+.restartButton:hover,
+#nameForm input[type=submit]:hover
+{
+	background-color: rgba(255, 255, 255, 0.3);
+}
+.pauseButton
+{
+	background-image: url("img/pause.svg");
+}
+.clearButton
+{
+	background-image: url("img/clear.svg");
+}
 .backButton
 {
-	border: none;
-	display: inline-block;
-	padding: 0.4em;
-	border-radius: 0.5em;
-	background: #f2f6f8;
-	background: linear-gradient(to bottom, #f2f6f8 0%,#d8e1e7 50%,#b5c6d0 51%,#e0eff9 100%);
-	color: #202020;
-	margin: 0.2em 0.5em;
-	box-shadow: 0 0 0.5em rgba(255,255,255, 0.7);
-	cursor: pointer;
+	background-image: url("img/back.svg");
 }
 .restartButton
 {
-	font-size: 0.5em;
-	margin-top: 1em;
+	background-color: rgba(80, 80, 80, 0.8);
+	background-image: url("img/restart.svg");
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 0.5em;
+}
+#nameForm input[type=submit]
+{
+	background-image: url("img/start.svg");
+	margin: 0;
+	width: 1.5em;
+	height: 1.5em;
+	display: inline-block;
 }
 .info
 {
-	min-width: 300px;
 	display: inline-block;
 }
 
@@ -339,4 +399,17 @@ a
 a
 {
 	text-decoration: none;
+}
+
+.notStarted .scoreContainer,
+.notStarted .buttons
+{
+	visibility: hidden;
+}
+
+.gameOver .cell,
+.gameOver .timeLeftOuter
+{
+	filter: blur(5px);
+	-webkit-filter: blur(5px);
 }

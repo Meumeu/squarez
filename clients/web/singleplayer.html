@@ -6,8 +6,9 @@
 		<link rel="stylesheet" type="text/css" href="game.css">
 		<link rel="icon" type="image/png" href="img/icon30.png">
 		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+		<meta charset="utf-8">
 	</head>
-	<body class="singleplayer">
+	<body class="notStarted">
 		<div id="gameArea">
 			<div id="timerOuter" class="timeLeftOuter">
 				<div id="timerInner" class="timeLeftInner">
@@ -17,16 +18,19 @@
 			<div class="pauseOverlay">Game paused</div>
 			<form id="nameForm">
 				<h1>New game</h1>
-				<label>Enter your name: <input id="nameInput" type="text" name="name"></label>
-				<input type="submit" value="Start">
+				<label for="nameInput">Enter your name:</label>
+				<div>
+					<input id="nameInput" type="text" name="name">
+					<input type="submit" value="Start">
+				</div>
 			</form>
 		</div>
 		<div class="info">
 			<div class="scoreContainer"><span class="scoreLabel">Score: </span><span id="score">0</span>
 			</div>
 			<div class="buttons">
-				<div class="pauseButton jsPause">Pause</div>
-				<div class="clearButton jsClear">Clear Selection</div>
+				<div class="pauseButton jsPause">pause</div>
+				<div class="clearButton jsClear">clear selection</div>
 				<a class="backButton" href="index.html">Back</a>
 			</div>
 		</div>
@@ -47,6 +51,7 @@
 		nameForm.style.display = "none";
 		localStorage.name = input.value;
 		history.replaceState(null, "", location.origin + location.pathname + "?name="+encodeURIComponent(input.value));
+		document.body.classList.remove("notStarted");
 		return false;
 	}
 	var s = location.search.split("name=");
@@ -59,6 +64,12 @@
 	{
 		input.value = localStorage.name;
 	}
+	window.addEventListener("resize", function()
+		{
+			document.getElementById("gameArea").classList.add("resizing");
+			document.body.style.fontSize = (Math.min(window.innerHeight, window.innerWidth)/8) + "px";
+		}, false);
+	document.body.style.fontSize = (Math.min(window.innerHeight, window.innerWidth)/8) + "px";
 })();
 		</script>
 	</body>

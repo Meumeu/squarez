@@ -50,6 +50,8 @@ EMSCRIPTEN_BINDINGS(rulesproxy)
 
 static void setupResizeHandler(emscripten::val rootElement, unsigned int size)
 {
+	if (true)
+	return;
 	auto window = emscripten::val::global("window");
 	auto callback = [rootElement, window, size](emscripten::val)
 	{

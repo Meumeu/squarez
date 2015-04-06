@@ -20,6 +20,11 @@ install(FILES
 	${CMAKE_BINARY_DIR}/data/img/shape0-selected.svg
 	${CMAKE_BINARY_DIR}/data/img/shape1-selected.svg
 	${CMAKE_BINARY_DIR}/data/img/shape2-selected.svg
+	${CMAKE_SOURCE_DIR}/data/img/back.svg
+	${CMAKE_SOURCE_DIR}/data/img/clear.svg
+	${CMAKE_SOURCE_DIR}/data/img/pause.svg
+	${CMAKE_SOURCE_DIR}/data/img/restart.svg
+	${CMAKE_SOURCE_DIR}/data/img/start.svg
 	${CMAKE_SOURCE_DIR}/data/img/icon30.png
 	${CMAKE_SOURCE_DIR}/data/img/icon60.png
 	${CMAKE_SOURCE_DIR}/data/img/icon64.png
