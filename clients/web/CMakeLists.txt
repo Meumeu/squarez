@@ -18,6 +18,12 @@ install(FILES
 	${CMAKE_BINARY_DIR}/data/img/shape0-selected.svg
 	${CMAKE_BINARY_DIR}/data/img/shape1-selected.svg
 	${CMAKE_BINARY_DIR}/data/img/shape2-selected.svg
+	${CMAKE_SOURCE_DIR}/data/img/icon30.png
+	${CMAKE_SOURCE_DIR}/data/img/icon60.png
+	${CMAKE_SOURCE_DIR}/data/img/icon64.png
+	${CMAKE_SOURCE_DIR}/data/img/icon90.png
+	${CMAKE_SOURCE_DIR}/data/img/icon120.png
+	${CMAKE_SOURCE_DIR}/data/img/icon128.png
 	DESTINATION img COMPONENT html)
 
 install(FILES
