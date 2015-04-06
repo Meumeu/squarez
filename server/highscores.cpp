@@ -91,9 +91,14 @@ namespace {
 	}
 }
 
-void squarez::HighScores::addScore(std::string playerName, int score)
+int64_t squarez::HighScores::addScore(std::string playerName, int score)
 {
-	db.execute("INSERT INTO scores(name, score, timestamp) VALUES(?,?,?)", playerName, score, time_put());
+	return db.execute("INSERT INTO scores(name, score, timestamp) VALUES(?,?,?)", playerName, score, time_put()).insert_id();
+}
+
+void squarez::HighScores::updateScore (int score, int64_t rowId)
+{
+	db.execute("UPDATE scores SET score = ? where id = ?", score, rowId);
 }
 
 std::vector<squarez::onlineSinglePlayer::GetScores::Score> squarez::HighScores::getScores()

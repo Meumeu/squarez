@@ -52,7 +52,8 @@ public:
 		db.execute("INSERT OR REPLACE INTO config (key, value) VALUES (?, ?)", key, value);
 	}
 
-	void addScore(std::string playerName, int score);
+	int64_t addScore(std::string playerName, int score);
+	void updateScore(int score, int64_t rowId);
 	std::vector<onlineSinglePlayer::GetScores::Score> getScores();
 };
 

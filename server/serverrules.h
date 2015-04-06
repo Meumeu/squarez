@@ -64,6 +64,7 @@ public:
 	virtual void onClick(Cell &) {};
 private:
 	std::chrono::steady_clock::time_point _epoch;
+	int64_t _scoreDbRow;
 };
 }
 

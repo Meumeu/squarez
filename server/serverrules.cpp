@@ -36,24 +36,14 @@ std::unique_ptr< squarez::VisibleSelection::Proxy > squarez::DummyProxy::selecti
 squarez::ServerRules::ServerRules(std::string playerName, std::mt19937::result_type seed, int board_size, int nb_symbols, Timer && timer, std::shared_ptr<HighScores> highScores):
 	Rules(*this, board_size, nb_symbols, seed, std::move(timer)),
 	_highScores(highScores),
-	_epoch(std::chrono::steady_clock::now())
+	_epoch(std::chrono::steady_clock::now()),
+	_scoreDbRow(0)
 {
 	_playerName = std::move(playerName);
 }
 
 squarez::ServerRules::~ServerRules()
 {
-	if (_highScores)
-	{
-		try
-		{
-			_highScores->addScore(_playerName, score());
-		}
-		catch(squarez::database::exception& e)
-		{
-			std::cerr << "Cannot save score: " << e.what() << std::endl;
-		}
-	}
 }
 
 bool squarez::ServerRules::playSelection(const std::string & serializedSelection, std::chrono::milliseconds msSinceEpoch)
@@ -71,6 +61,20 @@ bool squarez::ServerRules::playSelection(const std::string & serializedSelection
 	{
 		_timer.refill(transition._score * 2, when);
 		setScore(score() + transition._score);
+		if (_highScores)
+		{
+			try
+			{
+				if (_scoreDbRow == 0)
+					_scoreDbRow = _highScores->addScore(_playerName, score());
+				else
+					_highScores->updateScore(score(), _scoreDbRow);
+			}
+			catch(squarez::database::exception& e)
+			{
+				std::cerr << "Cannot save score: " << e.what() << std::endl;
+			}
+		}
 
 		this->applyTransition(transition);
 	}
