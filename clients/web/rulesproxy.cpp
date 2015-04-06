@@ -136,16 +136,12 @@ void squarez::web::RulesProxy::timerUpdated()
 {
 	if (_rules->pause())
 	{
-		_rootElement.call<emscripten::val>("getElementsByClassName", emscripten::val("pause"))
-		.call<emscripten::val>("item", 0)
-		["style"].set("display", "");
+		_rootElement["classList"].call<void>("add", emscripten::val("paused"));
 		setTimer(_rules->percentageLeft(), 0, "linear");
 	}
 	else
 	{
-		_rootElement.call<emscripten::val>("getElementsByClassName", emscripten::val("pause"))
-		.call<emscripten::val>("item", 0)
-		["style"].set("display", "none");
+		_rootElement["classList"].call<void>("remove", emscripten::val("paused"));
 		setTimer(_rules->percentageLeft(), 200, "ease-out");
 	}
 
@@ -153,9 +149,7 @@ void squarez::web::RulesProxy::timerUpdated()
 
 void squarez::web::RulesProxy::gameOverChanged(bool status)
 {
-	_rootElement.call<emscripten::val>("getElementsByClassName", emscripten::val("gameOver"))
-		.call<emscripten::val>("item", 0)
-		["style"].set("display", status ? "" : "none");
+	_rootElement["classList"].call<void>(status ? "add" : "remove", emscripten::val("gameOver"));
 }
 
 void squarez::web::RulesProxy::scoreChanged(unsigned int score)
