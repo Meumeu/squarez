@@ -15,10 +15,10 @@
 			</div>
 			<div class="gameOver" style="display:none"><div>Game over</div><div class="restartButton" onclick="location.reload()">Restart</div></div>
 			<div class="pause jsPause" style="display:none">Game paused</div>
-			<form id="nameForm" style="display: none">
-				<h1>New high score</h1>
-				<label>Name: <input id="nameInput" type="text" name="name"></label>
-				<input type="submit" value="Save">
+			<form id="nameForm">
+				<h1>New game</h1>
+				<label>Enter your name: <input id="nameInput" type="text" name="name"></label>
+				<input type="submit" value="Start">
 			</form>
 		</div>
 		<div class="info">
@@ -37,9 +37,35 @@
 			</div>
 		</div>
 		<script>
-		var game = new Module.Squarez(document.getElementById("gameArea"), document.getElementById("score"), document.getElementById("timerInner"), "test", "");
-		document.getElementsByClassName("pauseButton")[0].onclick = function() { game.togglePause();}
-		document.getElementsByClassName("clearButton")[0].onclick = function() { game.resetSelection();}
+(function() {
+	var nameForm = document.getElementById("nameForm");
+	var input = document.getElementById("nameInput");
+	nameForm.onsubmit = function()
+	{
+		var game = new Module.Squarez(
+			document.getElementById("gameArea"),
+			document.getElementById("score"),
+			document.getElementById("timerInner"),
+			input.value,
+			"");
+		document.getElementsByClassName("pauseButton")[0].onclick = function() { game.togglePause();};
+		document.getElementsByClassName("clearButton")[0].onclick = function() { game.resetSelection();};
+		nameForm.style.display = "none";
+		localStorage.name = input.value;
+		history.replaceState(null, "", location.origin + location.pathname + "?name="+encodeURIComponent(input.value));
+		return false;
+	}
+	var s = location.search.split("name=");
+	if (s.length != 1)
+	{
+		input.value = decodeURIComponent(s[1].split("&")[0]);
+		nameForm.onsubmit();
+	}
+	else if (localStorage.name !== undefined)
+	{
+		input.value = localStorage.name;
+	}
+})();
 		</script>
 	</body>
 </html>
