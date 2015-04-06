@@ -37,7 +37,7 @@
 			</div>
 		</div>
 		<script>
-		var game = new Module.Squarez(document.getElementById("gameArea"), document.getElementById("score"), document.getElementById("timerInner"));
+		var game = new Module.Squarez(document.getElementById("gameArea"), document.getElementById("score"), document.getElementById("timerInner"), "test", "");
 		document.getElementsByClassName("pauseButton")[0].onclick = function() { game.togglePause();}
 		document.getElementsByClassName("clearButton")[0].onclick = function() { game.resetSelection();}
 		</script>

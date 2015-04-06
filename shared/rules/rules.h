@@ -45,7 +45,6 @@ public:
 		virtual void scoreChanged(unsigned int score) = 0;
 		virtual void gameOverChanged(bool status) = 0;
 		virtual void timerUpdated() = 0;
-		virtual void nameRequired() = 0;
 		virtual void networkError() = 0;
 
 		virtual std::unique_ptr<Cell::Proxy> cellProxyFactory(Cell & cell) = 0;
@@ -60,7 +59,7 @@ protected:
 	Proxy & _proxy;
 	std::mt19937 _random_generator;
 	std::unique_ptr<GameBoard> _board;
-	std::string _playerName;
+	const std::string _playerName;
 	void setScore(unsigned int score);
 	void setGameOver(bool status);
 	void applyTransition(const Transition & transition);
@@ -68,8 +67,8 @@ protected:
 	void pauseTimer(bool pause);
 	void refillTimer(unsigned int percentage);
 
-	Rules(Proxy & proxy, int board_size, int nb_symbols, std::uint_fast32_t random_seed, Timer timer, std::string name = "");
-	Rules(Proxy & proxy, std::unique_ptr<GameBoard> && _board, std::uint_fast32_t random_seed, Timer timer, std::string name = "");
+	Rules(Proxy & proxy, int board_size, int nb_symbols, std::uint_fast32_t random_seed, Timer timer, std::string name);
+	Rules(Proxy & proxy, std::unique_ptr<GameBoard> && _board, std::uint_fast32_t random_seed, Timer timer, std::string name);
 
 public:
 	bool pause() const { return _timer.paused(); }
@@ -77,8 +76,6 @@ public:
 	int msLeft();
 	virtual bool gameOver() { return _gameOver; }
 	unsigned int score() const { return _score; }
-
-	virtual void setPlayerName(std::string const& name) = 0;
 
 	virtual void onClick(Cell & cell) = 0;
 	virtual void resetSelection() {};

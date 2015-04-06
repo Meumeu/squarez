@@ -35,7 +35,6 @@ public:
 	virtual void scoreChanged(unsigned int /*score*/) override {};
 	virtual void gameOverChanged(bool /*status*/) override {}
 	virtual void timerUpdated() override {}
-	virtual void nameRequired() override {}
 	virtual void networkError() override {}
 
 	virtual std::unique_ptr<Cell::Proxy> cellProxyFactory(Cell & cell) override;
@@ -60,7 +59,6 @@ public:
 	void setPause(bool state, std::chrono::milliseconds msSinceEpoch);
 
 	// not applicable on server
-	virtual void setPlayerName(std::string const&) {};
 	virtual void onClick(Cell &) {};
 private:
 	std::chrono::steady_clock::time_point _epoch;

@@ -52,11 +52,6 @@ void RulesProxy::timerUpdated()
 	emit onPausedChanged(paused());
 }
 
-void RulesProxy::nameRequired()
-{
-	emit onNameRequired();
-}
-
 void RulesProxy::resetSelection()
 {
 	if (_rules)
@@ -93,14 +88,14 @@ void RulesProxy::tryStartGame()
 	if (_rules)
 		return;
 
-	if (_type == "singlePlayer")
+	if (_type == "singlePlayer" and !_playerName.isEmpty())
 	{
 		_rules = std::unique_ptr<Rules>(new SinglePlayerRules(
 			*this,
 			constants::default_timer(),
+			_playerName.toStdString(),
 			constants::default_board_size,
-			constants::default_symbols,
-			_playerName.toStdString()));
+			constants::default_symbols));
 	}
 	else if (_type == "onlineSinglePlayer" and !_url.isEmpty() and !_playerName.isEmpty())
 	{
@@ -112,9 +107,9 @@ void RulesProxy::tryStartGame()
 				_rules = std::unique_ptr<Rules>(new SinglePlayerRules(
 					*this,
 					constants::default_timer(),
+					_playerName.toStdString(),
 					constants::default_board_size,
 					constants::default_symbols,
-					_playerName.toStdString(),
 					game._seed,
 					_url.toStdString(),
 					game._token));
@@ -129,9 +124,9 @@ void RulesProxy::tryStartGame()
 				_rules = std::unique_ptr<Rules>(new SinglePlayerRules(
 					*this,
 					constants::default_timer(),
+					_playerName.toStdString(),
 					constants::default_board_size,
-					constants::default_symbols,
-					_playerName.toStdString()));
+					constants::default_symbols));
 			}
 		);
 	}
@@ -154,8 +149,6 @@ void RulesProxy::setType(QString type)
 void RulesProxy::setPlayerName(QString playerName)
 {
 	_playerName = playerName;
-	if (_rules)
-		_rules->setPlayerName(playerName.toStdString());
 	emit onPlayerNameChanged(playerName);
 
 	tryStartGame();

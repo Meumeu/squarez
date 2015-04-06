@@ -39,14 +39,13 @@ public:
 	virtual ~SinglePlayerRules();
 	SinglePlayerRules(Proxy & proxy,
 		Timer && timer,
+		std::string name,
 		int board_size =  constants::default_board_size,
 		int nb_symbols = constants::default_symbols,
-		std::string name = "",
 		std::uint_fast32_t random_seed = 0,
 		std::string url = "",
 		std::uint32_t token = 0);
 
-	void setPlayerName(std::string const& name) override;
 	void onClick(Cell & cell) override;
 	void resetSelection() override;
 	bool gameOver() override;
