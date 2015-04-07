@@ -13,6 +13,10 @@ set_property(TARGET webclient APPEND PROPERTY LINK_FLAGS_RELEASE "--closure 1")
 
 install(TARGETS webclient DESTINATION . PERMISSIONS OWNER_WRITE OWNER_READ GROUP_READ WORLD_READ COMPONENT html)
 
+if (${CMAKE_BUILD_TYPE} STREQUAL Release)
+	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/webclient.js.mem DESTINATION . COMPONENT html)
+endif()
+
 install(FILES
 	${CMAKE_BINARY_DIR}/data/img/shape0.svg
 	${CMAKE_BINARY_DIR}/data/img/shape1.svg
