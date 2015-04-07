@@ -10,13 +10,13 @@ target_link_libraries(webclient --bind)
 add_dependencies(webclient shapes)
 
 if(ENABLE_CLOSURE)
-	set_property(TARGET webclient APPEND PROPERTY LINK_FLAGS_RELEASE "--closure 1")
+	set_property(TARGET webclient APPEND_STRING PROPERTY LINK_FLAGS_RELEASE "--closure 1")
 	if (${CMAKE_BUILD_TYPE} STREQUAL Release)
 		install(FILES ${CMAKE_CURRENT_BINARY_DIR}/webclient.js.mem DESTINATION . COMPONENT html)
 	endif()
 endif()
 
-set_property(TARGET webclient APPEND PROPERTY LINK_FLAGS "--post-js ${CMAKE_CURRENT_SOURCE_DIR}/post.js")
+set_property(TARGET webclient APPEND_STRING PROPERTY LINK_FLAGS "--post-js ${CMAKE_CURRENT_SOURCE_DIR}/post.js")
 
 install(TARGETS webclient DESTINATION . PERMISSIONS OWNER_WRITE OWNER_READ GROUP_READ WORLD_READ COMPONENT html)
 
