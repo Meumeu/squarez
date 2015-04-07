@@ -38,23 +38,6 @@ Item {
 		model: rules
 		delegate: cellDelegate
 
-		Component.onCompleted:
-		{
-			rules.onNameRequired.connect(onNameRequired)
-		}
-
-		function onNameRequired(previousName)
-		{
-			var dialog = pageStack.push("../pages/NameInput.qml")
-			if (previousName)
-				dialog.name = previousName
-			dialog.title = "Save high score"
-			dialog.coverText = "Score: " + gameArea.rules.score
-			dialog.accepted.connect(function() {
-				gameArea.rules.playerName = dialog.name;
-			})
-		}
-
 		onItemRemoved:
 		{
 			gameArea.animate = true
