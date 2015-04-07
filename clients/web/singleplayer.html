@@ -40,6 +40,8 @@
 	var input = document.getElementById("nameInput");
 	nameForm.onsubmit = function()
 	{
+		if (input.value === "")
+			return false;
 		var game = new Module.Squarez(
 			document.getElementById("gameArea"),
 			document.getElementById("score"),
@@ -64,6 +66,8 @@
 	{
 		input.value = localStorage.name;
 	}
+	if (document.body.ontouchstart === undefined)
+		document.body.classList.add("no-touch");
 	window.addEventListener("resize", function()
 		{
 			document.getElementById("gameArea").classList.add("resizing");

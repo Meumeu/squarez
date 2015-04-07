@@ -349,11 +349,11 @@ a
 {
 	padding-top: 2em;
 }
-.pauseButton:hover,
-.clearButton:hover,
-.backButton:hover,
-.restartButton:hover,
-#nameForm input[type=submit]:hover
+.no-touch .pauseButton:hover,
+.no-touch .clearButton:hover,
+.no-touch .backButton:hover,
+.no-touch .restartButton:hover,
+.no-touch #nameForm input[type=submit]:hover
 {
 	background-color: rgba(255, 255, 255, 0.3);
 }

@@ -45,6 +45,7 @@ _element(emscripten::val::global("document").call<emscripten::val>("createElemen
 	_element.set("className", elClass.str());
 	_element.set("proxy", *this);
 	EventHandler::addEventHandler(_element, "click", [this](emscripten::val){_owner.click();}, false);
+	EventHandler::addEventHandler(_element, "touchstart", [this](emscripten::val event) {event.call<void>("preventDefault"); _owner.click();}, false);
 	setXY(owner.x(), owner.y());
 	rules._rootElement.call<void>("appendChild", _element);
 }
