@@ -115,7 +115,7 @@ void squarez::web::RulesProxy::initTimers()
 	{ setTimer(0, _rules->msLeft()+1, "linear");}, false);
 
 	// Force the transitionend event to be called at least once
-	emscripten::val::global("window").call<void>("setTimeout", emscripten::val::global("Module")["callHandler"], 0, _timerElement["transitionendHandler"], emscripten::val(""));
+	emscripten::val::global("window").call<void>("setTimeout", emscripten::val::global("window")["Squarez"]["callHandler"], 0, _timerElement["transitionendHandler"], emscripten::val(""));
 }
 
 

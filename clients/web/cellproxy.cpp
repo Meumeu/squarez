@@ -58,7 +58,7 @@ squarez::web::CellProxy::~CellProxy()
 void squarez::web::CellProxy::moved(int x, int y)
 {
 	_rules._rootElement["classList"].call<void>("remove", emscripten::val("resizing"));
-	emscripten::val::global("window").call<void>("setTimeout", emscripten::val::global("Module")["setXY"], 100, _element["proxy"], x, y);
+	emscripten::val::global("window").call<void>("setTimeout", emscripten::val::global("window")["Squarez"]["setXY"], 100, _element["proxy"], x, y);
 }
 
 void squarez::web::CellProxy::selectChanged(bool status)

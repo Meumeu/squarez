@@ -1,0 +1,1 @@
+window["Squarez"] = Module;

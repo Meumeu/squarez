@@ -9,7 +9,7 @@ add_executable(webclient rulesproxy.cpp cellproxy.cpp selectionproxy.cpp eventha
 target_link_libraries(webclient --bind)
 add_dependencies(webclient shapes)
 
-set_property(TARGET webclient APPEND PROPERTY LINK_FLAGS_RELEASE "--closure 1")
+set_property(TARGET webclient APPEND PROPERTY LINK_FLAGS_RELEASE "--closure 1 --post-js ${CMAKE_CURRENT_SOURCE_DIR}/post.js")
 
 install(TARGETS webclient DESTINATION . PERMISSIONS OWNER_WRITE OWNER_READ GROUP_READ WORLD_READ COMPONENT html)
 
