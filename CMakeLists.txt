@@ -13,6 +13,8 @@ set(BUILD_WEB_CLIENT OFF CACHE BOOL "Build the Web client" FORCE)
 set(BUILD_SERVER ON CACHE BOOL "Build the server")
 endif()
 
+set(ENABLE_CLOSURE ON CACHE BOOL "Use the closure compiler for the web client")
+
 if(${CMAKE_SYSTEM_NAME} STREQUAL Linux)
 set(ENABLE_SYSTEMD ON CACHE BOOL "Enable systemd socket activation")
 else()
