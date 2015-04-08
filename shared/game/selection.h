@@ -42,7 +42,7 @@ public:
 
 	enum class State
 	{
-		incomplete,
+		invalid,
 		validated
 	};
 	typedef std::set<std::shared_ptr<Cell>, Cell::Compare> storage_t;

@@ -22,6 +22,8 @@
 
 #include "game/selection.h"
 
+#include <emscripten/val.h>
+
 namespace squarez {
 namespace web {
 
@@ -32,8 +34,12 @@ class SelectionProxy : public squarez::VisibleSelection::Proxy
 public:
 	SelectionProxy(VisibleSelection & owner, RulesProxy & rules);
 	virtual ~SelectionProxy();
+
+	virtual void stateChanged(Selection::State state) override;
 private:
+	void buildElement();
 	RulesProxy & _rules;
+	emscripten::val _element;
 };
 
 }}

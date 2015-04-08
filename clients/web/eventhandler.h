@@ -30,12 +30,16 @@ namespace web {
 
 class EventHandler
 {
-	std::function<void(emscripten::val)> _callback;
-	EventHandler(std::function<void(emscripten::val)> callback): _callback(callback) {}
+	emscripten::val _target;
+	std::string _event;
+	std::string _name;
 public:
-	void handleEvent(emscripten::val v) { _callback(v); }
+	EventHandler(emscripten::val target, const std::string & event, std::function<void(emscripten::val)> callback, bool useCapture = false);
+	~EventHandler();
 
-	static void addEventHandler(emscripten::val element, const std::string & event, std::function<void(emscripten::val)> handler, bool useCapture);
+	void setCallback(std::function<void(emscripten::val)> callback);
+
+	void setTimeout(int ms, emscripten::val value);
 };
 
 }}
