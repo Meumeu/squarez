@@ -214,6 +214,7 @@ a
 .restartButton,
 #nameForm input[type=submit]
 {
+	color: transparent;
 	border: none;
 	font-size: 1em;
 	width: 1em;
