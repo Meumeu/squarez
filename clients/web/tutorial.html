@@ -1,15 +1,14 @@
 <!DOCTYPE html>
 <html manifest="manifest.appcache">
 	<head>
-		<title>Squarez tutorial</title>
-		<script src="script/squarez.js"></script>
-		<script src="script/squarezUI.js"></script>
-		<script src="script/tutorial.js"></script>
+		<title>Squarez</title>
+		<script src="webclient.js"></script>
 		<link rel="stylesheet" type="text/css" href="game.css">
 		<link rel="icon" type="image/png" href="img/icon30.png">
 		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+		<meta charset="utf-8">
 	</head>
-	<body class="singleplayer">
+	<body class="notStarted">
 		<div id="gameArea">
 			<div class="tutorialOverlay">
 				<div id="messageContainer" style="display:none"></div>
@@ -18,29 +17,46 @@
 				<div id="timerInner" class="timeLeftInner">
 				</div>
 			</div>
-			<div class="gameOver" style="display:none"><div>Game over</div><div class="restartButton" onclick="location.reload()">Restart</div></div>
-			<div class="pause jsPause" style="display:none">Game paused</div>
-			<form id="nameForm" style="display: none">
-				<h1>New high score</h1>
-				<label>Name: <input id="nameInput" type="text" name="name"></label>
-				<input type="submit" value="Save">
+			<div class="gameOverOverlay"><div>Game over</div><div class="restartButton" onclick="location.reload()">Restart</div></div>
+			<div class="pauseOverlay">Game paused</div>
+			<form id="nameForm">
+				<h1>New game</h1>
+				<label for="nameInput">Enter your name:</label>
+				<div>
+					<input id="nameInput" type="text" name="name">
+					<input type="submit" value="Start">
+				</div>
 			</form>
 		</div>
 		<div class="info">
 			<div class="scoreContainer"><span class="scoreLabel">Score: </span><span id="score">0</span>
 			</div>
 			<div class="buttons">
-				<a class="backButton" href="index.html">Back</a>
-			</div>
-			<div id="highScores" style="display:none">
-				<h1>High Scores</h1>
-				<table>
-					<tbody id="scoreList"></tbody>
-				</table>
+				<button class="pauseButton jsPause"></button>
+				<button class="clearButton jsClear"></button>
+				<a class="backButton" href="index.html"></a>
 			</div>
 		</div>
 		<script>
-		var game = new TutorialRulesUI(document.getElementById("gameArea"),  document.getElementById("score"));
+(function() {
+	if (document.body.ontouchstart === undefined)
+		document.body.classList.add("no-touch");
+	window.addEventListener("resize", function()
+		{
+			document.getElementById("gameArea").classList.add("resizing");
+			document.body.style.fontSize = (Math.min(window.innerHeight, window.innerWidth)/8) + "px";
+		}, false);
+	document.body.style.fontSize = (Math.min(window.innerHeight, window.innerWidth)/8) + "px";
+	var game = new window.Squarez.Squarez(
+			document.getElementById("gameArea"),
+			document.getElementById("score"),
+			document.getElementById("timerInner"),
+			document.getElementById("messageContainer"));
+		document.getElementsByClassName("pauseButton")[0].onclick = function() { game.togglePause();};
+		document.getElementsByClassName("clearButton")[0].onclick = function() { game.resetSelection();};
+		nameForm.style.display = "none";
+		document.body.classList.remove("notStarted");
+})();
 		</script>
 	</body>
 </html>

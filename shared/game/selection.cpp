@@ -45,6 +45,47 @@ void Selection::setState(Selection::State state)
 	_state = state;
 }
 
+static unsigned int norm(const Cell & p0, const Cell & p1)
+{
+	return (p1.x() - p0.x())*(p1.x() - p0.x()) + (p1.y() - p0.y())*(p1.y() - p0.y());
+}
+
+// Check if the angle p0p1,p1p2 is a square angle
+static bool isSquareAngle(const Cell & p0, const Cell & p1, const Cell & p2)
+{
+	return ((p1.x() - p0.x()) * (p1.x() - p2.x()) + (p1.y() - p0.y()) * (p1.y()- p2.y())) == 0;
+}
+
+unsigned int Selection::score() const
+{
+	// Check that we are actually selecting 4 points
+	if (not isValid())
+		return 0;
+
+	auto it = begin();
+	auto p0 = *(it++);
+	auto p1 = *(it++);
+	auto p2 = *(it++);
+	auto p3 = *it;
+
+	// Check that symbols are all the same
+	if (p0->symbol != p1->symbol
+		or p2->symbol != p3->symbol
+		or p0->symbol != p2->symbol)
+		return 0;
+
+	// Now verify that it is a square: 4 edges with the same length and a square angle
+	auto score = norm(*p0, *p1);
+	if (norm(*p0,*p2) != score or norm(*p2,*p3) != score or norm(*p1,*p3) != score or not isSquareAngle(*p0,*p1,*p3) or score == 0)
+		return 0;
+
+	// Simple score calculation: surface of the square, with a x2 bonus if it is not parallel to the edge nor 45 degrees
+	if (p0->x() != p1->x() and p0->y() != p1->y() and p0->x() != p3->x() and p0->y() != p3->y())
+		return 2*score;
+
+	return score;
+}
+
 Serializer& operator<<(Serializer& out, const Selection& selection)
 {
 	std::set<std::pair<unsigned int, unsigned int>> points;

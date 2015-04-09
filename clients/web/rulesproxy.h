@@ -41,13 +41,17 @@ class RulesProxy : public squarez::Rules::Proxy
 public:
 	emscripten::val _rootElement;
 private:
+	emscripten::val _messageElement;
 	std::unique_ptr<EventHandler> _timerHandler;
 public:
 	// Constructor for single player game
-	RulesProxy(emscripten::val rootElement, emscripten::val scoreElement, emscripten::val timerElement, std::string playerName);
+	RulesProxy(emscripten::val rootElement, emscripten::val scoreElement, emscripten::val timerElement, emscripten::val messageElement, std::string playerName);
 
 	// Constructor for online single player game
-	RulesProxy(emscripten::val rootElement, emscripten::val scoreElement, emscripten::val timerElement, std::string playerName, std::string url);
+	RulesProxy(emscripten::val rootElement, emscripten::val scoreElement, emscripten::val timerElement, emscripten::val messageElement, std::string playerName, std::string url);
+
+	// Constructor for tutorial
+	RulesProxy(emscripten::val rootElement, emscripten::val scoreElement, emscripten::val timerElement, emscripten::val messageElement);
 
 	~RulesProxy();
 	virtual std::unique_ptr<Cell::Proxy> cellProxyFactory(squarez::Cell& cell) override;
@@ -56,6 +60,7 @@ public:
 	virtual void gameOverChanged(bool status) override;
 	virtual void scoreChanged(unsigned int score) override;
 	virtual void networkError() override;
+	virtual void message(const std::string& message) override;
 
 	void click(Cell & cell);
 	void setTimer(float percentage, int duration, std::string animation);

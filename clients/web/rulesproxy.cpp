@@ -25,6 +25,7 @@
 
 #include "game/constants.h"
 #include "rules/singleplayerrules.h"
+#include "tutorialrules.h"
 #include "network/methods.h"
 #include "utils/serializer.h"
 
@@ -35,21 +36,22 @@
 EMSCRIPTEN_BINDINGS(rulesproxy)
 {
 	emscripten::class_<squarez::web::RulesProxy>("Squarez")
-	.constructor<emscripten::val, emscripten::val, emscripten::val, std::string>()
-	.constructor<emscripten::val, emscripten::val, emscripten::val, std::string, std::string>()
+	.constructor<emscripten::val, emscripten::val, emscripten::val, emscripten::val, std::string>()
+	.constructor<emscripten::val, emscripten::val, emscripten::val, emscripten::val, std::string, std::string>()
+	.constructor<emscripten::val, emscripten::val, emscripten::val, emscripten::val>()
 	.function<void>("togglePause", &squarez::web::RulesProxy::togglePause)
 	.function<void>("resetSelection", &squarez::web::RulesProxy::resetSelection);
 }
 
-squarez::web::RulesProxy::RulesProxy(emscripten::val rootElement, emscripten::val scoreElement, emscripten::val timerElement, std::string playerName):
-	_scoreElement(scoreElement), _timerElement(timerElement), _rootElement(rootElement)
+squarez::web::RulesProxy::RulesProxy(emscripten::val rootElement, emscripten::val scoreElement, emscripten::val timerElement, emscripten::val messageElement, std::string playerName):
+	_scoreElement(scoreElement), _timerElement(timerElement), _rootElement(rootElement), _messageElement(messageElement)
 {
 	_rules.reset(new SinglePlayerRules(*this, constants::default_timer(), playerName));
 	initTimers();
 }
 
-squarez::web::RulesProxy::RulesProxy(emscripten::val rootElement, emscripten::val scoreElement, emscripten::val timerElement, std::string playerName, std::string url):
-_scoreElement(scoreElement), _timerElement(timerElement), _rootElement(rootElement)
+squarez::web::RulesProxy::RulesProxy(emscripten::val rootElement, emscripten::val scoreElement, emscripten::val timerElement, emscripten::val messageElement, std::string playerName, std::string url):
+_scoreElement(scoreElement), _timerElement(timerElement), _rootElement(rootElement), _messageElement(messageElement)
 {
 	// SinglePlayerRules will think we are in local mode if url is empty, but in fact we want to build a relative url
 	if (url.empty())
@@ -78,6 +80,14 @@ _scoreElement(scoreElement), _timerElement(timerElement), _rootElement(rootEleme
 		}
 	);
 }
+
+squarez::web::RulesProxy::RulesProxy(emscripten::val rootElement, emscripten::val scoreElement, emscripten::val timerElement, emscripten::val messageElement):
+_scoreElement(scoreElement), _timerElement(timerElement), _rootElement(rootElement), _messageElement(messageElement)
+{
+	_rules.reset(new TutorialRules(*this, constants::default_board_size, constants::default_symbols));
+	initTimers();
+}
+
 
 void squarez::web::RulesProxy::initTimers()
 {
@@ -132,6 +142,17 @@ void squarez::web::RulesProxy::scoreChanged(unsigned int score)
 void squarez::web::RulesProxy::networkError()
 {
 	//FIXME: implement
+}
+
+void squarez::web::RulesProxy::message(const std::string& message)
+{
+	if (message.empty())
+		_messageElement["style"].set("display", emscripten::val("none"));
+	else
+	{
+		_messageElement["style"].set("display", emscripten::val(""));
+		_messageElement.set("innerHTML", message);
+	}
 }
 
 void squarez::web::RulesProxy::click(squarez::Cell& cell)

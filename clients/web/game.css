@@ -109,18 +109,29 @@ a
 	-webkit-transition: left 0.3s, top 0.3s;
 }
 
+.tutorialOverlay,
+.tutorialOverlay *,
+.transition-square-container,
+.transition-square
+{
+	pointer-events:none;
+}
+
+
 .transition-square-container, .transition-square
 {
 	transition: all 0.3s ease-in;
 	-webkit-transition: all 0.3s ease-in;
 	opacity:1;
-	pointer-events:none;
 }
 .transition-square
 {
 	border-width: 0.2em;
 	border-style: solid;
 	border-radius: 0.2em;
+}
+.deleted .transition-square
+{
 	animation: explode 0.3s ease-in;
 	-webkit-animation: explode 0.3s ease-in;
 }
