@@ -48,33 +48,25 @@ EMSCRIPTEN_BINDINGS(eventHandler)
 
 squarez::web::EventHandler::EventHandler(emscripten::val target, const std::string & event, std::function<void(emscripten::val)> callback, bool useCapture):
 	_target(target),
-	_event(event)
+	_event(event),
+	_handler(internal::EventHandler(callback))
 {
-	static unsigned int counter = 0;
-	std::stringstream str;
-	str << "eventHandler" << counter++;
-	_name = str.str();
-
-	emscripten::val window = emscripten::val::global("window");
-	window.set(_name, internal::EventHandler(callback));
-	_target.call<void>("addEventListener", _event, window[_name], useCapture);
+	_target.call<void>("addEventListener", _event, _handler, useCapture);
 }
 
 squarez::web::EventHandler::~EventHandler()
 {
-	emscripten::val window = emscripten::val::global("window");
-	_target.call<void>("removeEventListener", _event, window[_name]);
-	window[_name].call<void>("delete");
-	window.set(_name, emscripten::val::undefined());
+	_target.call<void>("removeEventListener", _event, _handler);
+	_handler.call<void>("delete");
 }
 
 void squarez::web::EventHandler::setCallback(std::function<void(emscripten::val)> callback)
 {
-	emscripten::val::global("window")[_name].as<internal::EventHandler &>()._callback = callback;
+	_handler.as<internal::EventHandler &>()._callback = callback;
 }
 
 void squarez::web::EventHandler::setTimeout(int ms, emscripten::val value)
 {
 	auto window = emscripten::val::global("window");
-	window.call<void>("setTimeout", window["Squarez"]["callHandler"], ms, window[_name], value);
+	window.call<void>("setTimeout", window["Squarez"]["callHandler"], ms, _handler, value);
 }

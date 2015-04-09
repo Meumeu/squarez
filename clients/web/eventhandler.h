@@ -32,7 +32,7 @@ class EventHandler
 {
 	emscripten::val _target;
 	std::string _event;
-	std::string _name;
+	emscripten::val _handler;
 public:
 	EventHandler(emscripten::val target, const std::string & event, std::function<void(emscripten::val)> callback, bool useCapture = false);
 	~EventHandler();
