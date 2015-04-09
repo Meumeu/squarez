@@ -49,78 +49,94 @@ emscripten::val make_val(Args... args)
 }
 }
 
-squarez::web::SelectionProxy::SelectionProxy(squarez::VisibleSelection& owner, RulesProxy & rules): squarez::VisibleSelection::Proxy(owner), _rules(rules)
+squarez::web::SelectionProxy::SelectionProxy(squarez::VisibleSelection& owner, RulesProxy & rules):
+	squarez::VisibleSelection::Proxy(owner), _rules(rules), _element(emscripten::val::null())
 {
 
 }
 
 squarez::web::SelectionProxy::~SelectionProxy()
 {
-	try
+	if (not _element.isNull())
+		_element["classList"].call<void>("add", emscripten::val("deleted"));
+}
+
+void squarez::web::SelectionProxy::stateChanged(squarez::Selection::State state)
+{
+	auto & rootElement = _rules._rootElement;
+	switch (state)
 	{
-		switch (_owner.state())
-		{
-		case VisibleSelection::State::incomplete:
+		case VisibleSelection::State::invalid:
+			if (not _element.isNull())
+			{
+				rootElement.call<void>("removeChild", _element);
+				_element = emscripten::val::null();
+			}
 			return;
+
 		case VisibleSelection::State::validated:
 			// This should not happen, but check anyway
 			if (not _owner.isValid())
 				return;
-			{
-				// Get the center of the selection
-				std::pair<double, double> center{0,0};
-				for (auto cell : _owner)
-				{
-					center.first += cell->x();
-					center.second += cell->y();
-				}
-				center.first /= 4;
-				center.second /= 4;
-				auto symbol = (*_owner.begin())->symbol;
-
-				auto p1 = _owner.begin();
-				auto p0 = p1++;
-
-				auto size = std::hypot((*p0)->x() - (*p1)->x(), (*p0)->y() - (*p1)->y());
-				auto rotation = std::atan2((*p1)->y() - (*p0)->y(), (*p1)->x() - (*p0)->x());
-
-				auto n = emscripten::val::global("document").call<emscripten::val>("createElement", emscripten::val("div"));
-				auto n1 = emscripten::val::global("document").call<emscripten::val>("createElement", emscripten::val("div"));
-				n.call<void>("appendChild", n1);
-
-				n["style"].set("left", make_val(0.5 + center.first, "em"));
-				n["style"].set("top", make_val(0.5 + center.second, "em"));
-				n["style"].set("position", emscripten::val("absolute"));
-				n["style"].set("transform", make_val("rotate(", rotation, "rad)"));
-				n["style"].set("transformOrigin", emscripten::val("0 0"));
-				n["classList"].call<void>("add", emscripten::val("transition-square-container"));
-
-				n1["style"].set("marginLeft", emscripten::val("-50%"));
-				n1["style"].set("marginTop", emscripten::val("-50%"));
-				n1["style"].set("width", make_val(size, "em"));
-				n1["style"].set("height", make_val(size, "em"));
-				n1["classList"].call<void>("add", emscripten::val("transition-square"));
-				n1["classList"].call<void>("add", make_val("symbol", symbol));
-
-				auto & rootElement = _rules._rootElement;
-				EventHandler::addEventHandler(n, "animationend",
-					[n, rootElement](emscripten::val)
-					{
-						rootElement.call<void>("removeChild", n);
-					},
-					false
-				);
-				EventHandler::addEventHandler(n, "webkitAnimationEnd",
-					[n, rootElement](emscripten::val)
-					{
-						rootElement.call<void>("removeChild", n);
-					},
-					false
-				);
-
-				rootElement.call<void>("appendChild", n);
-			}
-		}
+			if (_element.isNull())
+				buildElement();
+			_element["classList"].call<void>("add", emscripten::val("selection"));
 	}
-	catch (...) {}
 }
+
+void squarez::web::SelectionProxy::buildElement()
+{
+	auto & rootElement = _rules._rootElement;
+	// Get the center of the selection
+	std::pair<double, double> center{0,0};
+	for (auto cell : _owner)
+	{
+		center.first += cell->x();
+		center.second += cell->y();
+	}
+	center.first /= 4;
+	center.second /= 4;
+	auto symbol = (*_owner.begin())->symbol;
+
+	auto p1 = _owner.begin();
+	auto p0 = p1++;
+
+	auto size = std::hypot((*p0)->x() - (*p1)->x(), (*p0)->y() - (*p1)->y());
+	auto rotation = std::atan2((*p1)->y() - (*p0)->y(), (*p1)->x() - (*p0)->x());
+
+	_element = emscripten::val::global("document").call<emscripten::val>("createElement", emscripten::val("div"));
+	auto n1 = emscripten::val::global("document").call<emscripten::val>("createElement", emscripten::val("div"));
+	_element.call<void>("appendChild", n1);
+
+	_element["style"].set("left", make_val(0.5 + center.first, "em"));
+	_element["style"].set("top", make_val(0.5 + center.second, "em"));
+	_element["style"].set("position", emscripten::val("absolute"));
+	_element["style"].set("transform", make_val("rotate(", rotation, "rad)"));
+	_element["style"].set("transformOrigin", emscripten::val("0 0"));
+	_element["classList"].call<void>("add", emscripten::val("transition-square-container"));
+
+	n1["style"].set("marginLeft", emscripten::val("-50%"));
+	n1["style"].set("marginTop", emscripten::val("-50%"));
+	n1["style"].set("width", make_val(size, "em"));
+	n1["style"].set("height", make_val(size, "em"));
+	n1["classList"].call<void>("add", emscripten::val("transition-square"));
+	n1["classList"].call<void>("add", make_val("symbol", symbol));
+
+	auto & n = _element;
+
+	EventHandler* h1 = new EventHandler(n, "animationend", [](emscripten::val){});
+	EventHandler* h2 = new EventHandler(n, "webkitAnimationEnd", [](emscripten::val){});
+
+	auto callback = [n, rootElement, h1, h2] (emscripten::val) mutable
+	{
+		rootElement.call<void>("removeChild", n);
+		delete h1;
+		delete h2;
+	};
+
+	h1->setCallback(callback);
+	h2->setCallback(callback);
+
+	rootElement.call<void>("appendChild", _element);
+}
+

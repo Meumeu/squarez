@@ -21,6 +21,7 @@
 #define SQUAREZ_WEB_RULESPROXY_H
 
 #include "rules/rules.h"
+#include "eventhandler.h"
 #include "httprequest.h"
 
 #include <functional>
@@ -39,6 +40,9 @@ class RulesProxy : public squarez::Rules::Proxy
 	emscripten::val _timerElement;
 public:
 	emscripten::val _rootElement;
+private:
+	std::unique_ptr<EventHandler> _timerHandler;
+public:
 	// Constructor for single player game
 	RulesProxy(emscripten::val rootElement, emscripten::val scoreElement, emscripten::val timerElement, std::string playerName);
 

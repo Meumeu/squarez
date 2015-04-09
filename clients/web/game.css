@@ -204,8 +204,7 @@ a
 #nameForm input[type=submit]
 {
 	border: none;
-	text-indent: -1000px;
-	overflow: hidden;
+	font-size: 1em;
 	width: 1em;
 	height: 1em;
 	margin: 0.2em;

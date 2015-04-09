@@ -18,18 +18,55 @@
  */
 
 #include "eventhandler.h"
+#include <sstream>
 
+namespace squarez {
+namespace internal {
+struct EventHandler
+{
+	std::function<void(emscripten::val)> _callback;
+
+	EventHandler(std::function<void(emscripten::val)> callback): _callback(callback) {}
+	void handleEvent(emscripten::val v) { _callback(v); }
+};
+
+void callHandler(EventHandler & h, emscripten::val v)
+{
+	h.handleEvent(v);
+}
+
+}
+}
 
 EMSCRIPTEN_BINDINGS(eventHandler)
 {
-	emscripten::class_<squarez::web::EventHandler>("EventHandler")
-	.function<void>("handleEvent", &squarez::web::EventHandler::handleEvent);
+	emscripten::class_<squarez::internal::EventHandler>("EventHandler")
+	.function<void>("handleEvent", &squarez::internal::EventHandler::handleEvent);
+
+	emscripten::function<void>("callHandler", &squarez::internal::callHandler);
 }
 
-void squarez::web::EventHandler::addEventHandler(emscripten::val element, const std::string& event, std::function<void(emscripten::val)> handler, bool useCapture)
+squarez::web::EventHandler::EventHandler(emscripten::val target, const std::string & event, std::function<void(emscripten::val)> callback, bool useCapture):
+	_target(target),
+	_event(event),
+	_handler(internal::EventHandler(callback))
 {
-	std::string name = event + "Handler";
-	// Store the handler as a member to avoid garbage collection
-	element.set(name, EventHandler(handler));
-	element.call<void>("addEventListener", event, element[name], useCapture);
+	_target.call<void>("addEventListener", _event, _handler, useCapture);
+}
+
+squarez::web::EventHandler::~EventHandler()
+{
+	_target.call<void>("removeEventListener", _event, _handler);
+	_handler.call<void>("delete");
+}
+
+void squarez::web::EventHandler::setCallback(std::function<void(emscripten::val)> callback)
+{
+	_handler.as<internal::EventHandler &>()._callback = callback;
+}
+
+void squarez::web::EventHandler::setTimeout(int ms, emscripten::val value)
+{
+	auto window = emscripten::val::global("window");
+	window.call<void>("setTimeout", window["Squarez"]["callHandler"], ms, _handler, value);
 }

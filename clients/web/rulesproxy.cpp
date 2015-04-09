@@ -32,11 +32,6 @@
 
 #include <emscripten/emscripten.h>
 
-void callHandler(squarez::web::EventHandler & h, emscripten::val v)
-{
-	h.handleEvent(v);
-}
-
 EMSCRIPTEN_BINDINGS(rulesproxy)
 {
 	emscripten::class_<squarez::web::RulesProxy>("Squarez")
@@ -44,29 +39,6 @@ EMSCRIPTEN_BINDINGS(rulesproxy)
 	.constructor<emscripten::val, emscripten::val, emscripten::val, std::string, std::string>()
 	.function<void>("togglePause", &squarez::web::RulesProxy::togglePause)
 	.function<void>("resetSelection", &squarez::web::RulesProxy::resetSelection);
-
-	emscripten::function<void>("callHandler", &callHandler);
-}
-
-static void setupResizeHandler(emscripten::val rootElement, unsigned int size)
-{
-	if (true)
-	return;
-	auto window = emscripten::val::global("window");
-	auto callback = [rootElement, window, size](emscripten::val)
-	{
-		std::stringstream str;
-		str << std::min(window["innerHeight"].as<int>(), window["innerWidth"].as<int>())/size << "px";
-		rootElement["classList"].call<void>("add", emscripten::val("resizing"));
-		rootElement["style"].set("fontSize", str.str());
-	};
-	squarez::web::EventHandler::addEventHandler(
-		window,
-		"resize",
-		callback,
-		false
-	);
-	callback(window);
 }
 
 squarez::web::RulesProxy::RulesProxy(emscripten::val rootElement, emscripten::val scoreElement, emscripten::val timerElement, std::string playerName):
@@ -74,7 +46,6 @@ squarez::web::RulesProxy::RulesProxy(emscripten::val rootElement, emscripten::va
 {
 	_rules.reset(new SinglePlayerRules(*this, constants::default_timer(), playerName));
 	initTimers();
-	setupResizeHandler(rootElement, constants::default_board_size);
 }
 
 squarez::web::RulesProxy::RulesProxy(emscripten::val rootElement, emscripten::val scoreElement, emscripten::val timerElement, std::string playerName, std::string url):
@@ -106,16 +77,15 @@ _scoreElement(scoreElement), _timerElement(timerElement), _rootElement(rootEleme
 			initTimers();
 		}
 	);
-	setupResizeHandler(rootElement, constants::default_board_size);
 }
 
 void squarez::web::RulesProxy::initTimers()
 {
-	EventHandler::addEventHandler(_timerElement, "transitionend", [this](emscripten::val)
-	{ setTimer(0, _rules->msLeft()+1, "linear");}, false);
+	_timerHandler.reset(new EventHandler(_timerElement, "transitionend", [this](emscripten::val)
+	{ setTimer(0, _rules->msLeft()+1, "linear");}));
 
 	// Force the transitionend event to be called at least once
-	emscripten::val::global("window").call<void>("setTimeout", emscripten::val::global("window")["Squarez"]["callHandler"], 0, _timerElement["transitionendHandler"], emscripten::val(""));
+	_timerHandler->setTimeout(0, emscripten::val::undefined());
 }
 
 
