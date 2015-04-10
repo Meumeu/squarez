@@ -58,6 +58,8 @@ public:
 	bool isValid() const { return _points.size() == 4; }
 	State state() const { return _state; }
 
+	unsigned int score() const;
+
 	iterator begin() { return _points.begin(); }
 	iterator end() { return _points.end(); }
 	const_iterator cbegin() const { return _points.cbegin(); }
@@ -86,6 +88,7 @@ public:
 
 	VisibleSelection(proxy_factory factory): _proxy(factory(*this)) {}
 	VisibleSelection(proxy_factory factory, DeSerializer& serialized, const GameBoard & board): Selection(serialized, board), _proxy(factory(*this)) { _proxy->changed();}
+	VisibleSelection(proxy_factory factory, const Selection & selection): Selection(selection), _proxy(factory(*this)) { _proxy->changed();}
 
 	virtual bool togglePoint(std::shared_ptr<Cell>) override;
 	virtual void setState(State state) override;

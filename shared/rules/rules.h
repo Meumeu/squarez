@@ -46,6 +46,7 @@ public:
 		virtual void gameOverChanged(bool status) = 0;
 		virtual void timerUpdated() = 0;
 		virtual void networkError() = 0;
+		virtual void message(const std::string & message) = 0;
 
 		virtual std::unique_ptr<Cell::Proxy> cellProxyFactory(Cell & cell) = 0;
 		virtual std::unique_ptr<VisibleSelection::Proxy> selectionProxyFactory(VisibleSelection & selection) = 0;
@@ -71,7 +72,7 @@ protected:
 	Rules(Proxy & proxy, std::unique_ptr<GameBoard> && _board, std::uint_fast32_t random_seed, Timer timer, std::string name);
 
 public:
-	bool pause() const { return _timer.paused(); }
+	virtual bool pause() const { return _timer.paused(); }
 	float percentageLeft();
 	int msLeft();
 	virtual bool gameOver() { return _gameOver; }

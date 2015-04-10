@@ -10,6 +10,9 @@
 	</head>
 	<body class="notStarted">
 		<div id="gameArea">
+			<div class="tutorialOverlay">
+				<div id="messageContainer" style="display:none"></div>
+			</div>
 			<div id="timerOuter" class="timeLeftOuter">
 				<div id="timerInner" class="timeLeftInner">
 				</div>
@@ -46,6 +49,7 @@
 			document.getElementById("gameArea"),
 			document.getElementById("score"),
 			document.getElementById("timerInner"),
+			document.getElementById("messageContainer"),
 			input.value,
 			"");
 		document.getElementsByClassName("pauseButton")[0].onclick = function() { game.togglePause();};
@@ -56,7 +60,7 @@
 		document.body.classList.remove("notStarted");
 		return false;
 	}
-	var s = location.search.split("name=");
+	s = location.search.split("name=");
 	if (s.length != 1)
 	{
 		input.value = decodeURIComponent(s[1].split("&")[0]);

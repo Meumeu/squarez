@@ -36,6 +36,7 @@ public:
 	virtual void gameOverChanged(bool /*status*/) override {}
 	virtual void timerUpdated() override {}
 	virtual void networkError() override {}
+	virtual void message(const std::string&) override {}
 
 	virtual std::unique_ptr<Cell::Proxy> cellProxyFactory(Cell & cell) override;
 	virtual std::unique_ptr< VisibleSelection::Proxy > selectionProxyFactory(VisibleSelection& selection) override;

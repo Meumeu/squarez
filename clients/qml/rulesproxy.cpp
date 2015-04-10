@@ -173,6 +173,12 @@ void RulesProxy::networkError()
 
 }
 
+void RulesProxy::message (const std::string& message)
+{
+	(void) message;
+	//FIXME: implement
+}
+
 void RulesProxy::setPaused(bool paused)
 {
 	if (!_rules)

@@ -34,6 +34,7 @@ namespace
 		virtual void gameOverChanged(bool) override {};
 		virtual void timerUpdated() override {};
 		virtual void networkError() override {}
+		virtual void message (const std::string&) override {}
 
 		virtual std::unique_ptr<squarez::Cell::Proxy> cellProxyFactory(squarez::Cell & owner) override
 			{return std::unique_ptr<squarez::Cell::Proxy>(new squarez::Cell::Proxy(owner));}

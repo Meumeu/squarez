@@ -44,6 +44,7 @@ set(shared_sources
 
 set(client_sources
 	${CMAKE_CURRENT_SOURCE_DIR}/clients/httprequest.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/clients/tutorialrules.cpp
 )
 
 set(CPACK_COMPONENTS_ALL)
