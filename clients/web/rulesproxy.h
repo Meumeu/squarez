@@ -62,7 +62,6 @@ public:
 	virtual void networkError() override;
 	virtual void message(const std::string& message) override;
 
-	void click(Cell & cell);
 	void setTimer(float percentage, int duration, std::string animation);
 
 	void togglePause();

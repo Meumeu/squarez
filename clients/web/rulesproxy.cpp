@@ -75,7 +75,7 @@ _scoreElement(scoreElement), _timerElement(timerElement), _rootElement(rootEleme
 		},
 		[this, playerName]()
 		{
-			networkError();
+			message("Server unreachable\nscore will not be saved");
 			_rules.reset(new SinglePlayerRules(*this, constants::default_timer(), playerName));
 			initTimers();
 		}
@@ -155,11 +155,6 @@ void squarez::web::RulesProxy::message(const std::string& message)
 		_messageElement.set("innerHTML",
 			std::regex_replace(message, std::regex("\n"), "<br/>"));
 	}
-}
-
-void squarez::web::RulesProxy::click(squarez::Cell& cell)
-{
-	_rules->onClick(cell);
 }
 
 void squarez::web::RulesProxy::setTimer(float percentage, int duration, std::string animation)

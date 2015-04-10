@@ -39,8 +39,8 @@ EMSCRIPTEN_BINDINGS(cellproxy)
 squarez::web::CellProxy::CellProxy(squarez::Cell & owner, squarez::web::RulesProxy & rules) : Proxy(owner),
 _rules(rules),
 _element(emscripten::val::global("document").call<emscripten::val>("createElement", emscripten::val("div"))),
-_clickHandler(_element, "click", [this](emscripten::val){_owner.click();}),
-_touchHandler(_element, "touchStart", [this](emscripten::val event){event.call<void>("preventDefault"); _owner.click();})
+_clickHandler(_element, "click", [this](emscripten::val){_rules.message(""); _owner.click();}),
+_touchHandler(_element, "touchStart", [this](emscripten::val event){event.call<void>("preventDefault"); _rules.message(""); _owner.click();})
 {
 	std::stringstream elClass;
 	elClass << "cell symbol" << owner.symbol;
