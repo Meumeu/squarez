@@ -21,84 +21,44 @@
 import QtQuick 2.0
 import QtQuick.Window 2.0
 import QtQuick.Controls 1.3
-
-import harbour.squarez 1.0
+import QtQuick.Layouts 1.1
 
 ApplicationWindow {
-	id: root
 	width: 600; height: 400
 	visible: true
 	title: qsTr("Squarez")
 
-	Rules {
-		id: rules
-// 		type: "singlePlayer"
-		type: "onlineSinglePlayer"
-		url: "http://heracles/"
-		playerName: "test"
-	}
-	
-	Rectangle {
+	StackView {
+		id: stackView
 		anchors.fill: parent
-		color: "#000000"
-	}
-	GameArea {
-		id: area
-		anchors.left: parent.left
-		anchors.top: parent.top
-		anchors.bottom: parent.bottom
-		width: height
-		rules: rules
-	}
-	
-	property var msLeft
-	
-	Timer {
-		interval: 16
-		repeat: true
-		running: !rules.paused && !rules.gameOver
-		onTriggered: {
-			root.msLeft = rules.msLeft
-		}
-	}
-	
-	Column {
-		anchors.left: area.right
-		anchors.top: parent.top
-		anchors.bottom: parent.bottom
-		anchors.right: parent.right
-		
-		Text {
-			color: "#ffffff"
-			text: "Score: " + rules.score
-		}
-		
-		Text {
-			color: "#ffffff"
-			text: "Player name: " + rules.playerName
-		}
-		
-		Text {
-			color: "#ffffff"
-			text: "Time remaining: " + (root.msLeft / 1000) + " s"
-		}
-	}
-	
-	Rectangle {
-		anchors.fill: parent
-		color: rules.gameOver ? "#80000000" : rules.paused ? "#ff000000" : "#00000000"
-		Text {
-			anchors.centerIn: parent
-			color: "#ffffff"
-			font.pointSize: 36
-			text: rules.gameOver ? "Game over" : rules.paused ? "Paused" : ""
-			visible: rules.paused || rules.gameOver
-		}
-		
 		focus: true
-		Keys.onPressed: {
-			if (event.key == Qt.Key_Pause)
-				rules.paused = !rules.paused;
+
+		initialItem: Rectangle {
+			color: "#000000"
+			width: parent.width
+			height: parent.height
+
+			ColumnLayout {
+				anchors.centerIn: parent
+				
+				Button {
+					Layout.fillWidth: true
+					text: qsTr("Single player")
+					onClicked: stackView.push(Qt.resolvedUrl("SinglePlayerGame.qml"))
+				}
+				
+				Button {
+					Layout.fillWidth: true
+					text: qsTr("High scores")
+					onClicked: stackView.push(Qt.resolvedUrl("HighScores.qml"))
+				}
+				
+				Button {
+					Layout.fillWidth: true
+					text: qsTr("Exit")
+					onClicked: Qt.quit()
+				}
+			}
 		}
 	}
 }

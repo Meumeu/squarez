@@ -61,7 +61,7 @@ public:
 	Q_PROPERTY(float percentageLeft READ percentageLeft)
 	Q_PROPERTY(float msLeft READ msLeft)
 	Q_PROPERTY(bool paused READ paused WRITE setPaused NOTIFY onPausedChanged)
-	
+
 	virtual ~RulesProxy();
 	void scoreChanged(unsigned int score) override;
 	void gameOverChanged(bool status) override;

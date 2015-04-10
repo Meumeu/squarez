@@ -23,11 +23,13 @@
 
 #include "rulesproxy.h"
 #include "cellproxy.h"
+#include "highscores.h"
 
 int main(int argc, char ** argv)
 {
 	qmlRegisterType<squarez::qt::RulesProxy>("harbour.squarez", 1,0, "Rules");
 	qmlRegisterUncreatableType<squarez::qt::CellProxy>("harbour.squarez", 1,0, "Cell", "");
+	qmlRegisterType<squarez::qt::HighScores>("harbour.squarez", 1,0, "HighScores");
 	
 	QApplication app(argc, argv);
 	QQmlApplicationEngine engine(QUrl("qrc:/qml/main.qml"));

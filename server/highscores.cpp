@@ -1,5 +1,5 @@
 /*
- * <one line to give the program's name and a brief idea of what it does.>
+ * Squarez puzzle game
  * Copyright (C) 2015  Guillaume Meunier <guillaume.meunier@centraliens.net>
  *
  * This program is free software: you can redistribute it and/or modify

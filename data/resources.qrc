@@ -2,9 +2,11 @@
 <RCC version="1.0">
 	<qresource prefix="/">
 		<file>qml/main.qml</file>
+		<file>qml/SinglePlayerGame.qml</file>
 		<file>qml/GameArea.qml</file>
 		<file>qml/SingleSquare.qml</file>
+		<file>qml/HighScores.qml</file>
 		
-		<file alias="img/particle.png">img/particle.png</file>
+		<file>img/particle.png</file>
 	</qresource>
 </RCC>
