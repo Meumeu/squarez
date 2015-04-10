@@ -30,6 +30,7 @@
 #include "utils/serializer.h"
 
 #include <sstream>
+#include <regex>
 
 #include <emscripten/emscripten.h>
 
@@ -151,7 +152,8 @@ void squarez::web::RulesProxy::message(const std::string& message)
 	else
 	{
 		_messageElement["style"].set("display", emscripten::val(""));
-		_messageElement.set("innerHTML", message);
+		_messageElement.set("innerHTML",
+			std::regex_replace(message, std::regex("\n"), "<br/>"));
 	}
 }
 
