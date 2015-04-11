@@ -21,8 +21,10 @@
 #include "cellproxy.h"
 #include "game/constants.h"
 #include "rules/singleplayerrules.h"
+#include "../tutorialrules.h"
 #include "network/methods.h"
 #include "utils/serializer.h"
+#include "selectionproxy.h"
 #include <assert.h>
 
 namespace squarez {
@@ -69,8 +71,7 @@ std::unique_ptr<Cell::Proxy> RulesProxy::cellProxyFactory(Cell & cell)
 
 std::unique_ptr<VisibleSelection::Proxy> RulesProxy::selectionProxyFactory (VisibleSelection& selection)
 {
-	//FIXME: implement
-	return std::unique_ptr<VisibleSelection::Proxy>(new VisibleSelection::Proxy(selection));
+	return std::unique_ptr<VisibleSelection::Proxy>(new SelectionProxy(selection, *this));
 }
 
 void RulesProxy::removeCell(CellProxy* cell)
@@ -96,6 +97,7 @@ void RulesProxy::tryStartGame()
 			_playerName.toStdString(),
 			constants::default_board_size,
 			constants::default_symbols));
+		emit onReadyChanged(true);
 	}
 	else if (_type == "onlineSinglePlayer" and !_url.isEmpty() and !_playerName.isEmpty())
 	{
@@ -113,6 +115,7 @@ void RulesProxy::tryStartGame()
 					game._seed,
 					_url.toStdString(),
 					game._token));
+				emit onReadyChanged(true);
 			},
 			[this]() // onerror
 			{
@@ -127,8 +130,16 @@ void RulesProxy::tryStartGame()
 					_playerName.toStdString(),
 					constants::default_board_size,
 					constants::default_symbols));
+				emit onReadyChanged(true);
 			}
 		);
+	}
+	else if (_type == "tutorial")
+	{
+		_rules = std::unique_ptr<Rules>(new TutorialRules(*this,
+			constants::default_board_size,
+			constants::default_symbols));
+		emit onReadyChanged(true);
 	}
 }
 
@@ -137,7 +148,7 @@ void RulesProxy::setType(QString type)
 	if (_rules)
 		return;
 
-	if (type == "singlePlayer" or type == "onlineSinglePlayer")
+	if (type == "singlePlayer" or type == "onlineSinglePlayer" or type == "tutorial")
 	{
 		_type = type;
 		emit onTypeChanged(_type);
@@ -175,8 +186,8 @@ void RulesProxy::networkError()
 
 void RulesProxy::message (const std::string& message)
 {
-	(void) message;
-	//FIXME: implement
+	_message = QString::fromStdString(message);
+	emit onMessageChanged(_message);
 }
 
 void RulesProxy::setPaused(bool paused)
@@ -184,8 +195,8 @@ void RulesProxy::setPaused(bool paused)
 	if (!_rules)
 		return;
 	
-	auto rules = ((SinglePlayerRules*)_rules.get());
-	if (rules->pause() != paused) rules->setPause(paused);
+	auto rules = dynamic_cast<SinglePlayerRules*>(_rules.get());
+	if (rules) rules->setPause(paused);
 }
 
 QVariant RulesProxy::data(const QModelIndex& index, int /*role*/) const
@@ -204,6 +215,13 @@ int RulesProxy::rowCount(const QModelIndex&) const
 {
 	return _cells.count();
 }
+
+void RulesProxy::next()
+{
+	if (!_cells.empty())
+		_cells.front()->clicked();
+}
+
 
 }
 }

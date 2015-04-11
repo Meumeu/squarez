@@ -1,33 +1,22 @@
 /*
-  Copyright (C) 2013 Jolla Ltd.
-  Contact: Thomas Perl <thomas.perl@jollamobile.com>
-  All rights reserved.
-
-  You may use this file under the terms of BSD license as follows:
-
-  Redistribution and use in source and binary forms, with or without
-  modification, are permitted provided that the following conditions are met:
-    * Redistributions of source code must retain the above copyright
-      notice, this list of conditions and the following disclaimer.
-    * Redistributions in binary form must reproduce the above copyright
-      notice, this list of conditions and the following disclaimer in the
-      documentation and/or other materials provided with the distribution.
-    * Neither the name of the Jolla Ltd nor the
-      names of its contributors may be used to endorse or promote products
-      derived from this software without specific prior written permission.
-
-  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR
-  ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
-
+ * Squarez puzzle game
+ * Copyright (C) 2013-2015  Guillaume Meunier <guillaume.meunier@centraliens.net>
+ * Copyright (C) 2013-2015  Patrick Nicolas <patricknicolas@laposte.net>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 
@@ -35,89 +24,93 @@ import harbour.squarez 1.0
 import "../squarez"
 
 Page {
-    id: page
-    property string coverText: ""
-    property bool serverReachable: false
-    Settings { id: settings }
+	id: page
+	property string coverText: ""
+	property bool serverReachable: false
+	Settings { id: settings }
 
-    SilicaListView {
-        SinglePlayer { id: rules}
-        model: rules.highScores;
-        anchors.fill: parent
-        header: PageHeader {
-            title: "High scores"
-        }
-        delegate: BackgroundItem {
-            id: delegate
+	/*SilicaListView {
+		model: rules.highScores;
+		anchors.fill: parent
+		header: PageHeader {
+			title: "High scores"
+		}
+		delegate: BackgroundItem {
+			id: delegate
 
-            Label {
-                x: Theme.paddingLarge
-                text: name
-                anchors.verticalCenter: parent.verticalCenter
-                color: delegate.highlighted ? Theme.highlightColor : Theme.primaryColor
-            }
-            Label
-            {
-                text: Qt.formatDate(date)
-                anchors.centerIn: parent
-            }
-            Label
-            {
-                width: parent.width - Theme.paddingLarge
-                text: score
-                anchors.verticalCenter: parent.verticalCenter
-                horizontalAlignment: Text.AlignRight
-            }
-        }
-        // PullDownMenu and PushUpMenu must be declared in SilicaFlickable, SilicaListView or SilicaGridView
-        PullDownMenu {
-            MenuItem
-            {
-                text: "How to play"
-                onClicked: pageStack.push(Qt.resolvedUrl("TutorialPage.qml"))
-            }
+			Label {
+				x: Theme.paddingLarge
+				text: name
+				anchors.verticalCenter: parent.verticalCenter
+				color: delegate.highlighted ? Theme.highlightColor : Theme.primaryColor
+			}
+			Label
+			{
+				text: Qt.formatDate(date)
+				anchors.centerIn: parent
+			}
+			Label
+			{
+				width: parent.width - Theme.paddingLarge
+				text: score
+				anchors.verticalCenter: parent.verticalCenter
+				horizontalAlignment: Text.AlignRight
+			}
+		}*/
+	SilicaListView {
+		model: 3
+		anchors.fill: parent
+		header: PageHeader {
+			title: qsTr("Plop")
+		}
+		delegate: Component {
+			BackgroundItem {
+				id: delegate
 
-            MenuLabel
-            {
-                text: "Multiplayer (server unreachable)"
-                visible: ! page.serverReachable
-            }
-            MenuItem
-            {
-                text: "Multiplayer"
-                visible: page.serverReachable
-                onClicked: {
-                    var dialog = pageStack.push("../pages/NameInput.qml")
-                    dialog.title = "Enter your name"
-                    dialog.accepted.connect(function() {
-                        var page = pageStack.replace(Qt.resolvedUrl("MultiPlayerPage.qml"))
-                        page.playerName = dialog.name
-                    })
-                }
-            }
-            MenuItem
-            {
-                text: "New game"
-                onClicked: {
-                    pageStack.pushAttached(Qt.resolvedUrl("SinglePlayerPage.qml"))
-                    pageStack.navigateForward()
-                }
-            }
-        }
-        VerticalScrollDecorator {}
-    }
+				Label {
+					x: Theme.paddingLarge
+					text: index
+					anchors.verticalCenter: parent.verticalCenter
+					color: delegate.highlighted ? Theme.highlightColor : Theme.primaryColor
+				}
+			}
+		}
 
-    Component.onCompleted: {
-        var xhr = new XMLHttpRequest()
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200)
-            {
-                page.serverReachable = true;
-            }
-        }
-        xhr.open("GET", settings.url + "squarez/num_players");
-        xhr.send();
-    }
+		// PullDownMenu and PushUpMenu must be declared in SilicaFlickable, SilicaListView or SilicaGridView
+		PullDownMenu {
+			MenuItem
+			{
+				text: qsTr("How to play")
+				onClicked: pageStack.push(Qt.resolvedUrl("TutorialPage.qml"))
+			}
+
+			/*MenuLabel
+			{
+				text: "Multiplayer (server unreachable)"
+				visible: ! page.serverReachable
+			}
+			MenuItem
+			{
+				text: "Multiplayer"
+				visible: page.serverReachable
+				onClicked: {
+					var dialog = pageStack.push("../pages/NameInput.qml")
+					dialog.title = "Enter your name"
+					dialog.accepted.connect(function() {
+						var page = pageStack.replace(Qt.resolvedUrl("MultiPlayerPage.qml"))
+						page.playerName = dialog.name
+					})
+				}
+			}*/
+			MenuItem
+			{
+				text: qsTr("New game")
+				onClicked:  pageStack.push("NameInput.qml")
+			}
+		}
+
+		VerticalScrollDecorator {}
+	}
 }
 
 

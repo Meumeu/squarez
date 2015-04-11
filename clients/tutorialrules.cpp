@@ -29,7 +29,9 @@ _step(1)
 	_proxy.message("Squarez rules\n(click to continue)");
 }
 
-static bool isGood(squarez::Selection const & sel)
+namespace
+{
+bool isGood(squarez::Selection const & sel)
 {
 	auto it = sel.begin();
 	auto p0 = *(it++);
@@ -37,6 +39,15 @@ static bool isGood(squarez::Selection const & sel)
 	auto p2 = *(it++);
 	auto p3 = *it;
 	return p0->x() != p1->x() and p0->y() != p1->y() and p0->x() != p3->x() and p0->y() != p3->y();
+}
+
+void selectCells(std::unique_ptr<squarez::VisibleSelection>& selection)
+{
+	for(auto& i: *selection)
+	{
+		i->setSelected(true);
+	}
+}
 }
 
 static squarez::Selection findSquare(squarez::GameBoard const & board, std::function<bool(squarez::Selection const &)> predicate)
@@ -84,6 +95,7 @@ void squarez::TutorialRules::onClick (squarez::Cell& /*cell*/)
 			break;
 		case 3:
 			_selection.reset(new VisibleSelection(selectionProxyFactory(), findSquare(*_board, std::unary_negate<std::function<bool(squarez::Selection const &)>>(isGood))));
+			selectCells(_selection);
 			_selection->setState(Selection::State::validated);
 		case 2:
 			_proxy.message("Spot similar elements at the edges of a square shape");
@@ -103,6 +115,7 @@ void squarez::TutorialRules::onClick (squarez::Cell& /*cell*/)
 			break;
 		case 7:
 			_selection.reset(new VisibleSelection(selectionProxyFactory(), findSquare(*_board, isGood)));
+			selectCells(_selection);
 			_selection->setState(Selection::State::validated);
 		case 6:
 			_proxy.message("Squares not aligned with the grid give double score");
@@ -116,7 +129,7 @@ void squarez::TutorialRules::onClick (squarez::Cell& /*cell*/)
 			_proxy.message("Total amount of available time gets shorter as you progress");
 			_selection.reset();
 		default:
-			if (_selection->isValid())
+			if (_selection.get() && _selection->isValid())
 			{
 				_proxy.message("");
 				auto const & transition = _board->selectSquare(*_selection, _random_generator, false);
@@ -128,6 +141,7 @@ void squarez::TutorialRules::onClick (squarez::Cell& /*cell*/)
 			else
 			{
 				_selection.reset(new VisibleSelection(selectionProxyFactory(), findSquare(*_board, isGood)));
+				selectCells(_selection);
 				_selection->setState(Selection::State::validated);
 			}
 	}

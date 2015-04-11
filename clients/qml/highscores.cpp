@@ -83,7 +83,7 @@ void HighScores::setUrl(QString url)
 				onlineSinglePlayer::GetScores scores(s);
 				beginResetModel();
 				_scores = scores._scores;
-				std::sort(_scores.begin(), _scores.end(), [](Score& a, Score& b){ return a._score > b._score; });
+				std::sort(_scores.begin(), _scores.end(), [](const Score& a, const Score& b){ return a._score > b._score; });
 				endResetModel();
 			},
 			[this]() // onerror

@@ -20,6 +20,8 @@
 
 import QtQuick 2.0
 import QtQuick.Particles 2.0
+import QtGraphicalEffects 1.0
+
 
 Item {
 	id: gameArea
@@ -28,17 +30,29 @@ Item {
 	property var rules
 	property bool animate: true
 	property var colors: [Qt.rgba(255,0,0,1), Qt.rgba(255,255,0,1), Qt.rgba(0,0,255,1)]
+	property bool gameOver: rules.gameOver
+	property int pixelSize: 100
+	property color textColor
+	property int blurRadius: 32
 	onWidthChanged: animate = false
 
-	Repeater
+	Item
 	{
-		model: rules
-		delegate: cellDelegate
+		id: cells
+		anchors.fill: parent
+		anchors.margins: -blurRadius
+		visible: !gameOver
 
-		onItemRemoved:
+		Repeater
 		{
-			gameArea.animate = true
-			burstEmitter.my_burst(item);
+			model: rules
+			delegate: cellDelegate
+
+			onItemRemoved:
+			{
+				gameArea.animate = true
+				burstEmitter.my_burst(item);
+			}
 		}
 	}
 
@@ -46,51 +60,93 @@ Item {
 	{
 		id: cellDelegate
 
-		Image
+		Item
 		{
-			id: cell
-			property int logical_x: modelData.x
-			property int logical_y: modelData.y
-			property int symbol: modelData.symbol
-
-			x: gameArea.cellSize * (modelData.x + 0.1)
-			y: gameArea.cellSize * (modelData.y + 0.1)
-			width: gameArea.cellSize * 0.8
-			height: gameArea.cellSize * 0.8
-			antialiasing: true
-			source: "qrc:/img/shape" + symbol + (modelData.selected ? "-selected" : "") + ".svg"
-			sourceSize.width: width
-			sourceSize.height: height
-
-			Emitter
+			Image
 			{
-				z: 100
-				id: particles
-				system: particleSystem
-				anchors.fill: cell
-				lifeSpan: 500
-				emitRate: 20
-				endSize: 0
-				group: ""+symbol
-				velocity: TargetDirection { magnitude: -gameArea.cellSize/3; targetItem: cell}
-				enabled: modelData.selected && ! rules.pause
-				shape: RectangleShape {fill: false}
-			}
+				id: cell
+				property int logical_x: modelData.x
+				property int logical_y: modelData.y
+				property int symbol: modelData.symbol
 
-			Behavior on y {SmoothedAnimation { velocity: gameArea.cellSize * 4} enabled: gameArea.animate}
-			Behavior on x {SmoothedAnimation { velocity: gameArea.cellSize * 4} enabled: gameArea.animate}
+				x: gameArea.cellSize * (modelData.x + 0.1) - cells.anchors.margins
+				y: gameArea.cellSize * (modelData.y + 0.1) - cells.anchors.margins
+				width: gameArea.cellSize * 0.8
+				height: gameArea.cellSize * 0.8
+				antialiasing: true
+				source: "../../img/shape" + symbol + (modelData.selected ? "-selected" : "") + ".svg"
+				sourceSize.width: width
+				sourceSize.height: height
 
-			NumberAnimation on opacity { from: 0 ; to: 1; duration: 500 }
+				Emitter
+				{
+					z: 100
+					id: particles
+					system: particleSystem
+					anchors.fill: cell
+					lifeSpan: 500
+					emitRate: 20
+					endSize: 0
+					group: "" + cell.symbol
+					velocity: TargetDirection { magnitude: -gameArea.cellSize/3; targetItem: cell}
+					enabled: modelData.selected && ! rules.pause && ! gameOver
+					shape: RectangleShape {fill: false}
+				}
 
-			MouseArea
-			{
-				anchors.fill: cell
-				onClicked: {
-					gameArea.animate = true
-					modelData.clicked()
+				Behavior on y {SmoothedAnimation { velocity: gameArea.cellSize * 4} enabled: gameArea.animate}
+				Behavior on x {SmoothedAnimation { velocity: gameArea.cellSize * 4} enabled: gameArea.animate}
+
+				NumberAnimation on opacity { from: 0 ; to: 1; duration: 500 }
+
+				MouseArea
+				{
+					anchors.fill: cell
+					onClicked: {
+						gameArea.animate = true
+						modelData.clicked()
+					}
 				}
 			}
+
 		}
+	}
+
+	FastBlur {
+		id: cells2
+		source: cells
+		anchors.fill: cells
+		visible: false
+		radius: gameOver ? blurRadius : 0
+		transparentBorder: true
+		Behavior on radius { NumberAnimation { duration: 500 }}
+	}
+
+	Desaturate {
+		id: cells3
+		source: cells2
+		anchors.fill: cells
+		visible: false
+		desaturation: gameOver ? 0.8 : 0
+		Behavior on desaturation { NumberAnimation { duration: 500 }}
+	}
+
+	BrightnessContrast {
+		source: cells3
+		anchors.fill: cells
+		brightness: visible ? -0.5 : 0
+		visible: gameOver
+		Behavior on brightness { NumberAnimation { duration: 500 }}
+	}
+
+	Text {
+		id: textOverlay
+		anchors.fill: gameArea
+		text: qsTr("Game over")
+		visible: gameOver
+		horizontalAlignment: Text.AlignHCenter
+		verticalAlignment: Text.AlignVCenter
+		font.pixelSize: gameArea.pixelSize
+		color: gameArea.textColor
 	}
 
 	SingleSquare
@@ -115,7 +171,7 @@ Item {
 		z: 100
 		id: particleSystem
 		anchors.fill: parent
-//         running: applicationActive && status === PageStatus.Active
+//		 running: applicationActive && status === PageStatus.Active
 		running: true
 
 		ImageParticle
@@ -218,4 +274,5 @@ Item {
 				mouse.accepted = false;
 		}
 	}
+
 }

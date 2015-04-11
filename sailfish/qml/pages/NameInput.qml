@@ -3,30 +3,35 @@ import Sailfish.Silica 1.0
 
 Dialog
 {
-    property alias name: nameField.text
-    property alias title: header.title
-    property string coverText: ""
-    id: dialog
+	property alias name: nameField.text
+	property string coverText: ""
+	id: dialog
+	acceptDestination: Qt.resolvedUrl("SinglePlayerPage.qml")
+	acceptDestinationAction: PageStackAction.Replace
 
-    Column
-    {
-        anchors.fill: parent
-        DialogHeader
-        {
-            id: header
-        }
-        Label
-        {
-            text: "Enter your name"
-        }
+	onAccepted: {
+		dialog.acceptDestinationInstance.playerName = dialog.name;
+	}
 
-        TextField
-        {
-            focus: true
-            id: nameField
-            placeholderText: "Your name"
-            EnterKey.enabled: true
-            EnterKey.onClicked: dialog.accept()
-        }
-    }
+	canAccept: nameField.text !== ""
+
+	Column
+	{
+		anchors.fill: parent
+		DialogHeader
+		{
+			id: header
+			title: qsTr("Enter your name")
+		}
+
+		TextField
+		{
+			id: nameField
+			width: parent.width
+			focus: true
+			placeholderText: qsTr("Your name")
+			EnterKey.enabled: true
+			EnterKey.onClicked: dialog.accept()
+		}
+	}
 }

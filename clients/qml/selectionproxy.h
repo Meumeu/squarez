@@ -1,6 +1,6 @@
 /*
  * Squarez puzzle game
- * Copyright (C) 2013-2015  Patrick Nicolas <patricknicolas@laposte.net>
+ * Copyright (C) 2015  Guillaume Meunier <guillaume.meunier@centraliens.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,28 +17,30 @@
  *
  */
 
-#ifndef SQUAREZ_TUTORIAL_RULES_H
-#define SQUAREZ_TUTORIAL_RULES_H
+#ifndef SQUAREZ_QT_SELECTIONPROXY_H
+#define SQUAREZ_QT_SELECTIONPROXY_H
 
-#include "rules/rules.h"
 #include "game/selection.h"
+#include <QObject>
 
-namespace squarez
+
+namespace squarez {
+namespace qt {
+
+class RulesProxy;
+
+class SelectionProxy : public QObject, public squarez::VisibleSelection::Proxy
 {
+    Q_OBJECT
 
-class TutorialRules : public Rules
-{
-private:
-	unsigned int _step;
-	std::unique_ptr<VisibleSelection> _selection;
-
+	RulesProxy& _rules;
+    
 public:
-	TutorialRules(Proxy & proxy, int board_size, int nb_symbols);
-	virtual bool gameOver() override { return false; }
-
-	virtual void onClick(Cell & cell) override;
+	SelectionProxy(VisibleSelection& selection, RulesProxy& rules);
+	~SelectionProxy();
+	void stateChanged(squarez::Selection::State state) override;
 };
-
+}
 }
 
-#endif
+#endif // SQUAREZ_QT_SELECTIONPROXY_H

@@ -6,34 +6,47 @@ import "../squarez"
 
 Page
 {
-    property string coverText: header.title
-    SinglePlayer
-    {
-        id: singlePlayerRules
-        pause: !applicationActive || status !== PageStatus.Active
-    }
+	property string coverText: header.title
+	property alias playerName: singlePlayerRules.playerName
 
-    Column
-    {
-        width: parent.width
-        PageHeader
-        {
-            id: header
-            title: "Score: " + singlePlayerRules.score
-        }
+	Rules {
+		id: singlePlayerRules
+		type: "onlineSinglePlayer"
+// 		type: "singlePlayer"
+		url: "http://heracles/"
+		paused: !applicationActive || status !== PageStatus.Active
+	}
 
-        GameArea
-        {
-            rules: singlePlayerRules
-            width: parent.width
-            height: width
-        }
+	Column
+	{
+		width: parent.width
+		PageHeader
+		{
+			id: header
+			title: "Score: " + singlePlayerRules.score
+		}
 
-        TimerArea
-        {
-            id: timer
-            rules: singlePlayerRules
-            width: parent.width
-        }
-    }
+		GameArea
+		{
+			rules: singlePlayerRules
+			width: parent.width
+			height: width
+
+			pixelSize: Theme.fontSizeExtraLarge
+			textColor: Theme.primaryColor
+
+			BusyIndicator {
+				anchors.centerIn: parent
+				running: !singlePlayerRules.ready
+				size: BusyIndicatorSize.Large
+			}
+		}
+
+		TimerArea
+		{
+			id: timer
+			rules: singlePlayerRules
+			width: parent.width
+		}
+	}
 }

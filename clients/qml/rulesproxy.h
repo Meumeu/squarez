@@ -44,6 +44,7 @@ class RulesProxy : public QAbstractListModel, public Rules::Proxy
 	QString _type;
 	QString _playerName;
 	QString _url;
+	QString _message;
 
 	std::unique_ptr<squarez::http::Handle> _gameInitHandle;
 	
@@ -61,6 +62,10 @@ public:
 	Q_PROPERTY(float percentageLeft READ percentageLeft)
 	Q_PROPERTY(float msLeft READ msLeft)
 	Q_PROPERTY(bool paused READ paused WRITE setPaused NOTIFY onPausedChanged)
+	Q_PROPERTY(bool ready READ ready NOTIFY onReadyChanged)
+	Q_PROPERTY(QString message READ message NOTIFY onMessageChanged)
+
+	Q_INVOKABLE void next(); // for the tutorial rules
 
 	virtual ~RulesProxy();
 	void scoreChanged(unsigned int score) override;
@@ -81,6 +86,8 @@ public:
 	float percentageLeft() const { return _rules ? std::max(_rules->percentageLeft(), 0.0f) : 0; }
 	float msLeft() const { return _rules ? std::max(_rules->msLeft(), 0) : 0; }
 	bool paused() const { return _rules ? _rules->pause() : false; }
+	bool ready() const { return _rules.get(); }
+	QString message() { return _message; }
 
 	void setType(QString type);
 	void setPlayerName(QString playerName);
@@ -103,6 +110,8 @@ signals:
 	void onBoardSizeChanged(int boardSize);
 	void onUrlChanged(QString url);
 	void onPausedChanged(bool paused);
+	void onReadyChanged(bool ready);
+	void onMessageChanged(const QString& message);
 
 public slots:
 	void resetSelection();
