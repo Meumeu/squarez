@@ -38,7 +38,8 @@
 			</div>
 		</div>
 		<script>
-function onReady() {
+window.addEventListener("load",
+function () {
 	var nameForm = document.getElementById("nameForm");
 	var input = document.getElementById("nameInput");
 	nameForm.onsubmit = function()
@@ -78,19 +79,7 @@ function onReady() {
 			document.body.style.fontSize = (Math.min(window.innerHeight, window.innerWidth)/8) + "px";
 		}, false);
 	document.body.style.fontSize = (Math.min(window.innerHeight, window.innerWidth)/8) + "px";
-}
-
-if (window.applicationCache)
-{
-	window.applicationCache.addEventListener('noupdate', onReady);
-	window.applicationCache.addEventListener('updateready', onReady);
-	window.applicationCache.addEventListener('cached', onReady);
-}
-else
-{
-	onReady();
-}
-
+});
 		</script>
 	</body>
 </html>
