@@ -18,7 +18,7 @@
  */
 
 #include "selectionproxy.h"
-#include "eventhandler.h"
+#include "jscallback.h"
 #include "rulesproxy.h"
 
 #include <cmath>
@@ -124,18 +124,15 @@ void squarez::web::SelectionProxy::buildElement()
 
 	auto & n = _element;
 
-	EventHandler* h1 = new EventHandler(n, "animationend", [](emscripten::val){});
-	EventHandler* h2 = new EventHandler(n, "webkitAnimationEnd", [](emscripten::val){});
-
-	auto callback = [n, rootElement, h1, h2] (emscripten::val) mutable
+	JSCallback* jsCallback = new JSCallback([](emscripten::val){});
+	jsCallback->setCallback([n, rootElement, jsCallback] (emscripten::val) mutable
 	{
 		rootElement.call<void>("removeChild", n);
-		delete h1;
-		delete h2;
-	};
+		delete jsCallback;
+	});
 
-	h1->setCallback(callback);
-	h2->setCallback(callback);
+	jsCallback->addEventListener(n, "animationend");
+	jsCallback->addEventListener(n, "webkitAnimationEnd");
 
 	rootElement.call<void>("appendChild", _element);
 }

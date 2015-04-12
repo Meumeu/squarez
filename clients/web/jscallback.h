@@ -17,8 +17,8 @@
  *
  */
 
-#ifndef SQUAREZ_WEB_EVENTHANDLER_H
-#define SQUAREZ_WEB_EVENTHANDLER_H
+#ifndef SQUAREZ_WEB_JSCALLBACK_H
+#define SQUAREZ_WEB_JSCALLBACK_H
 
 #include <functional>
 #include <string>
@@ -28,18 +28,22 @@
 namespace squarez {
 namespace web {
 
-class EventHandler
+class JSCallback
 {
-	emscripten::val _target;
-	std::string _event;
+	std::vector<std::pair<emscripten::val, std::string>> _targets;
+	bool _hasTimeout;
+	int _timeoutId;
 	emscripten::val _handler;
 public:
-	EventHandler(emscripten::val target, const std::string & event, std::function<void(emscripten::val)> callback, bool useCapture = false);
-	~EventHandler();
+	JSCallback(std::function<void(emscripten::val)> callback);
+	~JSCallback();
 
 	void setCallback(std::function<void(emscripten::val)> callback);
 
-	void setTimeout(int ms, emscripten::val value);
+	void addEventListener(emscripten::val target, const std::string & event, bool useCapture = false);
+	void setTimeout(int ms, emscripten::val value = emscripten::val::undefined());
+
+	void clearTimeout();
 };
 
 }}

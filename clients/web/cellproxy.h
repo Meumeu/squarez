@@ -21,7 +21,7 @@
 #define SQUAREZ_WEB_CELLPROXY_H
 
 #include "game/cell.h"
-#include "eventhandler.h"
+#include "jscallback.h"
 
 #include <emscripten/bind.h>
 
@@ -36,16 +36,16 @@ class CellProxy : public squarez::Cell::Proxy
 private:
 	RulesProxy & _rules;
 	emscripten::val _element;
-	EventHandler _clickHandler;
-	EventHandler _touchHandler;
+	JSCallback _clickHandler;
+	JSCallback _moveHandler;
+
+	void setXY();
 public:
 	CellProxy(squarez::Cell & owner, RulesProxy & rules);
 	virtual ~CellProxy();
 
 	virtual void moved(int x, int y) override;
 	virtual void selectChanged(bool status) override;
-
-	void setXY(int x, int y);
 };
 
 }

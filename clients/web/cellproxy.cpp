@@ -18,36 +18,24 @@
  */
 
 #include "cellproxy.h"
-#include "eventhandler.h"
+#include "jscallback.h"
 #include "rulesproxy.h"
 
 #include <sstream>
 
-void setXY(squarez::web::CellProxy & proxy, int x, int y)
-{
-	proxy.setXY(x,y);
-}
-
-EMSCRIPTEN_BINDINGS(cellproxy)
-{
-	emscripten::class_<squarez::web::CellProxy>("CellProxy")
-	.function("setXY", &squarez::web::CellProxy::setXY);
-
-	emscripten::function("setXY", &setXY);
-}
-
 squarez::web::CellProxy::CellProxy(squarez::Cell & owner, squarez::web::RulesProxy & rules) : Proxy(owner),
 _rules(rules),
 _element(emscripten::val::global("document").call<emscripten::val>("createElement", emscripten::val("div"))),
-_clickHandler(_element, "click", [this](emscripten::val){_rules.message(""); _owner.click();}),
-_touchHandler(_element, "touchStart", [this](emscripten::val event){event.call<void>("preventDefault"); _rules.message(""); _owner.click();})
+_clickHandler([this](emscripten::val event){event.call<void>("preventDefault"); _rules.message(""); _owner.click();}),
+_moveHandler([this](emscripten::val){setXY();})
 {
 	std::stringstream elClass;
 	elClass << "cell symbol" << owner.symbol;
 	_element.set("className", elClass.str());
-	_element.set("proxy", *this);
-	setXY(owner.x(), owner.y());
+	setXY();
 	rules._rootElement.call<void>("appendChild", _element);
+	_clickHandler.addEventListener(_element, "click");
+	_clickHandler.addEventListener(_element, "touchstart");
 }
 
 squarez::web::CellProxy::~CellProxy()
@@ -55,10 +43,10 @@ squarez::web::CellProxy::~CellProxy()
 	_rules._rootElement.call<void>("removeChild", _element);
 }
 
-void squarez::web::CellProxy::moved(int x, int y)
+void squarez::web::CellProxy::moved(int /*x*/, int /*y*/)
 {
 	_rules._rootElement["classList"].call<void>("remove", emscripten::val("resizing"));
-	emscripten::val::global("window").call<void>("setTimeout", emscripten::val::global("window")["Squarez"]["setXY"], 100, _element["proxy"], x, y);
+	_moveHandler.setTimeout(100);
 }
 
 void squarez::web::CellProxy::selectChanged(bool status)
@@ -69,12 +57,12 @@ void squarez::web::CellProxy::selectChanged(bool status)
 		_element["classList"].call<void>("remove", emscripten::val("selected"));
 }
 
-void squarez::web::CellProxy::setXY (int x, int y)
+void squarez::web::CellProxy::setXY()
 {
 	std::stringstream strx;
-	strx << x << "em";
+	strx << _owner.x() << "em";
 	_element["style"].set("left", strx.str());
 	std::stringstream stry;
-	stry << y << "em";
+	stry << _owner.y() << "em";
 	_element["style"].set("top", stry.str());
 }
