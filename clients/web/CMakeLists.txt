@@ -56,6 +56,7 @@ install(CODE "
 
 	string(TIMESTAMP MANIFEST_TIMESTAMP \"%Y-%m-%dT%H:%M:%SZ\" UTC)
 	file(GLOB_RECURSE FILE_LIST RELATIVE \$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX} \$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/*)
+	list(REMOVE_ITEM FILE_LIST .htaccess)
 	string(REPLACE \";\" \"\n\" FILE_LIST \"\${FILE_LIST}\")
 	configure_file(${CMAKE_CURRENT_BINARY_DIR}/manifest.appcache.in ${CMAKE_CURRENT_BINARY_DIR}/manifest.appcache)
 
