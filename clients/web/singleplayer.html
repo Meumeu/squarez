@@ -38,7 +38,8 @@
 			</div>
 		</div>
 		<script>
-(function() {
+window.addEventListener("load",
+function () {
 	var nameForm = document.getElementById("nameForm");
 	var input = document.getElementById("nameInput");
 	nameForm.onsubmit = function()
@@ -56,14 +57,14 @@
 		document.getElementsByClassName("clearButton")[0].onclick = function() { game.resetSelection();};
 		nameForm.style.display = "none";
 		localStorage.name = input.value;
-		history.replaceState(null, "", location.origin + location.pathname + "?name="+encodeURIComponent(input.value));
+		history.replaceState(null, "", location.origin + location.pathname + "#" + encodeURIComponent(input.value));
 		document.body.classList.remove("notStarted");
 		return false;
 	}
-	s = location.search.split("name=");
-	if (s.length != 1)
+
+	if (location.hash != "")
 	{
-		input.value = decodeURIComponent(s[1].split("&")[0]);
+		input.value = location.hash.substring(1);
 		nameForm.onsubmit();
 	}
 	else if (localStorage.name !== undefined)
@@ -78,7 +79,7 @@
 			document.body.style.fontSize = (Math.min(window.innerHeight, window.innerWidth)/8) + "px";
 		}, false);
 	document.body.style.fontSize = (Math.min(window.innerHeight, window.innerWidth)/8) + "px";
-})();
+});
 		</script>
 	</body>
 </html>

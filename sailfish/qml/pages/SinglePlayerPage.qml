@@ -23,17 +23,14 @@ Page
 		PageHeader
 		{
 			id: header
-			title: "Score: " + singlePlayerRules.score
+			title: qsTr("Score: %1").arg(singlePlayerRules.score)
 		}
 
 		GameArea
 		{
 			rules: singlePlayerRules
 			width: parent.width
-			height: width
-
-			pixelSize: Theme.fontSizeExtraLarge
-			textColor: Theme.primaryColor
+            height: width
 
 			BusyIndicator {
 				anchors.centerIn: parent

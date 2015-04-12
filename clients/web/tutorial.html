@@ -38,7 +38,8 @@
 			</div>
 		</div>
 		<script>
-(function() {
+window.addEventListener("load",
+function () {
 	if (document.body.ontouchstart === undefined)
 		document.body.classList.add("no-touch");
 	window.addEventListener("resize", function()
@@ -56,7 +57,7 @@
 		document.getElementsByClassName("clearButton")[0].onclick = function() { game.resetSelection();};
 		nameForm.style.display = "none";
 		document.body.classList.remove("notStarted");
-})();
+});
 		</script>
 	</body>
 </html>
