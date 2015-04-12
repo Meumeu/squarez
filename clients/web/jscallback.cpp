@@ -17,7 +17,7 @@
  *
  */
 
-#include "eventhandler.h"
+#include "jscallback.h"
 #include <sstream>
 
 namespace squarez {
@@ -46,27 +46,40 @@ EMSCRIPTEN_BINDINGS(eventHandler)
 	emscripten::function<void>("callHandler", &squarez::internal::callHandler);
 }
 
-squarez::web::EventHandler::EventHandler(emscripten::val target, const std::string & event, std::function<void(emscripten::val)> callback, bool useCapture):
-	_target(target),
-	_event(event),
-	_handler(internal::EventHandler(callback))
-{
-	_target.call<void>("addEventListener", _event, _handler, useCapture);
-}
+squarez::web::JSCallback::JSCallback(std::function<void(emscripten::val)> callback):
+	_hasTimeout(false),
+	_handler(internal::EventHandler(callback)) {}
 
-squarez::web::EventHandler::~EventHandler()
+squarez::web::JSCallback::~JSCallback()
 {
-	_target.call<void>("removeEventListener", _event, _handler);
+	clearTimeout();
+	for (auto & target: _targets)
+		target.first.call<void>("removeEventListener", target.second, _handler);
 	_handler.call<void>("delete");
 }
 
-void squarez::web::EventHandler::setCallback(std::function<void(emscripten::val)> callback)
+void squarez::web::JSCallback::addEventListener(emscripten::val target, const std::string& event, bool useCapture)
 {
-	_handler.as<internal::EventHandler &>()._callback = callback;
+	target.call<void>("addEventListener", event, _handler, useCapture);
+	_targets.emplace_back(target, event);
 }
 
-void squarez::web::EventHandler::setTimeout(int ms, emscripten::val value)
+void squarez::web::JSCallback::setTimeout(int ms, emscripten::val value)
+{
+	clearTimeout();
+	auto window = emscripten::val::global("window");
+	window.call<int>("setTimeout", window["Squarez"]["callHandler"], ms, _handler, value);
+}
+
+void squarez::web::JSCallback::clearTimeout()
 {
 	auto window = emscripten::val::global("window");
-	window.call<void>("setTimeout", window["Squarez"]["callHandler"], ms, _handler, value);
+	if (_hasTimeout)
+		window.call<void>("clearTimeout", _timeoutId);
+	_hasTimeout = false;
+}
+
+void squarez::web::JSCallback::setCallback(std::function<void(emscripten::val)> callback)
+{
+	_handler.as<internal::EventHandler &>()._callback = callback;
 }

@@ -20,7 +20,7 @@
 #include "rulesproxy.h"
 
 #include "cellproxy.h"
-#include "eventhandler.h"
+#include "jscallback.h"
 #include "selectionproxy.h"
 
 #include "game/constants.h"
@@ -45,14 +45,18 @@ EMSCRIPTEN_BINDINGS(rulesproxy)
 }
 
 squarez::web::RulesProxy::RulesProxy(emscripten::val rootElement, emscripten::val scoreElement, emscripten::val timerElement, emscripten::val messageElement, std::string playerName):
-	_scoreElement(scoreElement), _timerElement(timerElement), _rootElement(rootElement), _messageElement(messageElement)
+	_scoreElement(scoreElement), _timerElement(timerElement),
+	_rootElement(rootElement), _messageElement(messageElement),
+	_timerHandler([this](emscripten::val){setTimer(0, _rules->msLeft()+1, "linear");})
 {
 	_rules.reset(new SinglePlayerRules(*this, constants::default_timer(), playerName));
 	initTimers();
 }
 
 squarez::web::RulesProxy::RulesProxy(emscripten::val rootElement, emscripten::val scoreElement, emscripten::val timerElement, emscripten::val messageElement, std::string playerName, std::string url):
-_scoreElement(scoreElement), _timerElement(timerElement), _rootElement(rootElement), _messageElement(messageElement)
+	_scoreElement(scoreElement), _timerElement(timerElement),
+	_rootElement(rootElement), _messageElement(messageElement),
+	_timerHandler([this](emscripten::val){setTimer(0, _rules->msLeft()+1, "linear");})
 {
 	// SinglePlayerRules will think we are in local mode if url is empty, but in fact we want to build a relative url
 	if (url.empty())
@@ -83,7 +87,9 @@ _scoreElement(scoreElement), _timerElement(timerElement), _rootElement(rootEleme
 }
 
 squarez::web::RulesProxy::RulesProxy(emscripten::val rootElement, emscripten::val scoreElement, emscripten::val timerElement, emscripten::val messageElement):
-_scoreElement(scoreElement), _timerElement(timerElement), _rootElement(rootElement), _messageElement(messageElement)
+	_scoreElement(scoreElement), _timerElement(timerElement),
+	_rootElement(rootElement), _messageElement(messageElement),
+	_timerHandler([this](emscripten::val){setTimer(0, _rules->msLeft()+1, "linear");})
 {
 	_rules.reset(new TutorialRules(*this, constants::default_board_size, constants::default_symbols));
 	initTimers();
@@ -92,11 +98,9 @@ _scoreElement(scoreElement), _timerElement(timerElement), _rootElement(rootEleme
 
 void squarez::web::RulesProxy::initTimers()
 {
-	_timerHandler.reset(new EventHandler(_timerElement, "transitionend", [this](emscripten::val)
-	{ setTimer(0, _rules->msLeft()+1, "linear");}));
-
+	_timerHandler.addEventListener(_timerElement, "transitionend");
 	// Force the transitionend event to be called at least once
-	_timerHandler->setTimeout(0, emscripten::val::undefined());
+	_timerHandler.setTimeout(0, emscripten::val::undefined());
 }
 
 
