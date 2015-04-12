@@ -47,6 +47,7 @@ void selectCells(std::unique_ptr<squarez::VisibleSelection>& selection)
 	{
 		i->setSelected(true);
 	}
+	selection->setState(squarez::Selection::State::validated);
 }
 }
 
@@ -93,17 +94,16 @@ void squarez::TutorialRules::onClick (squarez::Cell& /*cell*/)
 	{
 		case 1:
 			break;
-		case 3:
-			_selection.reset(new VisibleSelection(selectionProxyFactory(), findSquare(*_board, std::unary_negate<std::function<bool(squarez::Selection const &)>>(isGood))));
-			selectCells(_selection);
-			_selection->setState(Selection::State::validated);
 		case 2:
 			_proxy.message("Spot similar elements at the edges of a square shape");
 			break;
+		case 3:
+			_selection.reset(new VisibleSelection(selectionProxyFactory(), findSquare(*_board, std::unary_negate<std::function<bool(squarez::Selection const &)>>(isGood))));
+			selectCells(_selection);
+			break;
 		case 4:
-		case 8:
 		{
-			_proxy.message("");
+			_proxy.message("Bigger squares give more points");
 			squarez::Transition const & transition = _board->selectSquare(*_selection, _random_generator, false);
 			this->setScore(score() + transition._score);
 			this->applyTransition(transition);
@@ -111,23 +111,28 @@ void squarez::TutorialRules::onClick (squarez::Cell& /*cell*/)
 			break;
 		}
 		case 5:
-			_proxy.message("Bigger squares give more points");
-			break;
-		case 7:
-			_selection.reset(new VisibleSelection(selectionProxyFactory(), findSquare(*_board, isGood)));
-			selectCells(_selection);
-			_selection->setState(Selection::State::validated);
-		case 6:
 			_proxy.message("Squares not aligned with the grid give double score");
 			break;
-		case 9:
+		case 6:
+			_selection.reset(new VisibleSelection(selectionProxyFactory(), findSquare(*_board, isGood)));
+			selectCells(_selection);
+			_proxy.message("Squares not aligned with the grid give double score");
+			break;
+		case 7:
+		{
+			squarez::Transition const & transition = _board->selectSquare(*_selection, _random_generator, false);
+			this->setScore(score() + transition._score);
+			this->applyTransition(transition);
+			_selection.reset();
+
 			_proxy.message("Time is limited\nEach square you select refills time based on its score");
 			_timer = constants::default_timer();
 			_proxy.timerUpdated();
 			break;
-		case 10:
+		}
+		case 8:
 			_proxy.message("Total amount of available time gets shorter as you progress");
-			_selection.reset();
+			_selection.reset(new VisibleSelection(selectionProxyFactory(), findSquare(*_board, isGood)));
 		default:
 			if (_selection.get() && _selection->isValid())
 			{
@@ -140,9 +145,9 @@ void squarez::TutorialRules::onClick (squarez::Cell& /*cell*/)
 			}
 			else
 			{
+				_proxy.message("");
 				_selection.reset(new VisibleSelection(selectionProxyFactory(), findSquare(*_board, isGood)));
 				selectCells(_selection);
-				_selection->setState(Selection::State::validated);
 			}
 	}
 }

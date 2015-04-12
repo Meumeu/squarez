@@ -31,9 +31,9 @@ Item {
 	property bool animate: true
 	property var colors: [Qt.rgba(255,0,0,1), Qt.rgba(255,255,0,1), Qt.rgba(0,0,255,1)]
 	property bool gameOver: rules.gameOver
-	property int pixelSize: 100
+    property int pixelSize
 	property color textColor
-	property int blurRadius: 32
+    property int blurRadius: 32
 	onWidthChanged: animate = false
 
 	Item
@@ -171,8 +171,7 @@ Item {
 		z: 100
 		id: particleSystem
 		anchors.fill: parent
-//		 running: applicationActive && status === PageStatus.Active
-		running: true
+        running: applicationActive && status === PageStatus.Active
 
 		ImageParticle
 		{

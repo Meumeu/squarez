@@ -23,7 +23,7 @@ Page
 		PageHeader
 		{
 			id: header
-			title: "Score: " + singlePlayerRules.score
+			title: qsTr("Score: %1").arg(singlePlayerRules.score)
 		}
 
 		GameArea
@@ -33,7 +33,7 @@ Page
 			height: width
 
 			pixelSize: Theme.fontSizeExtraLarge
-			textColor: Theme.primaryColor
+				textColor: Theme.primaryColor
 
 			BusyIndicator {
 				anchors.centerIn: parent
