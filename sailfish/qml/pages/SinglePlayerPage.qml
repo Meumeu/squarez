@@ -30,10 +30,7 @@ Page
 		{
 			rules: singlePlayerRules
 			width: parent.width
-			height: width
-
-			pixelSize: Theme.fontSizeExtraLarge
-				textColor: Theme.primaryColor
+            height: width
 
 			BusyIndicator {
 				anchors.centerIn: parent
