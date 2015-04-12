@@ -24,6 +24,9 @@
 
 #include <qqml.h>
 #include <sailfishapp.h>
+#include <QTranslator>
+#include <QLocale>
+#include <QGuiApplication>
 
 #include "rulesproxy.h"
 #include "cellproxy.h"
@@ -35,6 +38,12 @@ int main(int argc, char *argv[])
 	qmlRegisterUncreatableType<squarez::qt::CellProxy>("harbour.squarez", 1,0, "Cell", "");
 	qmlRegisterType<squarez::qt::HighScores>("harbour.squarez", 1,0, "HighScores");
 
+	QGuiApplication * app = SailfishApp::application(argc, argv);
+
+	QTranslator translator;
+	translator.load(QLocale::system().name(), SailfishApp::pathTo(QString("translations")).toLocalFile());
+
+	app->installTranslator(&translator);
+
 	return SailfishApp::main(argc, argv);
 }
-
