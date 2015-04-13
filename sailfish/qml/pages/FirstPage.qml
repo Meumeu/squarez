@@ -61,7 +61,7 @@ Page {
 		model: 3
 		anchors.fill: parent
 		header: PageHeader {
-			title: qsTr("Plop")
+			title: qsTr("High scores")
 		}
 		delegate: Component {
 			BackgroundItem {
@@ -82,6 +82,12 @@ Page {
 			{
 				text: qsTr("How to play")
 				onClicked: pageStack.push(Qt.resolvedUrl("TutorialPage.qml"))
+			}
+
+			MenuItem
+			{
+				text: qsTr("Settings")
+				onClicked: pageStack.push(Qt.resolvedUrl("SettingsPage.qml"))
 			}
 
 			/*MenuLabel

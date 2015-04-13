@@ -68,6 +68,7 @@ SOURCES += src/squarez.cpp \
 	../clients/qml/highscores.cpp \
 	../clients/qml/rulesproxy.cpp \
 	../clients/qml/selectionproxy.cpp \
+	../clients/qml/settings.cpp \
 	../clients/httprequest.cpp \
 	../clients/tutorialrules.cpp
 # \
@@ -90,6 +91,7 @@ HEADERS += \
 	../clients/qml/highscores.h \
 	../clients/qml/rulesproxy.h \
 	../clients/qml/selectionproxy.h \
+	../clients/qml/settings.h \
 	../clients/httprequest.h
 # \
 #    ../shared/database/database.h
@@ -108,6 +110,7 @@ OTHER_FILES += \
 	qml/pages/FirstPage.qml \
 	qml/pages/NameInput.qml \
 	qml/pages/MultiPlayerPage.qml \
+	qml/pages/SettingsPage.qml \
 	qml/pages/SinglePlayerPage.qml \
 	qml/pages/TutorialPage.qml \
 	qml/squarez.qml \

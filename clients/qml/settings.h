@@ -17,23 +17,39 @@
  *
  */
 
-#include <qqml.h>
-#include <QApplication>
-#include <QQmlApplicationEngine>
+#ifndef SQUAREZ_QT_SETTINGS_H
+#define SQUAREZ_QT_SETTINGS_H
 
-#include "rulesproxy.h"
-#include "cellproxy.h"
-#include "highscores.h"
-#include "settings.h"
+#include <QObject>
+#include <QSettings>
 
-int main(int argc, char ** argv)
+class QQmlEngine;
+class QJSEngine;
+
+namespace squarez {
+namespace qt {
+
+class Settings : public QObject
 {
-	qmlRegisterType<squarez::qt::RulesProxy>("harbour.squarez", 1,0, "Rules");
-	qmlRegisterUncreatableType<squarez::qt::CellProxy>("harbour.squarez", 1,0, "Cell", "");
-	qmlRegisterType<squarez::qt::HighScores>("harbour.squarez", 1,0, "HighScores");
-	qmlRegisterSingletonType<squarez::qt::Settings>("harbour.squarez", 1, 0, "Settings", &squarez::qt::Settings::provider);
+	Q_OBJECT
+	QSettings _settings;
 
-	QApplication app(argc, argv);
-	QQmlApplicationEngine engine(QUrl("qrc:/qml/main.qml"));
-	return app.exec();
+	explicit Settings();
+
+public:
+	~Settings();
+
+	Q_INVOKABLE void setValue(const QString& key, const QVariant& value);
+	Q_INVOKABLE QVariant value(const QString& key, const QVariant& defaultValue = QVariant());
+
+	static QObject * provider(QQmlEngine*, QJSEngine*);
+signals:
+
+public slots:
+
+};
+
 }
+}
+
+#endif // SQUAREZ_QT_SETTINGS_H

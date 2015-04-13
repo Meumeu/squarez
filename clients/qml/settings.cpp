@@ -17,23 +17,34 @@
  *
  */
 
-#include <qqml.h>
-#include <QApplication>
-#include <QQmlApplicationEngine>
-
-#include "rulesproxy.h"
-#include "cellproxy.h"
-#include "highscores.h"
 #include "settings.h"
 
-int main(int argc, char ** argv)
-{
-	qmlRegisterType<squarez::qt::RulesProxy>("harbour.squarez", 1,0, "Rules");
-	qmlRegisterUncreatableType<squarez::qt::CellProxy>("harbour.squarez", 1,0, "Cell", "");
-	qmlRegisterType<squarez::qt::HighScores>("harbour.squarez", 1,0, "HighScores");
-	qmlRegisterSingletonType<squarez::qt::Settings>("harbour.squarez", 1, 0, "Settings", &squarez::qt::Settings::provider);
+namespace squarez {
+namespace qt {
 
-	QApplication app(argc, argv);
-	QQmlApplicationEngine engine(QUrl("qrc:/qml/main.qml"));
-	return app.exec();
+Settings::Settings()
+{
+}
+
+void Settings::setValue(const QString &key, const QVariant &value)
+{
+	_settings.setValue(key, value);
+}
+
+QVariant Settings::value(const QString &key, const QVariant &defaultValue)
+{
+	return _settings.value(key, defaultValue);
+}
+
+QObject * Settings::provider(QQmlEngine*, QJSEngine*)
+{
+	return new Settings;
+}
+
+Settings::~Settings()
+{
+}
+
+
+}
 }
