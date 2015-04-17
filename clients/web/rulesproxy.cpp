@@ -50,7 +50,7 @@ squarez::web::RulesProxy::RulesProxy(emscripten::val rootElement, emscripten::va
 	_timerHandler([this](emscripten::val){setTimer(0, _rules->msLeft()+1, "linear");})
 {
 	_rules.reset(new SinglePlayerRules(*this, constants::default_timer(), playerName));
-	initTimers();
+	gameReady();
 }
 
 squarez::web::RulesProxy::RulesProxy(emscripten::val rootElement, emscripten::val scoreElement, emscripten::val timerElement, emscripten::val messageElement, std::string playerName, std::string url):
@@ -75,13 +75,13 @@ squarez::web::RulesProxy::RulesProxy(emscripten::val rootElement, emscripten::va
 				game._seed,
 				url,
 				game._token));
-			initTimers();
+			gameReady();
 		},
 		[this, playerName]()
 		{
 			message("Server unreachable\nscore will not be saved");
 			_rules.reset(new SinglePlayerRules(*this, constants::default_timer(), playerName));
-			initTimers();
+			gameReady();
 		}
 	);
 }
@@ -92,12 +92,13 @@ squarez::web::RulesProxy::RulesProxy(emscripten::val rootElement, emscripten::va
 	_timerHandler([this](emscripten::val){setTimer(0, _rules->msLeft()+1, "linear");})
 {
 	_rules.reset(new TutorialRules(*this, constants::default_board_size, constants::default_symbols));
-	initTimers();
+	gameReady();
 }
 
 
-void squarez::web::RulesProxy::initTimers()
+void squarez::web::RulesProxy::gameReady()
 {
+	_rootElement["classList"].call<void>("remove", emscripten::val("loading"));
 	_timerHandler.addEventListener(_timerElement, "transitionend");
 	// Force the transitionend event to be called at least once
 	_timerHandler.setTimeout(0, emscripten::val::undefined());
