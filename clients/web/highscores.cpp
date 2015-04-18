@@ -71,9 +71,34 @@ void squarez::web::HighScores::switchPage(int count)
 	int target = static_cast<int>(_page) + count;
 	target = std::min(std::max(target, 0), static_cast<int>(Page::forever));
 	_page = static_cast<Page>(target);
+
+	_buttonBefore.set("disabled", _page == Page::lastDay);
+	_buttonAfter.set("disabled", _page == Page::forever);
+
 	_requestHandle = http::request(_url + squarez::onlineSinglePlayer::GetScores::encodeRequest(age(_page), _numScores),
-		[this](std::string const & response)
+		[this, count](std::string const & response)
 		{
+			if (count == 0)
+			{
+				_rootElement.call<void>("removeChild", _content);
+			}
+			else
+			{
+				emscripten::val oldContent = _content;
+				JSCallback * deleteLater = new JSCallback([](emscripten::val){});
+				deleteLater->setCallback(
+					[this, deleteLater, oldContent](emscripten::val)
+					{
+						_rootElement.call<void>("removeChild", oldContent);
+						delete deleteLater;
+					}
+				);
+				deleteLater->addEventListener(oldContent, "animationend");
+				deleteLater->addEventListener(oldContent, "webkitAnimationEnd");
+				oldContent["classList"].call<void>("add", emscripten::val(count > 0 ? "discardLeft" : "discardRight"));
+			}
+
+			_content = emscripten::val::global("document").call<emscripten::val>("createElement", emscripten::val("table"));
 			DeSerializer ser(response);
 			std::stringstream innerHTML;
 			squarez::onlineSinglePlayer::GetScores res(ser);
@@ -96,8 +121,13 @@ void squarez::web::HighScores::switchPage(int count)
 			}
 			innerHTML << "</tbody>";
 			_content.set("innerHTML", innerHTML.str());
+			if (count != 0)
+				_content["classList"].call<void>("add", emscripten::val(count > 0 ? "appearLeft": "appearRight"));
+			_rootElement.call<void>("insertBefore", _content, _buttonAfter);
 		},
-		[](){} // Ignore error
+		[this](){
+			_rootElement["style"].set("display", emscripten::val("none"));
+		}
 	);
 }
 

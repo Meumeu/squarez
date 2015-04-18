@@ -415,6 +415,14 @@ a
 {
 	background-image: url("img/forward.svg");
 }
+#scores button:disabled
+{
+	visibility: hidden;
+}
+#scores button
+{
+	outline: none;
+}
 .restartButton
 {
 	background-color: rgba(80, 80, 80, 0.8);
@@ -510,4 +518,68 @@ a
 	87.5% {box-shadow: -4em -4em 0 0.8em  #93C57A, 0 -4em 0 -1em    #93C57A, 4em -4em 0 -1em    #93C57A, 4em 0 0 -1em    #93C57A, 4em 4em 0 -1em    #93C57A, 0 4em 0 0       #93C57A, -4em 4em 0 0.625em #93C57A, -4em 0 0 0.8em  #93C57A;}
 	100%  {box-shadow: -4em -4em 0 0.8em  #93C57A, 0 -4em 0 0.8em  #93C57A, 4em -4em 0 -1em    #93C57A, 4em 0 0 -1em    #93C57A, 4em 4em 0 -1em    #93C57A, 0 4em 0 -1em    #93C57A, -4em 4em 0 0       #93C57A, -4em 0 0 0.625em #93C57A;}
 }
+.appearLeft
+{
+	-webkit-animation: appearLeft 0.3s ease-out;
+	animation: appearLeft 0.3s ease-out;
+}
+.appearRight
+{
+	-webkit-animation: appearRight 0.3s ease-out;
+	animation: appearRight 0.3s ease-out;
+}
 
+.discardLeft
+{
+	position: absolute;
+	-webkit-animation: discardLeft 0.3s ease-out;
+	animation: discardLeft 0.3s ease-out;
+}
+.discardRight
+{
+	position: absolute;
+	-webkit-animation: discardRight 0.3s ease-out;
+	animation: discardRight 0.3s ease-out;
+}
+
+@-webkit-keyframes discardLeft
+{
+	0%   {transform: translateX(0)     ; opacity: 1;}
+	100% {transform: translateX(-200px); opacity: 0;}
+}
+@-webkit-keyframes discardRight
+{
+	0%   {transform: translateX(0)     ; opacity: 1;}
+	100% {transform: translateX(200px) ; opacity: 0;}
+}
+@keyframes discardLeft
+{
+	0%   {transform: translateX(0)     ; opacity: 1;}
+	100% {transform: translateX(-200px); opacity: 0;}
+}
+@keyframes discardRight
+{
+	0%   {transform: translateX(0)     ; opacity: 1;}
+	100% {transform: translateX(200px) ; opacity: 0;}
+}
+
+@-webkit-keyframes appearRight
+{
+	0%   {transform: translateX(-200px); opacity: 0;}
+	100% {transform: translateX(0)     ; opacity: 1;}
+}
+@-webkit-keyframes appearLeft
+{
+	0%   {transform: translateX(200px) ; opacity: 0;}
+	100% {transform: translateX(0)     ; opacity: 1;}
+}
+@keyframes appearRight
+{
+	0%   {transform: translateX(-200px); opacity: 0;}
+	100% {transform: translateX(0)     ; opacity: 1;}
+}
+@keyframes appearLeft
+{
+	0%   {transform: translateX(200px) ; opacity: 0;}
+	100% {transform: translateX(0)     ; opacity: 1;}
+}
