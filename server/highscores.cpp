@@ -106,7 +106,7 @@ std::vector<squarez::onlineSinglePlayer::GetScores::Score> squarez::HighScores::
 	std::time_t min_date = maxAge ? std::time(nullptr) - maxAge : 0;
 
 	std::vector<squarez::onlineSinglePlayer::GetScores::Score> ret;
-	for(auto& i: db.execute("SELECT name, score, timestamp FROM scores WHERE timestamp > ? ORDER BY score DESC LIMIT ?", min_date, count))
+	for(auto& i: db.execute("SELECT name, score, timestamp FROM scores WHERE timestamp > ? ORDER BY score DESC LIMIT ?", time_put(min_date), count))
 	{
 		squarez::onlineSinglePlayer::GetScores::Score tmp;
 		tmp._playerName = i.fetch<std::string>(0);
