@@ -66,10 +66,10 @@ SOURCES += src/squarez.cpp \
 	../shared/utils/serializer.cpp \
 	../clients/qml/cellproxy.cpp \
 	../clients/qml/highscores.cpp \
+	../clients/qml/httprequest.cpp \
 	../clients/qml/rulesproxy.cpp \
 	../clients/qml/selectionproxy.cpp \
 	../clients/qml/settings.cpp \
-	../clients/httprequest.cpp \
 	../clients/tutorialrules.cpp
 # \
 #    ../shared/database/database.cpp
@@ -97,7 +97,7 @@ HEADERS += \
 #    ../shared/database/database.h
 
 
-PKGCONFIG += sailfishapp libcurl
+PKGCONFIG += sailfishapp
 
 DEFINES += PACKAGE=\\\"harbour-squarez\\\"\
 	PACKAGE_VERSION=\\\"2.99.0\\\"\

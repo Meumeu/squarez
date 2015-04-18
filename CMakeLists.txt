@@ -43,7 +43,6 @@ set(shared_sources
 	${CMAKE_CURRENT_SOURCE_DIR}/shared/utils/serializer.cpp)
 
 set(client_sources
-	${CMAKE_CURRENT_SOURCE_DIR}/clients/httprequest.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/clients/tutorialrules.cpp
 )
 

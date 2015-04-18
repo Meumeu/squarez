@@ -34,7 +34,6 @@ public:
 };
 
 std::unique_ptr<Handle> request(const std::string& url, std::function<void(std::string const&)> onload, std::function<void()> onerror);
-std::string request(const std::string& url);
 
 }
 }
