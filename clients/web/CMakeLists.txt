@@ -4,7 +4,7 @@ configure_file(manifest.appcache.in manifest.appcache.in @ONLY)
 list(REMOVE_ITEM shared_sources ${CMAKE_SOURCE_DIR}/shared/database/database.cpp)
 
 add_definitions(-Wno-warn-absolute-paths --bind)
-add_executable(webclient rulesproxy.cpp cellproxy.cpp selectionproxy.cpp jscallback.cpp httprequest.cpp ${shared_sources} ${client_sources})
+add_executable(webclient rulesproxy.cpp cellproxy.cpp selectionproxy.cpp jscallback.cpp httprequest.cpp highscores.cpp ${shared_sources} ${client_sources})
 target_link_libraries(webclient --bind)
 add_dependencies(webclient shapes)
 
@@ -28,6 +28,7 @@ install(FILES
 	${CMAKE_BINARY_DIR}/data/img/shape2-selected.svg
 	${CMAKE_SOURCE_DIR}/data/img/back.svg
 	${CMAKE_SOURCE_DIR}/data/img/clear.svg
+	${CMAKE_SOURCE_DIR}/data/img/forward.svg
 	${CMAKE_SOURCE_DIR}/data/img/pause.svg
 	${CMAKE_SOURCE_DIR}/data/img/restart.svg
 	${CMAKE_SOURCE_DIR}/data/img/start.svg

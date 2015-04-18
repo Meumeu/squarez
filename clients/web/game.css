@@ -210,7 +210,8 @@ a
 .clearButton,
 .backButton,
 .restartButton,
-#nameForm input[type=submit]
+#nameForm input[type=submit],
+#scores button
 {
 	color: transparent;
 	border: none;
@@ -359,11 +360,41 @@ a
 {
 	padding-top: 2em;
 }
+#scores button
+{
+	border-radius: 50%;
+	margin: 20px;
+	width: 40px;
+	height: 40px;
+}
+#scores > *
+{
+	display: inline-block;
+	vertical-align: middle;
+}
+#scores td
+{
+	padding: 5px;
+	min-width: 60px;
+}
+#scores .playerName
+{
+	text-align: left;
+}
+#scores .date
+{
+	opacity: 0.5;
+}
+#scores .score
+{
+	text-align: right;
+}
 .no-touch .pauseButton:hover,
 .no-touch .clearButton:hover,
 .no-touch .backButton:hover,
 .no-touch .restartButton:hover,
-.no-touch #nameForm input[type=submit]:hover
+.no-touch #nameForm input[type=submit]:hover,
+#scores button:hover
 {
 	background-color: rgba(255, 255, 255, 0.3);
 }
@@ -375,9 +406,14 @@ a
 {
 	background-image: url("img/clear.svg");
 }
-.backButton
+.backButton,
+#scores .before
 {
 	background-image: url("img/back.svg");
+}
+#scores .after
+{
+	background-image: url("img/forward.svg");
 }
 .restartButton
 {
@@ -474,3 +510,4 @@ a
 	87.5% {box-shadow: -4em -4em 0 0.8em  #93C57A, 0 -4em 0 -1em    #93C57A, 4em -4em 0 -1em    #93C57A, 4em 0 0 -1em    #93C57A, 4em 4em 0 -1em    #93C57A, 0 4em 0 0       #93C57A, -4em 4em 0 0.625em #93C57A, -4em 0 0 0.8em  #93C57A;}
 	100%  {box-shadow: -4em -4em 0 0.8em  #93C57A, 0 -4em 0 0.8em  #93C57A, 4em -4em 0 -1em    #93C57A, 4em 0 0 -1em    #93C57A, 4em 4em 0 -1em    #93C57A, 0 4em 0 -1em    #93C57A, -4em 4em 0 0       #93C57A, -4em 0 0 0.625em #93C57A;}
 }
+

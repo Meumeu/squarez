@@ -2,8 +2,7 @@
 <html manifest="manifest.appcache">
 	<head>
 		<title>Squarez</title>
-		<script src="script/squarez.js"></script>
-		<script src="script/squarezUI.js"></script>
+		<script async src="webclient.js"></script>
 		<link rel="stylesheet" type="text/css" href="game.css">
 		<link rel="stylesheet" type="text/css" href="gameSelection.css">
 		<link rel="icon" type="image/png" href="img/icon30.png">
@@ -12,68 +11,42 @@
 	<body>
 		<div class="modeSelection">
 			<a href="singleplayer.html" class="singleplayerChoice">
-				<h1>1 player game</h1>
-			</a>
-			<a href="multiplayer.html" class="multiplayerChoice" id="multiplayerChoice" style="display:none">
-				<h1>online game</h1>
-				<div id="playerInfo">
-					<span id="numPlayers"></span> players currently online
-				</div>
+				<h1>Start game</h1>
 			</a>
 			<a href="tutorial.html" class="tutorialChoice">
-				<h1>tutorial</h1>
+				<h1>How to play</h1>
 			</a>
 		</div>
-		<div class="homeScoreList">
-			<div id="highScores" style="display:none">
-				<h1>High Scores</h1>
-				<table>
-					<tbody id="scoreList"></tbody>
-				</table>
-			</div>
-		</div>
+		<div id="scores" class="homeScoreList"></div>
 		<a id="install" style="display:none">Install the game</a>
 		<script>
-			var r = new XMLHttpRequest();
-			r.open("get", "squarez/num_players");
-			r.onreadystatechange = function()
+var loadHandler = function () {
+	if (window.Squarez === undefined || window.Squarez.HighScores === undefined)
+	{
+		setTimeout(loadHandler, 100);
+		return;
+	}
+	window.highScores = new window.Squarez.HighScores(document.getElementById("scores"), "");
+}
+window.addEventListener("load", loadHandler);
+
+if (window.navigator.mozApps)
+{
+	var manifest = "http://" + window.location.host+ "/manifest.webapp";
+	var appR = window.navigator.mozApps.checkInstalled(manifest);
+	appR.onsuccess = function() {
+		if (! appR.result)
+		{
+			var i = document.getElementById("install");
+			i.style.display = "";
+			i.onclick = function()
 			{
-				if (r.readyState == 4 && r.status == 200)
-					{
-						players = r.responseText;
-
-						if (players == 0)
-							document.getElementById("playerInfo").style.display = "none";
-
-						document.getElementById("numPlayers").innerHTML = players;
-						document.getElementById("multiplayerChoice").style.display = "";
-					}
-			};
-			r.send();
-
-			if (window.navigator.mozApps)
-			{
-				var manifest = "http://" + window.location.host+ "/manifest.webapp";
-				var appR = window.navigator.mozApps.checkInstalled(manifest);
-				appR.onsuccess = function() {
-					if (! appR.result)
-					{
-						var i = document.getElementById("install");
-						i.style.display = "";
-						i.onclick = function()
-						{
-							window.navigator.mozApps.install(manifest);
-							i.style.display = "none";
-						}
-					}
-				};
+				window.navigator.mozApps.install(manifest);
+				i.style.display = "none";
 			}
-
-			var rules = new Module.SinglePlayerRules(8,3,10,60,180);
-			var scoreVector = rules.getHighScores().scores;
-			drawScoreList(scoreVector);
-			scoreVector.delete();
-			rules.delete();
+		}
+	};
+}
 		</script>
 	</body>
 </html>
