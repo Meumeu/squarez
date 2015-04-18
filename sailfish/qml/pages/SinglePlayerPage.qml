@@ -54,6 +54,7 @@ Page
 			id: timer
 			rules: rules
 			width: parent.width
+			visible: !rules.gameOver
 		}
 
 		Text {
