@@ -31,8 +31,8 @@ Item {
 	property var rules
 	property bool animate: true
 	property var colors: [Qt.rgba(255,0,0,1), Qt.rgba(255,255,0,1), Qt.rgba(0,0,255,1)]
-    property bool gameOver: rules.gameOver
-    property int blurRadius: 32
+	property bool gameOver: rules.gameOver
+	property int blurRadius: 32
 	onWidthChanged: animate = false
 
 	Item
@@ -272,5 +272,6 @@ Item {
 				mouse.accepted = false;
 		}
 	}
+
 
 }
