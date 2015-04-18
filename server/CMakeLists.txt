@@ -1,3 +1,6 @@
+include(CheckIncludeFileCXX)
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+
 find_package(Boost REQUIRED COMPONENTS program_options)
 find_package(Threads)
 
@@ -9,6 +12,10 @@ if (ENABLE_SYSTEMD)
 else()
 	add_definitions(-DDISABLE_SYSTEMD)
 endif()
+
+check_include_file_cxx(cxxabi.h HAVE_CXXABI_H)
+
+CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 
 add_definitions(-DNO_HTTP_REQUEST)
 include_directories(SYSTEM ${Boost_INCLUDE_DIRS} ${fastcgipp_INCLUDE_DIRS})

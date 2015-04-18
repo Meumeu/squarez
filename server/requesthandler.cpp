@@ -17,6 +17,7 @@
  *
  */
 
+#include "config.h"
 #include "requesthandler.h"
 #include "serverrules.h"
 #include "game/constants.h"
@@ -29,7 +30,11 @@
 #include <random>
 #include <thread>
 #include <unordered_map>
+#include <typeinfo>
 
+#ifdef HAVE_CXXABI_H
+#include <cxxabi.h>
+#endif
 
 namespace
 {
@@ -116,62 +121,86 @@ bool squarez::RequestHandler::response()
 	std::string method = uri.substr(0, uri.find_first_of('?'));
 	method = method.substr(method.find_last_of('/'));
 
-	if (method == "/" + onlineSinglePlayer::GameInit::method())
+	try
 	{
-		std::string const& name = environment().findGet("name");
-		unsigned int size = boost::lexical_cast<unsigned int>(environment().findGet("size"));
-		unsigned int symbols = boost::lexical_cast<unsigned int>(environment().findGet("symbols"));
-		auto seed = getSeed();
-		auto token = games.storeGame(std::make_shared<ServerRules>(
-			name, seed, size, symbols, constants::default_timer(), highScores));
-
-		out << "Content-Type: text/plain\r\n\r\n";
-		Serializer ser(out);
-		onlineSinglePlayer::GameInit::serialize(ser, token, seed);
-	}
-	else if (method == "/" + onlineSinglePlayer::PushSelection::method())
-	{
-		auto token = getToken(environment());
-		auto game = games.getGame(token);
-
-		// Read the selection from parameters
-		std::chrono::milliseconds msSinceEpoch{boost::lexical_cast<int>(environment().findGet("msSinceEpoch"))};
-		bool gameOver = game->playSelection(environment().findGet("selection"), msSinceEpoch);
-
-		if (gameOver)
+		if (method == "/" + onlineSinglePlayer::GameInit::method())
 		{
-			games.eraseGame(token);
+			std::string const& name = environment().findGet("name");
+			unsigned int size = boost::lexical_cast<unsigned int>(environment().findGet("size"));
+			unsigned int symbols = boost::lexical_cast<unsigned int>(environment().findGet("symbols"));
+			auto seed = getSeed();
+			auto token = games.storeGame(std::make_shared<ServerRules>(
+				name, seed, size, symbols, constants::default_timer(), highScores));
+
+			out << "Content-Type: text/plain\r\n\r\n";
+			Serializer ser(out);
+			onlineSinglePlayer::GameInit::serialize(ser, token, seed);
+		}
+		else if (method == "/" + onlineSinglePlayer::PushSelection::method())
+		{
+			auto token = getToken(environment());
+			auto game = games.getGame(token);
+
+			// Read the selection from parameters
+			std::chrono::milliseconds msSinceEpoch{boost::lexical_cast<int>(environment().findGet("msSinceEpoch"))};
+			bool gameOver = game->playSelection(environment().findGet("selection"), msSinceEpoch);
+
+			if (gameOver)
+			{
+				games.eraseGame(token);
+			}
+
+			out << "Content-Type: text/plain\r\n\r\n";
+			Serializer ser(out);
+			onlineSinglePlayer::PushSelection::serialize(ser, gameOver);
+		}
+		else if (method == "/" + onlineSinglePlayer::Pause::method())
+		{
+			auto token = getToken(environment());
+			auto game = games.getGame(token);
+			bool pause = boost::lexical_cast<bool>(environment().findGet("pause"));
+			std::chrono::milliseconds msSinceEpoch{boost::lexical_cast<int>(environment().findGet("msSinceEpoch"))};
+			game->setPause(pause, msSinceEpoch);
+
+			out << "Content-Type: text/plain\r\n\r\n";
+		}
+		else if (method == "/" + onlineSinglePlayer::GetScores::method())
+		{
+			out << "Content-Type: text/plain\r\n\r\n";
+
+			int count = environment().checkForGet("count") ? std::min(20, boost::lexical_cast<int>(environment().findGet("count"))) : 20;
+			int age = environment().checkForGet("age") ? boost::lexical_cast<int>(environment().findGet("age")) : 0;
+
+			Serializer ser(out);
+			onlineSinglePlayer::GetScores::serialize(ser, highScores->getScores(age, count));
+		}
+		else
+		{
+			std::stringstream ss;
+			ss << "Unknown method [" << method << "]";
+			throw std::runtime_error(ss.str());
+		}
+	}
+	catch(std::exception& e)
+	{
+#ifdef HAVE_CXXABI_H
+		int status;
+		char * realname = abi::__cxa_demangle(typeid(e).name(), nullptr, nullptr, &status);
+
+		if (realname)
+		{
+			std::cerr << "Exception " << realname << " while processing " << uri << ": " << std::endl;
+			free(realname);
+		}
+		else
+#endif
+		{
+			std::cerr << "Exception " << typeid(e).name() << " while processing " << uri << ": " << std::endl;
 		}
 
-		out << "Content-Type: text/plain\r\n\r\n";
-		Serializer ser(out);
-		onlineSinglePlayer::PushSelection::serialize(ser, gameOver);
-	}
-	else if (method == "/" + onlineSinglePlayer::Pause::method())
-	{
-		auto token = getToken(environment());
-		auto game = games.getGame(token);
-		bool pause = boost::lexical_cast<bool>(environment().findGet("pause"));
-		std::chrono::milliseconds msSinceEpoch{boost::lexical_cast<int>(environment().findGet("msSinceEpoch"))};
-		game->setPause(pause, msSinceEpoch);
+		std::cerr << e.what() << std::endl;
 
-		out << "Content-Type: text/plain\r\n\r\n";
-	}
-	else if (method == "/" + onlineSinglePlayer::GetScores::method())
-	{
-		out << "Content-Type: text/plain\r\n\r\n";
-
-		int count = environment().checkForGet("count") ? std::min(20, boost::lexical_cast<int>(environment().findGet("count"))) : 20;
-		int age = environment().checkForGet("age") ? boost::lexical_cast<int>(environment().findGet("age")) : 0;
-
-		Serializer ser(out);
-		onlineSinglePlayer::GetScores::serialize(ser, highScores->getScores(age, count));
-	}
-	else
-	{
-		std::stringstream ss;
-		ss << "Unknown method [" << method << "]";
-		throw std::runtime_error(ss.str());
+		throw;
 	}
 	return true;
 }
