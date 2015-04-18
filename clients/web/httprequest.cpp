@@ -69,11 +69,3 @@ std::unique_ptr<squarez::http::Handle> squarez::http::request(const std::string&
 {
 	return std::unique_ptr<squarez::http::Handle>(new JSHandle(url, onload, onerror));
 }
-
-std::string squarez::http::request(const std::string& url)
-{
-	emscripten::val xhr = emscripten::val::global("XMLHttpRequest").new_();
-	xhr.call<void>("open", std::string("get"), url, false);
-	xhr.call<void>("send");
-	return xhr["responseText"].as<std::string>();
-}
