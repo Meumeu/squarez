@@ -103,9 +103,6 @@ void squarez::HighScores::updateScore (int score, int64_t rowId)
 
 std::vector<squarez::onlineSinglePlayer::GetScores::Score> squarez::HighScores::getScores(int maxAge, int count)
 {
-	if (count > 20)
-		count = 20;
-
 	std::time_t min_date = maxAge ? std::time(nullptr) - maxAge : 0;
 
 	std::vector<squarez::onlineSinglePlayer::GetScores::Score> ret;

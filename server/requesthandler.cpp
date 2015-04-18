@@ -161,7 +161,7 @@ bool squarez::RequestHandler::response()
 	{
 		out << "Content-Type: text/plain\r\n\r\n";
 
-		int count = environment().checkForGet("count") ? boost::lexical_cast<int>(environment().findGet("count")) : 20;
+		int count = environment().checkForGet("count") ? std::min(20, boost::lexical_cast<int>(environment().findGet("count"))) : 20;
 		int age = environment().checkForGet("age") ? boost::lexical_cast<int>(environment().findGet("age")) : 0;
 
 		Serializer ser(out);
