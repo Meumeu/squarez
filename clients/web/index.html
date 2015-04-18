@@ -47,6 +47,8 @@ if (window.navigator.mozApps)
 		}
 	};
 }
+if (document.body.ontouchstart === undefined)
+	document.body.classList.add("no-touch");
 		</script>
 	</body>
 </html>

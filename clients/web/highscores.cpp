@@ -72,12 +72,14 @@ void squarez::web::HighScores::switchPage(int count)
 	target = std::min(std::max(target, 0), static_cast<int>(Page::forever));
 	_page = static_cast<Page>(target);
 
-	_buttonBefore.set("disabled", _page == Page::lastDay);
-	_buttonAfter.set("disabled", _page == Page::forever);
+	_buttonBefore.set("disabled", true);
+	_buttonAfter.set("disabled", true);
 
 	_requestHandle = http::request(_url + squarez::onlineSinglePlayer::GetScores::encodeRequest(age(_page), _numScores),
 		[this, count](std::string const & response)
 		{
+			_buttonBefore.set("disabled", _page == Page::lastDay);
+			_buttonAfter.set("disabled", _page == Page::forever);
 			if (count == 0)
 			{
 				_rootElement.call<void>("removeChild", _content);
