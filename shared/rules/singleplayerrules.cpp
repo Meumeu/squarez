@@ -81,6 +81,7 @@ void squarez::SinglePlayerRules::onClick(squarez::Cell& cell)
 				[this]() // onerror
 				{
 					_proxy.networkError();
+					_url = "";
 				}
 			);
 #endif
