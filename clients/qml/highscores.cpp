@@ -24,14 +24,37 @@
 
 namespace squarez {
 namespace qt {
-	
+
 HighScores::~HighScores()
 {
 }
 
+HighScores::section::section(int maxAge, std::string name) : maxAge(maxAge), name(name)
+{}
+
+HighScores::section::section(const section& rhs) : maxAge(rhs.maxAge), name(rhs.name)
+{}
+
+HighScores::HighScores(QObject *parent) : QAbstractListModel(parent), _scores{{7 * 86400, "Last week"}, {30 * 86400, "Last month"}, {0, "All time"} }
+{
+	std::cerr << "HighScores::HighScores" << std::endl;
+	for(auto& i: _scores)
+	{
+		std::cerr << "    maxAge: " << i.maxAge << ", name: " << i.name << std::endl;
+	}
+}
+
 QVariant HighScores::data(const QModelIndex& index, int role) const
 {
-	const squarez::onlineSinglePlayer::GetScores::Score& score = _scores.at(index.row());
+	size_t idx1 = 0;
+	size_t idx2 = index.row();
+	while(idx1 < _scores.size() && idx2 >= _scores[idx1].scores.size())
+	{
+		idx2 -= _scores[idx1].scores.size();
+		idx1++;
+	}
+
+	const squarez::onlineSinglePlayer::GetScores::Score& score = _scores.at(idx1).scores[idx2];
 	QDateTime date;
 	
 	switch(role)
@@ -44,6 +67,8 @@ QVariant HighScores::data(const QModelIndex& index, int role) const
 		date = QDateTime::fromString(QString::fromStdString(score._date), "yyyy-MM-dd HH:mm:ss");
 		date.setTimeSpec(Qt::UTC);
 		return date;
+	case 3:
+		return QString::fromStdString(_scores.at(idx1).name);
 	default:
 		return QVariant();
 	}
@@ -51,7 +76,11 @@ QVariant HighScores::data(const QModelIndex& index, int role) const
 
 int HighScores::rowCount(const QModelIndex& /*parent*/) const
 {
-	return _scores.size();
+	int size = 0;
+	for(const auto& i: _scores)
+		size += i.scores.size();
+
+	return size;
 }
 
 QHash<int, QByteArray> HighScores::roleNames() const
@@ -60,9 +89,34 @@ QHash<int, QByteArray> HighScores::roleNames() const
 	roles[0] = "playerName";
 	roles[1] = "score";
 	roles[2] = "date";
+	roles[3] = "section";
 	return roles;
 }
 
+void HighScores::refresh()
+{
+	if (!_url.isEmpty())
+	{
+		for(auto& i: _scores)
+		{
+			i.loadHandle = squarez::http::request(_url.toStdString() + onlineSinglePlayer::GetScores::encodeRequest(i.maxAge, 5),
+				[this, &i](std::string response) // onload
+				{
+					DeSerializer s(response);
+					onlineSinglePlayer::GetScores scores(s);
+					beginResetModel();
+					i.scores = scores._scores;
+					std::sort(i.scores.begin(), i.scores.end(), [](const Score& a, const Score& b){ return a._score > b._score; });
+					endResetModel();
+				},
+				[this]() // onerror
+				{
+					emit onNetworkError();
+				}
+			);
+		}
+	}
+}
 
 void HighScores::setUrl(QString url)
 {
@@ -71,27 +125,11 @@ void HighScores::setUrl(QString url)
 	_url = url;
 
 	beginResetModel();
-	_scores.clear();
+	for(auto& i: _scores)
+		i.scores.clear();
 	endResetModel();
 	
-	if (!_url.isEmpty())
-	{
-		_scoresLoadHandle = squarez::http::request(_url.toStdString() + onlineSinglePlayer::GetScores::encodeRequest(),
-			[this](std::string response) // onload
-			{
-				DeSerializer s(response);
-				onlineSinglePlayer::GetScores scores(s);
-				beginResetModel();
-				_scores = scores._scores;
-				std::sort(_scores.begin(), _scores.end(), [](const Score& a, const Score& b){ return a._score > b._score; });
-				endResetModel();
-			},
-			[this]() // onerror
-			{
-				emit onNetworkError();
-			}
-		);
-	}
+	refresh();
 
 	emit onUrlChanged(url);
 }

@@ -102,7 +102,6 @@ public:
 	void removeCell(CellProxy * cell);
 
 signals:
-	
 	void onScoreChanged(unsigned int score);
 	void onGameOverChanged(bool gameOver);
 	void onTypeChanged(QString type);
@@ -112,6 +111,7 @@ signals:
 	void onPausedChanged(bool paused);
 	void onReadyChanged(bool ready);
 	void onMessageChanged(const QString& message);
+	void onNetworkError();
 
 public slots:
 	void resetSelection();

@@ -33,12 +33,23 @@ class HighScores : public QAbstractListModel
 
 	typedef squarez::onlineSinglePlayer::GetScores::Score Score;
 	QString _url;
-	std::unique_ptr<squarez::http::Handle> _scoresLoadHandle;
-	std::vector<Score> _scores;
+
+	struct section
+	{
+		section(int maxAge, std::string name);
+		section(const section& rhs);
+		int maxAge;
+		std::string name;
+		std::vector<Score> scores;
+		std::unique_ptr<squarez::http::Handle> loadHandle;
+	};
+
+	std::vector<section> _scores;
 
 public:
 	Q_PROPERTY(QString url READ url WRITE setUrl NOTIFY onUrlChanged)
 
+	explicit HighScores(QObject* parent = nullptr);
 	~HighScores();
 
 	QVariant data(const QModelIndex& index, int role) const override;
@@ -47,6 +58,7 @@ public:
 
 	const QString& url() const { return _url; }
 	void setUrl(QString url);
+	Q_INVOKABLE void refresh();
 
 signals:
 	void onUrlChanged(QString url);

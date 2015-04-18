@@ -29,6 +29,18 @@ Page {
 	property bool serverReachable: false
 	Settings { id: settings }
 
+	ListModel {
+		ListElement {
+			text: QT_TR_NOOP("Last week")
+		}
+		ListElement {
+			text: QT_TR_NOOP("Last month")
+		}
+		ListElement {
+			text: QT_TR_NOOP("All time")
+		}
+	}
+
 	/*SilicaListView {
 		model: rules.highScores;
 		anchors.fill: parent
@@ -57,24 +69,76 @@ Page {
 				horizontalAlignment: Text.AlignRight
 			}
 		}*/
+
+
+	HighScores {
+		id: scores
+		url: "http://squarez-beta.meumeu.org/"
+	}
+
+	Timer {
+		interval: 3600
+		repeat: Qt.application.state === Qt.ApplicationActive
+		onTriggered: scores.refresh()
+	}
+
 	SilicaListView {
-		model: 3
+		id: view
+		model: scores
 		anchors.fill: parent
 		header: PageHeader {
 			title: qsTr("High scores")
 		}
+		spacing: Theme.paddingMedium
+
 		delegate: Component {
 			BackgroundItem {
-				id: delegate
+				Column {
+					anchors.left: parent.left
+					anchors.right: parent.right
+					anchors.leftMargin: Theme.paddingMedium
+					anchors.rightMargin: Theme.paddingMedium
+					id: delegate
 
-				Label {
-					x: Theme.paddingLarge
-					text: index
-					anchors.verticalCenter: parent.verticalCenter
-					color: delegate.highlighted ? Theme.highlightColor : Theme.primaryColor
+					Row {
+						spacing: Theme.paddingMedium
+						Label {
+							width: delegate.width - scoreLabel.width - Theme.paddingMedium
+							text: playerName
+							font.pixelSize: Theme.fontSizeMedium
+							truncationMode: TruncationMode.Fade
+						}
+						Label {
+							id: scoreLabel
+							text: score
+							font.pixelSize: Theme.fontSizeMedium
+						}
+					}
+
+					Label {
+						text: (new Date() - date) < 86400000 ? date.toLocaleTimeString(Qt.locale(), Locale.ShortFormat) : date.toLocaleDateString(Qt.locale(), Locale.LongFormat)
+						color: Theme.secondaryColor
+						font.pixelSize: Theme.fontSizeExtraSmall
+					}
 				}
 			}
 		}
+
+		section.property: "section"
+		section.delegate: Component {
+			Label {
+				width: parent.width
+				text: qsTr(section)
+				horizontalAlignment: Text.AlignHCenter
+				color: Theme.highlightColor
+			}
+		}
+
+		ViewPlaceholder {
+			enabled: view.count === 0
+			text: qsTr("No items")
+		}
+
 
 		// PullDownMenu and PushUpMenu must be declared in SilicaFlickable, SilicaListView or SilicaGridView
 		PullDownMenu {
@@ -84,11 +148,11 @@ Page {
 				onClicked: pageStack.push(Qt.resolvedUrl("TutorialPage.qml"))
 			}
 
-			MenuItem
+			/*MenuItem
 			{
 				text: qsTr("Settings")
 				onClicked: pageStack.push(Qt.resolvedUrl("SettingsPage.qml"))
-			}
+			}*/
 
 			/*MenuLabel
 			{
@@ -117,6 +181,8 @@ Page {
 
 		VerticalScrollDecorator {}
 	}
+
+	onStatusChanged: if (status === PageStatus.Activating) scores.refresh()
 }
 
 

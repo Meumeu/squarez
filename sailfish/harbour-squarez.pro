@@ -149,14 +149,7 @@ lupdate_only{
 SOURCES += \
 	qml/cover/CoverPage.qml \
 	qml/harbour-squarez.qml \
-	qml/pages/FirstPage.qml \
-	qml/pages/NameInput.qml \
-	qml/pages/MultiPlayerPage.qml \
-	qml/pages/SinglePlayerPage.qml \
-	qml/pages/TutorialPage.qml \
+	qml/pages/*.qml \
 	qml/squarez.qml \
-	qml/squarez/GameArea.qml \
-	qml/squarez/SingleSquare.qml \
-	qml/squarez/Settings.qml \
-	qml/squarez/TimerArea.qml
+	qml/squarez/*.qml
 }

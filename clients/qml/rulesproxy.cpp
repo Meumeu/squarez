@@ -181,7 +181,7 @@ void RulesProxy::setUrl(QString url)
 
 void RulesProxy::networkError()
 {
-
+	emit onNetworkError();
 }
 
 void RulesProxy::message (const std::string& message)

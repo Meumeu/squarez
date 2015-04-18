@@ -1,35 +1,53 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 
+import harbour.squarez 1.0
+
 Dialog
 {
-	property alias name: nameField.text
 	property string coverText: ""
 	id: dialog
 	acceptDestination: Qt.resolvedUrl("SinglePlayerPage.qml")
 	acceptDestinationAction: PageStackAction.Replace
 
 	onAccepted: {
-		dialog.acceptDestinationInstance.playerName = dialog.name;
+		dialog.acceptDestinationInstance.playerName = playerName.text;
+		if (playOnline.checked)
+			dialog.acceptDestinationInstance.rulesType = "onlineSinglePlayer";
+		else
+			dialog.acceptDestinationInstance.rulesType = "singlePlayer";
+
+		Settings.setValue("online", playOnline.checked);
+		Settings.setValue("playerName", playerName.text);
 	}
 
-	canAccept: nameField.text !== ""
+	onOpened: {
+		playOnline.checked = Settings.value("online", true);
+		playerName.text = Settings.value("playerName", "");
+	}
+
+	canAccept: playerName.text !== ""
 
 	Column
 	{
 		anchors.fill: parent
-		DialogHeader
-		{
-			id: header
-			title: qsTr("Enter your name")
+
+		DialogHeader {
+			acceptText: qsTr("Start")
+		}
+
+		TextSwitch {
+			id: playOnline
+			width: parent.width
+			text: qsTr("Play online")
 		}
 
 		TextField
 		{
-			id: nameField
+			id: playerName
 			width: parent.width
 			focus: true
-			placeholderText: qsTr("Your name")
+			placeholderText: qsTr("Enter your name")
 			EnterKey.enabled: true
 			EnterKey.onClicked: dialog.accept()
 		}

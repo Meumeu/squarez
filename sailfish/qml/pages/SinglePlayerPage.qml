@@ -1,4 +1,4 @@
-import QtQuick 2.0
+import QtQuick 2.2
 import Sailfish.Silica 1.0
 
 import harbour.squarez 1.0
@@ -7,34 +7,44 @@ import "../squarez"
 Page
 {
 	property string coverText: header.title
-	property alias playerName: singlePlayerRules.playerName
+	property alias playerName: rules.playerName
+	property alias rulesType: rules.type
+	id: page
 
-	Rules {
-		id: singlePlayerRules
-		type: "onlineSinglePlayer"
-// 		type: "singlePlayer"
-		url: "http://heracles/"
-		paused: !applicationActive || status !== PageStatus.Active
+	function networkError()
+	{
+		message.text = qsTr("Network error: score will not be saved")
 	}
 
-	Column
-	{
+	Component.onCompleted: {
+		rules.onNetworkError.connect(networkError);
+	}
+
+	Rules {
+		id: rules
+		url: "http://squarez-beta.meumeu.org/"
+		paused: !applicationActive || status !== PageStatus.Active
+
+	}
+
+	Column {
+		id: column
 		width: parent.width
 		PageHeader
 		{
 			id: header
-			title: qsTr("Score: %1").arg(singlePlayerRules.score)
+			title: qsTr("Score: %1").arg(rules.score)
 		}
 
 		GameArea
 		{
-			rules: singlePlayerRules
+			rules: rules
 			width: parent.width
-            height: width
+			height: width
 
 			BusyIndicator {
 				anchors.centerIn: parent
-				running: !singlePlayerRules.ready
+				running: !rules.ready
 				size: BusyIndicatorSize.Large
 			}
 		}
@@ -42,8 +52,37 @@ Page
 		TimerArea
 		{
 			id: timer
-			rules: singlePlayerRules
+			rules: rules
 			width: parent.width
 		}
+
+		Text {
+			id: message
+			anchors.left: parent.left
+			anchors.right: parent.right
+			color: Theme.primaryColor
+			font.family: Theme.fontFamily
+			font.pixelSize: Theme.fontSizeMedium
+			wrapMode: Text.Wrap
+			text: "test"
+			horizontalAlignment: Text.AlignHCenter
+
+			SequentialAnimation {
+				id: messageFadeOut
+				PauseAnimation {
+					duration: 2000
+				}
+				NumberAnimation {
+					target: message
+					property: "opacity"
+					from: 1
+					to: 0
+					duration: 1000
+				}
+			}
+
+			onTextChanged: messageFadeOut.restart()
+		}
 	}
+
 }
