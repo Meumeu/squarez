@@ -36,13 +36,7 @@ HighScores::section::section(const section& rhs) : maxAge(rhs.maxAge), name(rhs.
 {}
 
 HighScores::HighScores(QObject *parent) : QAbstractListModel(parent), _scores{{7 * 86400, "Last week"}, {30 * 86400, "Last month"}, {0, "All time"} }
-{
-	std::cerr << "HighScores::HighScores" << std::endl;
-	for(auto& i: _scores)
-	{
-		std::cerr << "    maxAge: " << i.maxAge << ", name: " << i.name << std::endl;
-	}
-}
+{}
 
 QVariant HighScores::data(const QModelIndex& index, int role) const
 {
