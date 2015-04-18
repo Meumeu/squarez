@@ -105,7 +105,7 @@ void squarez::SinglePlayerRules::resetSelection()
 
 void squarez::SinglePlayerRules::setPause(bool state)
 {
-	if (state == pause())
+	if (state == pause() or gameOver())
 		return;
 	pauseTimer(state);
 
