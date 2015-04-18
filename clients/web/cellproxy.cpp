@@ -59,10 +59,9 @@ void squarez::web::CellProxy::selectChanged(bool status)
 
 void squarez::web::CellProxy::setXY()
 {
-	std::stringstream strx;
-	strx << _owner.x() << "em";
-	_element["style"].set("left", strx.str());
-	std::stringstream stry;
-	stry << _owner.y() << "em";
-	_element["style"].set("top", stry.str());
+	std::stringstream transform;
+	transform << "translate("
+		<< _owner.x() << "em,"
+		<< _owner.y() << "em)";
+	_element["style"].set("transform", transform.str());
 }
