@@ -45,8 +45,11 @@ public:
 class ServerRules : public DummyProxy, public squarez::Rules
 {
 	std::shared_ptr<HighScores> _highScores;
+	int64_t _scoreDbRow;
 
 public:
+	const std::chrono::steady_clock::time_point _epoch;
+
 	ServerRules(std::string playerName,
 		std::mt19937::result_type seed,
 		int board_size,
@@ -61,9 +64,6 @@ public:
 
 	// not applicable on server
 	virtual void onClick(Cell &) {};
-private:
-	std::chrono::steady_clock::time_point _epoch;
-	int64_t _scoreDbRow;
 };
 }
 

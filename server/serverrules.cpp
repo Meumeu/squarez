@@ -36,8 +36,8 @@ std::unique_ptr< squarez::VisibleSelection::Proxy > squarez::DummyProxy::selecti
 squarez::ServerRules::ServerRules(std::string playerName, std::mt19937::result_type seed, int board_size, int nb_symbols, Timer && timer, std::shared_ptr<HighScores> highScores):
 	Rules(*this, board_size, nb_symbols, seed, std::move(timer), std::move(playerName)),
 	_highScores(highScores),
-	_epoch(std::chrono::steady_clock::now()),
-	_scoreDbRow(0)
+	_scoreDbRow(0),
+	_epoch(std::chrono::steady_clock::now())
 {
 }
 

@@ -87,7 +87,7 @@ namespace
 			std::vector<std::uint32_t> endedGames;
 			for (const auto & game : _games)
 			{
-				if (game.second->msLeft() < -60000)
+				if (game.second->msLeft() < -60000 or std::chrono::steady_clock::now() - game.second->_epoch > std::chrono::hours(24))
 					endedGames.push_back(game.first);
 			}
 			for (auto i : endedGames)
