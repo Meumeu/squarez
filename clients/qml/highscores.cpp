@@ -58,7 +58,7 @@ QVariant HighScores::data(const QModelIndex& index, int role) const
 	case 1:
 		return score._score;
 	case 2:
-		date = QDateTime::fromString(QString::fromStdString(score._date), "yyyy-MM-dd HH:mm:ss");
+		date = QDateTime:: fromString(QString::fromStdString(score._date), Qt::ISODate);
 		date.setTimeSpec(Qt::UTC);
 		return date;
 	case 3:
