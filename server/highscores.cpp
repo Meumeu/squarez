@@ -65,14 +65,26 @@ void squarez::HighScores::initDatabase()
 			"id INTEGER PRIMARY KEY,"
 			"name VARCHAR(100),"
 			"score INTEGER,"
-			"timestamp VARCHAR(20)"
+			"timestamp VARCHAR(30)"
 			")"
 		);
 
-		setConfig("version", 1);
+		setConfig("version", 2);
 		break;
 
-	case 1: // current version
+	case 1: // convert timestamp format to ISO 8601 standard
+		for(auto& i: db.execute("SELECT id, timestamp FROM scores"))
+		{
+			std::string timestamp = i.fetch<std::string>(1);
+			timestamp[10] = 'T';
+			timestamp += 'Z';
+			db.execute("UPDATE scores SET timestamp=? WHERE id=?", timestamp, i.fetch<int>(0));
+		}
+
+		setConfig("version", 2);
+		break;
+
+	case 2: // current version
 		break;
 
 	default: // newer version
@@ -85,8 +97,8 @@ namespace {
 	std::string time_put(std::time_t t = std::time(nullptr))
 	{
 		std::tm tmp = *std::gmtime(&t);
-		char buf[21];
-		std::strftime(buf, sizeof(buf), "%F %T", &tmp);
+		char buf[30];
+		std::strftime(buf, sizeof(buf), "%FT%TZ", &tmp);
 		return buf;
 	}
 }
