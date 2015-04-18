@@ -64,7 +64,7 @@ Page
 			font.family: Theme.fontFamily
 			font.pixelSize: Theme.fontSizeMedium
 			wrapMode: Text.Wrap
-			text: "test"
+			text: ""
 			horizontalAlignment: Text.AlignHCenter
 
 			SequentialAnimation {
