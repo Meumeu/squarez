@@ -117,11 +117,6 @@ a
 	pointer-events:none;
 }
 
-.transition-square-container
-{
-	z-index: -1;
-}
-
 .transition-square
 {
 	border-width: 0.2em;
@@ -363,9 +358,19 @@ a
 #scores button
 {
 	border-radius: 50%;
-	margin: 20px;
 	width: 40px;
 	height: 40px;
+}
+#scores table
+{
+	margin: 0 10px;
+}
+#scores
+{
+	display: flex;
+	position: relative;
+	justify-content: center;
+	align-items: center;
 }
 #scores > *
 {
@@ -532,12 +537,14 @@ a
 .discardLeft
 {
 	position: absolute;
+	top: 0;
 	-webkit-animation: discardLeft 0.3s ease-out;
 	animation: discardLeft 0.3s ease-out;
 }
 .discardRight
 {
 	position: absolute;
+	top: 0;
 	-webkit-animation: discardRight 0.3s ease-out;
 	animation: discardRight 0.3s ease-out;
 }
