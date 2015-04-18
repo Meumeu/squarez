@@ -22,19 +22,29 @@ import QtQuick 2.0
 import Sailfish.Silica 1.0
 
 CoverBackground {
+
 	Column
 	{
-		anchors.centerIn: parent
-		Label {
-			text: "Squarez"
+		anchors.fill: parent
+		anchors.topMargin: parent.height / 10
+		anchors.bottomMargin: parent.height / 10
+		spacing: parent.height / 20
+
+		Image {
+			anchors.horizontalCenter: parent.horizontalCenter
+			width: parent.width * 0.9
+			height: width
+			sourceSize.height: height
+			sourceSize.width: width
+			source: "../../img/harbour-squarez.svg"
+			opacity: 0.3
 		}
+
 		Label {
+			anchors.horizontalCenter: parent.horizontalCenter
 			id: custom
 			text: pageStack.currentPage.coverText
 			visible: text !== ""
 		}
 	}
-
 }
-
-

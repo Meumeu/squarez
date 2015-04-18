@@ -41,7 +41,8 @@ img.files = \
 	$$OUT_PWD/shape0-selected.svg \
 	$$OUT_PWD/shape1-selected.svg \
 	$$OUT_PWD/shape2-selected.svg \
-	$$PWD/../data/img/particle.png
+	$$PWD/../data/img/particle.png \
+	$$PWD/harbour-squarez.svg
 img.path = /usr/share/$${TARGET}/img
 
 qml2.files = \
