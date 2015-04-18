@@ -80,7 +80,7 @@ struct GetScores
 	};
 
 	static std::string const& method();
-	static std::string encodeRequest();
+	static std::string encodeRequest(int maxAge, int count);
 
 	GetScores(DeSerializer & serialized);
 

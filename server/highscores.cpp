@@ -101,10 +101,15 @@ void squarez::HighScores::updateScore (int score, int64_t rowId)
 	db.execute("UPDATE scores SET score = ? where id = ?", score, rowId);
 }
 
-std::vector<squarez::onlineSinglePlayer::GetScores::Score> squarez::HighScores::getScores()
+std::vector<squarez::onlineSinglePlayer::GetScores::Score> squarez::HighScores::getScores(int maxAge, int count)
 {
+	if (count > 20)
+		count = 20;
+
+	std::time_t min_date = maxAge ? std::time(nullptr) - maxAge : 0;
+
 	std::vector<squarez::onlineSinglePlayer::GetScores::Score> ret;
-	for(auto& i: db.execute("SELECT name, score, timestamp FROM scores ORDER BY score DESC LIMIT 20"))
+	for(auto& i: db.execute("SELECT name, score, timestamp FROM scores WHERE timestamp > ? ORDER BY score DESC LIMIT ?", min_date, count))
 	{
 		squarez::onlineSinglePlayer::GetScores::Score tmp;
 		tmp._playerName = i.fetch<std::string>(0);

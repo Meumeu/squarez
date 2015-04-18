@@ -119,10 +119,12 @@ const std::string& squarez::onlineSinglePlayer::GetScores::method()
 	return get_scores;
 }
 
-std::string squarez::onlineSinglePlayer::GetScores::encodeRequest()
+std::string squarez::onlineSinglePlayer::GetScores::encodeRequest(int maxAge, int count)
 {
 	std::stringstream stream;
-	stream << request_path << method();
+	stream << request_path << method()
+	<< "?age=" << maxAge
+	<< "&count=" << count;
 	return stream.str();
 }
 
