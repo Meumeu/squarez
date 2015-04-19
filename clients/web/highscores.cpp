@@ -21,6 +21,7 @@
 
 #include "network/methods.h"
 #include "utils/serializer.h"
+#include "utils/unicode.h"
 
 #include <emscripten/bind.h>
 
@@ -124,7 +125,7 @@ void squarez::web::HighScores::switchPage(int count)
 				auto td = emscripten::val::global("document").call<emscripten::val>("createElement", emscripten::val("td"));
 				td["classList"].call<void>("add", emscripten::val("playerName"));
 				tr.call<void>("appendChild", td);
-				td.set("textContent", score._playerName);
+				td.set("textContent", utf8_to_utf16(score._playerName));
 
 				td = emscripten::val::global("document").call<emscripten::val>("createElement", emscripten::val("td"));
 				emscripten::val date = emscripten::val::global("Date").new_(score._date);

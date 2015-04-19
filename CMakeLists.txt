@@ -40,7 +40,8 @@ set(shared_sources
 	${CMAKE_CURRENT_SOURCE_DIR}/shared/rules/timer.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/shared/rules/rules.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/shared/rules/singleplayerrules.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/shared/utils/serializer.cpp)
+	${CMAKE_CURRENT_SOURCE_DIR}/shared/utils/serializer.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/shared/utils/unicode.cpp)
 
 set(client_sources
 	${CMAKE_CURRENT_SOURCE_DIR}/clients/tutorialrules.cpp
