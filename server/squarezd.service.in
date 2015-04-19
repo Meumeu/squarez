@@ -3,7 +3,7 @@ Description=Squarez daemon
 After=network.target
 
 [Service]
-User=root
+User=squarez
 Type=simple
 ExecStart=${CMAKE_INSTALL_PREFIX}/bin/squarezd
 
