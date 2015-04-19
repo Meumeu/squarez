@@ -24,14 +24,14 @@
 #include "rulesproxy.h"
 #include "cellproxy.h"
 #include "highscores.h"
-#include "settings.h"
+#include "settingvalue.h"
 
 int main(int argc, char ** argv)
 {
 	qmlRegisterType<squarez::qt::RulesProxy>("harbour.squarez", 1,0, "Rules");
 	qmlRegisterUncreatableType<squarez::qt::CellProxy>("harbour.squarez", 1,0, "Cell", "");
 	qmlRegisterType<squarez::qt::HighScores>("harbour.squarez", 1,0, "HighScores");
-	qmlRegisterSingletonType<squarez::qt::Settings>("harbour.squarez", 1, 0, "Settings", &squarez::qt::Settings::provider);
+	qmlRegisterType<squarez::qt::SettingValue>("harbour.squarez", 1, 0, "SettingValue");
 
 	QApplication app(argc, argv);
 	QQmlApplicationEngine engine(QUrl("qrc:/qml/main.qml"));
