@@ -113,10 +113,12 @@ void squarez::web::HighScores::switchPage(int count)
 				formatOptions.set("hour", emscripten::val("numeric"));
 				formatOptions.set("minute", emscripten::val("numeric"));
 			}
+			emscripten::val div = emscripten::val::global("document").call<emscripten::val>("createElement", emscripten::val("div"));
 			for (auto const & score : res._scores)
 			{
 				emscripten::val date = emscripten::val::global("Date").new_(score._date);
-				innerHTML << "<tr><td class=\"playerName\">" << score._playerName << "</td>"
+				div.set("innerText", score._playerName);
+				innerHTML << "<tr><td class=\"playerName\">" << div["innerHTML"].as<std::string>() << "</td>"
 					<< "<td class=\"date\">" << date.call<std::string>(format, emscripten::val::undefined(), formatOptions) << "</td>"
 					<< "<td class=\"score\">" << score._score << "</td>"
 					<< "</tr>";
