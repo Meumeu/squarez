@@ -173,7 +173,10 @@ bool squarez::RequestHandler::response()
 			std::time_t max_date = std::time(nullptr);
 
 			if (environment().checkForGet("age"))
-				min_date = max_date - boost::lexical_cast<int>(environment().findGet("age"));
+			{
+				int age = boost::lexical_cast<int>(environment().findGet("age"));
+				if (age) min_date = max_date - age;
+			}
 
 			if (environment().checkForGet("min_date"))
 				min_date = boost::lexical_cast<std::time_t>(environment().findGet("min_date"));
