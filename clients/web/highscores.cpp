@@ -105,7 +105,10 @@ void squarez::web::HighScores::switchPage(int count)
 			std::stringstream innerHTML;
 			squarez::onlineSinglePlayer::GetScores res(ser);
 			innerHTML << "<thead><tr><th colspan=\"3\">" << name(_page) << "</th></tr></thead>";
-			innerHTML << "<tbody>";
+			_content.set("innerHTML", innerHTML.str());
+
+			auto tbody = emscripten::val::global("document").call<emscripten::val>("createElement", emscripten::val("tbody"));
+			_content.call<void>("appendChild", tbody);
 			const char * format = (_page == Page::lastDay) ? "toLocaleTimeString" : "toLocaleDateString";
 			emscripten::val formatOptions = emscripten::val::object();
 			if (_page == Page::lastDay)
@@ -113,18 +116,27 @@ void squarez::web::HighScores::switchPage(int count)
 				formatOptions.set("hour", emscripten::val("numeric"));
 				formatOptions.set("minute", emscripten::val("numeric"));
 			}
-			emscripten::val div = emscripten::val::global("document").call<emscripten::val>("createElement", emscripten::val("div"));
 			for (auto const & score : res._scores)
 			{
+				auto tr = emscripten::val::global("document").call<emscripten::val>("createElement", emscripten::val("tr"));
+				tbody.call<void>("appendChild", tr);
+
+				auto td = emscripten::val::global("document").call<emscripten::val>("createElement", emscripten::val("td"));
+				td["classList"].call<void>("add", emscripten::val("playerName"));
+				tr.call<void>("appendChild", td);
+				td.set("textContent", score._playerName);
+
+				td = emscripten::val::global("document").call<emscripten::val>("createElement", emscripten::val("td"));
 				emscripten::val date = emscripten::val::global("Date").new_(score._date);
-				div.set("innerText", score._playerName);
-				innerHTML << "<tr><td class=\"playerName\">" << div["innerHTML"].as<std::string>() << "</td>"
-					<< "<td class=\"date\">" << date.call<std::string>(format, emscripten::val::undefined(), formatOptions) << "</td>"
-					<< "<td class=\"score\">" << score._score << "</td>"
-					<< "</tr>";
+				tr.call<void>("appendChild", td);
+				td["classList"].call<void>("add", emscripten::val("date"));
+				td.set("textContent", date.call<std::string>(format, emscripten::val::undefined(), formatOptions));
+
+				td = emscripten::val::global("document").call<emscripten::val>("createElement", emscripten::val("td"));
+				td["classList"].call<void>("add", emscripten::val("score"));
+				tr.call<void>("appendChild", td);
+				td.set("textContent", score._score);
 			}
-			innerHTML << "</tbody>";
-			_content.set("innerHTML", innerHTML.str());
 			if (count != 0)
 				_content["classList"].call<void>("add", emscripten::val(count > 0 ? "appearLeft": "appearRight"));
 			_rootElement.call<void>("insertBefore", _content, _buttonAfter);
