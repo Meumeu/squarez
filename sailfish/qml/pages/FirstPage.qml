@@ -57,6 +57,12 @@ Page {
 		}
 	}
 
+	function monthName(date)
+	{
+		var name = date.toLocaleDateString(Qt.locale(), "MMMM")
+		return name.charAt(0).toUpperCase() + name.slice(1);
+	}
+
 	function updateDates()
 	{
 		var t0 = new Date()
@@ -80,13 +86,14 @@ Page {
 		t1.setHours(0, 0, 0, 0)
 		scoreDates.setProperty(2, "dateMin", t0.toISOString())
 		scoreDates.setProperty(2, "dateMax", t1.toISOString())
-		scoreDates.setProperty(2, "title", t0.toLocaleDateString(Qt.locale(), "MMMM"))
+
+		scoreDates.setProperty(2, "title", monthName(t0))
 
 		t0.setMonth(t0.getMonth() - 1)
 		t1.setMonth(t1.getMonth() - 1)
 		scoreDates.setProperty(3, "dateMin", t0.toISOString())
 		scoreDates.setProperty(3, "dateMax", t1.toISOString())
-		scoreDates.setProperty(3, "title", t0.toLocaleDateString(Qt.locale(), "MMMM"))
+		scoreDates.setProperty(3, "title", monthName(t0))
 
 		scoreDates.setProperty(4, "dateMin", "1970-01-01T00:00:00Z")
 		scoreDates.setProperty(4, "dateMax", new Date().toISOString())
@@ -114,9 +121,10 @@ Page {
 
 			delegate: Component {
 				SilicaListView {
+					id: scoreList
 					HighScores {
 						id: scores
-						url: "http://squarez-beta.meumeu.org/"
+						url: "http://squarez.meumeu.org/"
 						minDate: dateMin
 						maxDate: dateMax
 						updateAllowed: !view.moving
@@ -144,12 +152,14 @@ Page {
 					}
 
 					ViewPlaceholder {
-						enabled: view.count === 0 && !scores.loading
+						enabled: scores.count === 0 && !scores.loading
 						text: qsTr("No high score")
 					}
 
 					BusyIndicator {
-						enabled: scores.loading
+						running: scores.count === 0 && scores.loading
+						anchors.centerIn: parent
+						size: BusyIndicatorSize.Large
 					}
 				}
 			}

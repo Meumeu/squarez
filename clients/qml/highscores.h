@@ -57,6 +57,7 @@ public:
 	Q_PROPERTY(QDateTime maxDate READ maxDate WRITE setMaxDate NOTIFY onMaxDateChanged)
 	Q_PROPERTY(bool loading READ loading NOTIFY onLoadingChanged)
 	Q_PROPERTY(bool updateAllowed READ updateAllowed WRITE setUpdateAllowed NOTIFY onUpdateAllowedChanged)
+	Q_PROPERTY(int count READ count NOTIFY onCountChanged)
 
 	explicit HighScores(QObject* parent = nullptr);
 	~HighScores();
@@ -70,6 +71,7 @@ public:
 	QDateTime minDate() const { return _minDate; }
 	QDateTime maxDate() const { return _maxDate; }
 	bool updateAllowed() const { return _updateAllowed; }
+	int count() const { return _scores.size(); }
 
 	void setUrl(QString url);
 	void setMinDate(QDateTime minDate);
@@ -89,6 +91,7 @@ signals:
 	void onMinDateChanged(QDateTime minDate);
 	void onMaxDateChanged(QDateTime maxDate);
 	void onUpdateAllowedChanged(bool updateAllowed);
+	void onCountChanged(int count);
 };
 }
 }
