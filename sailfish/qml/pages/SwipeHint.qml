@@ -62,7 +62,7 @@ Loader {
 		}
 	}
 
-	Settings {
+	SettingValue {
 		id: firstUse
 		key: "firstUse"
 		defaultValue: "true"

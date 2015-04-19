@@ -30,15 +30,15 @@ Dialog
 	acceptDestination: Qt.resolvedUrl("SinglePlayerPage.qml")
 	acceptDestinationAction: PageStackAction.Replace
 
-	Settings {
+	SettingValue {
 		key: "playerName"
 		defaultValue: ""
 		id: playerNameSetting
 	}
 
-	Settings {
+	SettingValue {
 		key: "online"
-		defaultValue: true
+		defaultValue: "true"
 		id: onlineSetting
 	}
 
@@ -49,12 +49,12 @@ Dialog
 		else
 			dialog.acceptDestinationInstance.rulesType = "singlePlayer";
 
-		Settings.setValue("online", playOnline.checked);
-		Settings.setValue("playerName", playerName.text.trim());
+		onlineSetting.value = playOnline.checked
+		playerNameSetting.value = playerName.text.trim()
 	}
 
 	onOpened: {
-		playOnline.checked = onlineSetting.value
+		playOnline.checked = onlineSetting.value === "true"
 		playerName.text = playerNameSetting.value
 	}
 

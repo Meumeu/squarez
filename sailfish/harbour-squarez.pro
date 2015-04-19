@@ -70,7 +70,7 @@ SOURCES += src/squarez.cpp \
 	../clients/qml/httprequest.cpp \
 	../clients/qml/rulesproxy.cpp \
 	../clients/qml/selectionproxy.cpp \
-	../clients/qml/settings.cpp \
+	../clients/qml/settingvalue.cpp \
 	../clients/tutorialrules.cpp
 # \
 #    ../shared/database/database.cpp
@@ -92,7 +92,7 @@ HEADERS += \
 	../clients/qml/highscores.h \
 	../clients/qml/rulesproxy.h \
 	../clients/qml/selectionproxy.h \
-	../clients/qml/settings.h \
+	../clients/qml/settingvalue.h \
 	../clients/httprequest.h
 # \
 #    ../shared/database/database.h

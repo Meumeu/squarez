@@ -17,7 +17,7 @@
  *
  */
 
-#include "settings.h"
+#include "settingvalue.h"
 
 namespace squarez {
 namespace qt {
