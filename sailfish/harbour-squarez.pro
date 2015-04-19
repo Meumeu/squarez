@@ -109,10 +109,12 @@ OTHER_FILES += \
 	qml/cover/CoverPage.qml \
 	qml/harbour-squarez.qml \
 	qml/pages/FirstPage.qml \
+	qml/pages/HighScoreItem.qml \
 	qml/pages/NameInput.qml \
 	qml/pages/MultiPlayerPage.qml \
 	qml/pages/SettingsPage.qml \
 	qml/pages/SinglePlayerPage.qml \
+	qml/pages/SwipeHint.qml \
 	qml/pages/TutorialPage.qml \
 	qml/squarez.qml \
 	qml/squarez/GameArea.qml \

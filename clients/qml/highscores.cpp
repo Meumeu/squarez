@@ -29,26 +29,16 @@ HighScores::~HighScores()
 {
 }
 
-HighScores::section::section(int maxAge, std::string name) : maxAge(maxAge), name(name)
-{}
-
-HighScores::section::section(const section& rhs) : maxAge(rhs.maxAge), name(rhs.name)
-{}
-
-HighScores::HighScores(QObject *parent) : QAbstractListModel(parent), _scores{{7 * 86400, "Last week"}, {30 * 86400, "Last month"}, {0, "All time"} }
-{}
+HighScores::HighScores(QObject *parent) : QAbstractListModel(parent), _loading(true), _updateAllowed(true), _scoresToBeUpdated(false)
+{
+	connect(&_reloadTimer, &QTimer::timeout, this, &HighScores::refresh);
+	_reloadTimer.setSingleShot(true);
+	_reloadTimer.setInterval(5000);
+}
 
 QVariant HighScores::data(const QModelIndex& index, int role) const
 {
-	size_t idx1 = 0;
-	size_t idx2 = index.row();
-	while(idx1 < _scores.size() && idx2 >= _scores[idx1].scores.size())
-	{
-		idx2 -= _scores[idx1].scores.size();
-		idx1++;
-	}
-
-	const squarez::onlineSinglePlayer::GetScores::Score& score = _scores.at(idx1).scores[idx2];
+	const squarez::onlineSinglePlayer::GetScores::Score& score = _scores.at(index.row());
 	QDateTime date;
 	
 	switch(role)
@@ -61,8 +51,6 @@ QVariant HighScores::data(const QModelIndex& index, int role) const
 		date = QDateTime:: fromString(QString::fromStdString(score._date), Qt::ISODate);
 		date.setTimeSpec(Qt::UTC);
 		return date;
-	case 3:
-		return QString::fromStdString(_scores.at(idx1).name);
 	default:
 		return QVariant();
 	}
@@ -70,11 +58,7 @@ QVariant HighScores::data(const QModelIndex& index, int role) const
 
 int HighScores::rowCount(const QModelIndex& /*parent*/) const
 {
-	int size = 0;
-	for(const auto& i: _scores)
-		size += i.scores.size();
-
-	return size;
+	return _scores.size();
 }
 
 QHash<int, QByteArray> HighScores::roleNames() const
@@ -83,7 +67,6 @@ QHash<int, QByteArray> HighScores::roleNames() const
 	roles[0] = "playerName";
 	roles[1] = "score";
 	roles[2] = "date";
-	roles[3] = "section";
 	return roles;
 }
 
@@ -91,24 +74,30 @@ void HighScores::refresh()
 {
 	if (!_url.isEmpty())
 	{
-		for(auto& i: _scores)
-		{
-			i.loadHandle = squarez::http::request(_url.toStdString() + onlineSinglePlayer::GetScores::encodeRequest(i.maxAge, 5),
-				[this, &i](std::string response) // onload
-				{
-					DeSerializer s(response);
-					onlineSinglePlayer::GetScores scores(s);
-					beginResetModel();
-					i.scores = scores._scores;
-					std::sort(i.scores.begin(), i.scores.end(), [](const Score& a, const Score& b){ return a._score > b._score; });
-					endResetModel();
-				},
-				[this]() // onerror
-				{
-					emit onNetworkError();
-				}
-			);
-		}
+		_loading = true;
+		emit onLoadingChanged(_loading);
+
+		_loadHandle = squarez::http::request(_url.toStdString() + onlineSinglePlayer::GetScores::encodeRequest(_minDate.toTime_t(), _maxDate.toTime_t(), 10),
+			[this](std::string response) // onload
+			{
+				DeSerializer s(response);
+				onlineSinglePlayer::GetScores scores(s);
+
+				_newScores = scores._scores;
+				_scoresToBeUpdated = true;
+
+				updateIfAllowed();
+			},
+			[this]() // onerror
+			{
+				emit onNetworkError();
+
+				_newScores.clear();
+				_scoresToBeUpdated = true;
+
+				updateIfAllowed();
+			}
+		);
 	}
 }
 
@@ -118,14 +107,62 @@ void HighScores::setUrl(QString url)
 		url += '/';
 	_url = url;
 
-	beginResetModel();
-	for(auto& i: _scores)
-		i.scores.clear();
-	endResetModel();
-	
-	refresh();
-
 	emit onUrlChanged(url);
+
+	_reloadTimer.start();
+}
+
+void HighScores::setMinDate(QDateTime minDate)
+{
+	_minDate = minDate;
+	emit onMinDateChanged(_minDate);
+
+	_reloadTimer.start();
+}
+
+void HighScores::setMaxDate(QDateTime maxDate)
+{
+	_maxDate = maxDate;
+	emit onMaxDateChanged(_maxDate);
+
+	_reloadTimer.start();
+}
+
+void HighScores::updateIfAllowed()
+{
+	if (_updateAllowed && _scoresToBeUpdated)
+	{
+		beginResetModel();
+		_scores = _newScores;
+		endResetModel();
+		_scoresToBeUpdated = false;
+
+		_loading = false;
+		emit onLoadingChanged(_loading);
+	}
+}
+
+void HighScores::setUpdateAllowed(bool updateAllowed)
+{
+	if (updateAllowed == _updateAllowed)
+		return;
+
+	_updateAllowed = updateAllowed;
+	emit onUpdateAllowedChanged(updateAllowed);
+
+	updateIfAllowed();
+}
+
+void HighScores::classBegin() {}
+
+
+void HighScores::componentComplete()
+{
+	beginResetModel();
+	_scores.clear();
+	endResetModel();
+
+	refresh();
 }
 
 }

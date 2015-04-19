@@ -41,7 +41,8 @@ namespace {
 
 		void onload()
 		{
-			_onload(_reply->readAll().constData());
+			if (_reply->error() == QNetworkReply::NetworkError::NoError)
+				_onload(_reply->readAll().constData());
 		}
 
 		void onerror(QNetworkReply::NetworkError)

@@ -24,121 +24,138 @@ import harbour.squarez 1.0
 import "../squarez"
 
 Page {
-	id: page
+	id: root
 	property string coverText: ""
 	property bool serverReachable: false
-	Settings { id: settings }
 
 	ListModel {
+		id: scoreDates
 		ListElement {
-			text: QT_TR_NOOP("Last week")
+			title: QT_TR_NOOP("Today")
+			dateMin: "1970-01-01T00:00:00Z"
+			dateMax: "1970-01-01T00:00:00Z"
 		}
 		ListElement {
-			text: QT_TR_NOOP("Last month")
+			title: QT_TR_NOOP("This week")
+			dateMin: "1970-01-01T00:00:00Z"
+			dateMax: "1970-01-01T00:00:00Z"
 		}
 		ListElement {
-			text: QT_TR_NOOP("All time")
+			title: "" // this month
+			dateMin: "1970-01-01T00:00:00Z"
+			dateMax: "1970-01-01T00:00:00Z"
+		}
+		ListElement {
+			title: "" // last month
+			dateMin: "1970-01-01T00:00:00Z"
+			dateMax: "1970-01-01T00:00:00Z"
+		}
+		ListElement {
+			title: QT_TR_NOOP("All time")
+			dateMin: "1970-01-01T00:00:00Z"
+			dateMax: "1970-01-01T00:00:00Z"
 		}
 	}
 
-	/*SilicaListView {
-		model: rules.highScores;
-		anchors.fill: parent
-		header: PageHeader {
-			title: "High scores"
-		}
-		delegate: BackgroundItem {
-			id: delegate
+	function updateDates()
+	{
+		var t0 = new Date()
+		var t1 = new Date()
+		t0.setHours(0, 0, 0, 0)
+		t1.setHours(23, 59, 59, 999)
+		scoreDates.setProperty(0, "dateMin", t0.toISOString())
+		scoreDates.setProperty(0, "dateMax", t1.toISOString())
 
-			Label {
-				x: Theme.paddingLarge
-				text: name
-				anchors.verticalCenter: parent.verticalCenter
-				color: delegate.highlighted ? Theme.highlightColor : Theme.primaryColor
-			}
-			Label
-			{
-				text: Qt.formatDate(date)
-				anchors.centerIn: parent
-			}
-			Label
-			{
-				width: parent.width - Theme.paddingLarge
-				text: score
-				anchors.verticalCenter: parent.verticalCenter
-				horizontalAlignment: Text.AlignRight
-			}
-		}*/
+		var delta = (t0.getDay() - Qt.locale().firstDayOfWeek + 7) % 7
+		t0 = new Date(t0.getTime() - delta * 86400000);
+		t1 = new Date(t0.getTime() + 7 * 86400000);
+		scoreDates.setProperty(1, "dateMin", t0.toISOString())
+		scoreDates.setProperty(1, "dateMax", t1.toISOString())
 
+		t0 = new Date()
+		t1 = new Date()
+		t0.setDate(1)
+		t0.setHours(0, 0, 0, 0)
+		t1.setMonth(t1.getMonth() + 1, 1)
+		t1.setHours(0, 0, 0, 0)
+		scoreDates.setProperty(2, "dateMin", t0.toISOString())
+		scoreDates.setProperty(2, "dateMax", t1.toISOString())
+		scoreDates.setProperty(2, "title", t0.toLocaleDateString(Qt.locale(), "MMMM"))
 
-	HighScores {
-		id: scores
-		url: "http://squarez-beta.meumeu.org/"
+		t0.setMonth(t0.getMonth() - 1)
+		t1.setMonth(t1.getMonth() - 1)
+		scoreDates.setProperty(3, "dateMin", t0.toISOString())
+		scoreDates.setProperty(3, "dateMax", t1.toISOString())
+		scoreDates.setProperty(3, "title", t0.toLocaleDateString(Qt.locale(), "MMMM"))
+
+		scoreDates.setProperty(4, "dateMin", "1970-01-01T00:00:00Z")
+		scoreDates.setProperty(4, "dateMax", new Date().toISOString())
 	}
+
+	Component.onCompleted: updateDates()
 
 	Timer {
 		interval: 3600
 		repeat: Qt.application.state === Qt.ApplicationActive
-		onTriggered: scores.refresh()
+		onTriggered: {
+			updateDates()
+			//scores.refresh()
+		}
 	}
 
-	SilicaListView {
-		id: view
-		model: scores
+	SilicaFlickable {
 		anchors.fill: parent
-		header: PageHeader {
-			title: qsTr("High scores")
-		}
-		spacing: Theme.paddingMedium
 
-		delegate: Component {
-			BackgroundItem {
-				Column {
-					anchors.left: parent.left
-					anchors.right: parent.right
-					anchors.leftMargin: Theme.paddingMedium
-					anchors.rightMargin: Theme.paddingMedium
-					id: delegate
+		SlideshowView {
+			id: view
+			width: parent.width
+			model: scoreDates
+			property bool moving: dragging || flicking
 
-					Row {
-						spacing: Theme.paddingMedium
-						Label {
-							width: delegate.width - scoreLabel.width - Theme.paddingMedium
-							text: playerName
-							font.pixelSize: Theme.fontSizeMedium
-							truncationMode: TruncationMode.Fade
-						}
-						Label {
-							id: scoreLabel
-							text: score
-							font.pixelSize: Theme.fontSizeMedium
+			delegate: Component {
+				SilicaListView {
+					HighScores {
+						id: scores
+						url: "http://squarez-beta.meumeu.org/"
+						minDate: dateMin
+						maxDate: dateMax
+						updateAllowed: !view.moving
+					}
+
+					width: parent.width
+					height: parent.height
+					header: Label {
+						width: view.width
+						height: contentHeight + Theme.paddingMedium * 2
+						verticalAlignment: Text.AlignVCenter
+						horizontalAlignment: Text.AlignHCenter
+						id: label
+						text: qsTr(title)
+						font.pixelSize: Theme.fontSizeMedium
+						color: Theme.highlightColor
+					}
+					model: scores
+					delegate: Component {
+						HighScoreItem {
+							playerName: model.playerName
+							score: model.score
+							date: model.date
 						}
 					}
 
-					Label {
-						text: (new Date() - date) < 86400000 ? date.toLocaleTimeString(Qt.locale(), Locale.ShortFormat) : date.toLocaleDateString(Qt.locale(), Locale.LongFormat)
-						color: Theme.secondaryColor
-						font.pixelSize: Theme.fontSizeExtraSmall
+					ViewPlaceholder {
+						enabled: view.count === 0 && !scores.loading
+						text: qsTr("No high score")
+					}
+
+					BusyIndicator {
+						enabled: scores.loading
 					}
 				}
 			}
 		}
 
-		section.property: "section"
-		section.delegate: Component {
-			Label {
-				width: parent.width
-				text: qsTr(section)
-				horizontalAlignment: Text.AlignHCenter
-				color: Theme.highlightColor
-			}
-		}
-
-		ViewPlaceholder {
-			enabled: view.count === 0
-			text: qsTr("No items")
-		}
-
+		SwipeHint {}
 
 		// PullDownMenu and PushUpMenu must be declared in SilicaFlickable, SilicaListView or SilicaGridView
 		PullDownMenu {
@@ -147,31 +164,11 @@ Page {
 				text: qsTr("How to play")
 				onClicked: pageStack.push(Qt.resolvedUrl("TutorialPage.qml"))
 			}
-
-			/*MenuItem
-			{
-				text: qsTr("Settings")
-				onClicked: pageStack.push(Qt.resolvedUrl("SettingsPage.qml"))
-			}*/
-
-			/*MenuLabel
-			{
-				text: "Multiplayer (server unreachable)"
-				visible: ! page.serverReachable
-			}
-			MenuItem
-			{
-				text: "Multiplayer"
-				visible: page.serverReachable
-				onClicked: {
-					var dialog = pageStack.push("../pages/NameInput.qml")
-					dialog.title = "Enter your name"
-					dialog.accepted.connect(function() {
-						var page = pageStack.replace(Qt.resolvedUrl("MultiPlayerPage.qml"))
-						page.playerName = dialog.name
-					})
-				}
-			}*/
+			//MenuItem
+			//{
+			//	text: qsTr("Settings")
+			//	onClicked: pageStack.push(Qt.resolvedUrl("SettingsPage.qml"))
+			//}
 			MenuItem
 			{
 				text: qsTr("New game")
@@ -182,7 +179,5 @@ Page {
 		VerticalScrollDecorator {}
 	}
 
-	onStatusChanged: if (status === PageStatus.Activating) scores.refresh()
+	//onStatusChanged: if (status === PageStatus.Activating) scores.refresh()
 }
-
-

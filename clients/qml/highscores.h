@@ -21,33 +21,42 @@
 #define SQUAREZ_HIGHSCORES_H
 
 #include <QAbstractListModel>
+#include <QQmlParserStatus>
+#include <QDateTime>
+#include <QTimer>
 #include "httprequest.h"
 #include "network/methods.h"
 
 namespace squarez {
 namespace qt {
 
-class HighScores : public QAbstractListModel
+class HighScores : public QAbstractListModel, public QQmlParserStatus
 {
 	Q_OBJECT
+	Q_INTERFACES(QQmlParserStatus)
 
 	typedef squarez::onlineSinglePlayer::GetScores::Score Score;
 	QString _url;
+	bool _loading;
+	QDateTime _minDate;
+	QDateTime _maxDate;
+	bool _updateAllowed;
 
-	struct section
-	{
-		section(int maxAge, std::string name);
-		section(const section& rhs);
-		int maxAge;
-		std::string name;
-		std::vector<Score> scores;
-		std::unique_ptr<squarez::http::Handle> loadHandle;
-	};
+	bool _scoresToBeUpdated;
+	std::vector<Score> _scores;
+	std::vector<Score> _newScores;
+	std::unique_ptr<squarez::http::Handle> _loadHandle;
 
-	std::vector<section> _scores;
+	QTimer _reloadTimer;
+
+	void updateIfAllowed();
 
 public:
 	Q_PROPERTY(QString url READ url WRITE setUrl NOTIFY onUrlChanged)
+	Q_PROPERTY(QDateTime minDate READ minDate WRITE setMinDate NOTIFY onMinDateChanged)
+	Q_PROPERTY(QDateTime maxDate READ maxDate WRITE setMaxDate NOTIFY onMaxDateChanged)
+	Q_PROPERTY(bool loading READ loading NOTIFY onLoadingChanged)
+	Q_PROPERTY(bool updateAllowed READ updateAllowed WRITE setUpdateAllowed NOTIFY onUpdateAllowedChanged)
 
 	explicit HighScores(QObject* parent = nullptr);
 	~HighScores();
@@ -57,12 +66,29 @@ public:
 	QHash<int, QByteArray> roleNames() const override;
 
 	const QString& url() const { return _url; }
+	bool loading() const { return _loading; }
+	QDateTime minDate() const { return _minDate; }
+	QDateTime maxDate() const { return _maxDate; }
+	bool updateAllowed() const { return _updateAllowed; }
+
 	void setUrl(QString url);
+	void setMinDate(QDateTime minDate);
+	void setMaxDate(QDateTime maxDate);
+	void setUpdateAllowed(bool updateAllowed);
+
 	Q_INVOKABLE void refresh();
+
+	// Implementation of QQmlParserStatus
+	void classBegin();
+	void componentComplete();
 
 signals:
 	void onUrlChanged(QString url);
 	void onNetworkError();
+	void onLoadingChanged(bool loading);
+	void onMinDateChanged(QDateTime minDate);
+	void onMaxDateChanged(QDateTime maxDate);
+	void onUpdateAllowedChanged(bool updateAllowed);
 };
 }
 }

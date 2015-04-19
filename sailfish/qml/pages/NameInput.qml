@@ -11,14 +11,14 @@ Dialog
 	acceptDestinationAction: PageStackAction.Replace
 
 	onAccepted: {
-		dialog.acceptDestinationInstance.playerName = playerName.text;
+		dialog.acceptDestinationInstance.playerName = playerName.text.trim();
 		if (playOnline.checked)
 			dialog.acceptDestinationInstance.rulesType = "onlineSinglePlayer";
 		else
 			dialog.acceptDestinationInstance.rulesType = "singlePlayer";
 
 		Settings.setValue("online", playOnline.checked);
-		Settings.setValue("playerName", playerName.text);
+		Settings.setValue("playerName", playerName.text.trim());
 	}
 
 	onOpened: {
@@ -42,8 +42,7 @@ Dialog
 			text: qsTr("Play online")
 		}
 
-		TextField
-		{
+		TextField {
 			id: playerName
 			width: parent.width
 			focus: true

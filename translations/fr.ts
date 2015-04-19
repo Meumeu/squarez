@@ -5,36 +5,31 @@
     <name>FirstPage</name>
     <message>
         <location filename="../sailfish/qml/pages/FirstPage.qml" line="34"/>
-        <source>Last week</source>
-        <translation>Dernière semaine</translation>
+        <source>Today</source>
+        <translation>Aujourd&apos;hui</translation>
     </message>
     <message>
         <location filename="../sailfish/qml/pages/FirstPage.qml" line="37"/>
-        <source>Last month</source>
-        <translation>Dernier mois</translation>
+        <source>This week</source>
+        <translation>Cette semaine</translation>
     </message>
     <message>
-        <location filename="../sailfish/qml/pages/FirstPage.qml" line="40"/>
+        <location filename="../sailfish/qml/pages/FirstPage.qml" line="46"/>
         <source>All time</source>
         <translation>Toujours</translation>
     </message>
     <message>
-        <location filename="../sailfish/qml/pages/FirstPage.qml" line="90"/>
-        <source>High scores</source>
-        <translation>Meilleurs scores</translation>
+        <location filename="../sailfish/qml/pages/FirstPage.qml" line="138"/>
+        <source>No high score</source>
+        <translation>Aucun score</translation>
     </message>
     <message>
-        <location filename="../sailfish/qml/pages/FirstPage.qml" line="139"/>
-        <source>No items</source>
-        <translation>Aucun élément</translation>
-    </message>
-    <message>
-        <location filename="../sailfish/qml/pages/FirstPage.qml" line="147"/>
+        <location filename="../sailfish/qml/pages/FirstPage.qml" line="154"/>
         <source>How to play</source>
         <translation>Comment jouer</translation>
     </message>
     <message>
-        <location filename="../sailfish/qml/pages/FirstPage.qml" line="177"/>
+        <location filename="../sailfish/qml/pages/FirstPage.qml" line="164"/>
         <source>New game</source>
         <translation>Nouvelle partie</translation>
     </message>
@@ -84,6 +79,14 @@
         <location filename="../sailfish/qml/pages/SinglePlayerPage.qml" line="36"/>
         <source>Score: %1</source>
         <translation>Score : %1</translation>
+    </message>
+</context>
+<context>
+    <name>SwipeHint</name>
+    <message>
+        <location filename="../sailfish/qml/pages/SwipeHint.qml" line="47"/>
+        <source>Swipe to see other high scores</source>
+        <translation>Glisser pour voir plus de scores</translation>
     </message>
 </context>
 <context>
