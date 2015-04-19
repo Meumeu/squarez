@@ -54,7 +54,7 @@ public:
 
 	int64_t addScore(std::string playerName, int score);
 	void updateScore(int score, int64_t rowId);
-	std::vector<onlineSinglePlayer::GetScores::Score> getScores(int maxAge = 0, int count = 20);
+	std::vector<onlineSinglePlayer::GetScores::Score> getScores(std::time_t min_date, std::time_t max_date, int count);
 };
 
 }

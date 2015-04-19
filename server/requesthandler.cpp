@@ -169,10 +169,20 @@ bool squarez::RequestHandler::response()
 			out << "Content-Type: text/plain\r\n\r\n";
 
 			int count = environment().checkForGet("count") ? std::min(20, boost::lexical_cast<int>(environment().findGet("count"))) : 20;
-			int age = environment().checkForGet("age") ? boost::lexical_cast<int>(environment().findGet("age")) : 0;
+			std::time_t min_date = 0;
+			std::time_t max_date = std::time(nullptr);
+
+			if (environment().checkForGet("age"))
+				min_date = max_date - boost::lexical_cast<int>(environment().findGet("age"));
+
+			if (environment().checkForGet("min_date"))
+				min_date = boost::lexical_cast<std::time_t>(environment().findGet("min_date"));
+
+			if (environment().checkForGet("max_date"))
+				max_date = boost::lexical_cast<std::time_t>(environment().findGet("max_date"));
 
 			Serializer ser(out);
-			onlineSinglePlayer::GetScores::serialize(ser, highScores->getScores(age, count));
+			onlineSinglePlayer::GetScores::serialize(ser, highScores->getScores(min_date, max_date, count));
 		}
 		else
 		{
