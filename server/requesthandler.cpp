@@ -132,7 +132,7 @@ bool squarez::RequestHandler::response()
 			auto token = games.storeGame(std::make_shared<ServerRules>(
 				name, seed, size, symbols, constants::default_timer(), highScores));
 
-			out << "Content-Type: text/plain\r\n\r\n";
+			out << "Content-Type: text/plain; charset=utf-8\r\n\r\n";
 			Serializer ser(out);
 			onlineSinglePlayer::GameInit::serialize(ser, token, seed);
 		}
@@ -150,7 +150,7 @@ bool squarez::RequestHandler::response()
 				games.eraseGame(token);
 			}
 
-			out << "Content-Type: text/plain\r\n\r\n";
+			out << "Content-Type: text/plain; charset=utf-8\r\n\r\n";
 			Serializer ser(out);
 			onlineSinglePlayer::PushSelection::serialize(ser, gameOver);
 		}
@@ -162,11 +162,11 @@ bool squarez::RequestHandler::response()
 			std::chrono::milliseconds msSinceEpoch{boost::lexical_cast<int>(environment().findGet("msSinceEpoch"))};
 			game->setPause(pause, msSinceEpoch);
 
-			out << "Content-Type: text/plain\r\n\r\n";
+			out << "Content-Type: text/plain; charset=utf-8\r\n\r\n";
 		}
 		else if (method == "/" + onlineSinglePlayer::GetScores::method())
 		{
-			out << "Content-Type: text/plain\r\n\r\n";
+			out << "Content-Type: text/plain; charset=utf-8\r\n\r\n";
 
 			int count = environment().checkForGet("count") ? std::min(20, boost::lexical_cast<int>(environment().findGet("count"))) : 20;
 			std::time_t min_date = 0;
