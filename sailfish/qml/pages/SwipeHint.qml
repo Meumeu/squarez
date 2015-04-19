@@ -17,20 +17,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+
 import QtQuick 2.0
 import Sailfish.Silica 1.0
+
+import harbour.squarez 1.0
 
 Loader {
 	anchors.fill: parent
 
-	active: true //counter.active
+	active: firstUse.active
 	sourceComponent: Component {
 		Item {
 			property bool pageActive: root.status == PageStatus.Active
 			onPageActiveChanged: {
 				if (pageActive) {
 					timer.restart()
-					//counter.increase()
+					firstUse.value = "false"
 					pageActive = false
 				}
 			}
@@ -59,10 +62,11 @@ Loader {
 		}
 	}
 
-	FirstTimeUseCounter {
-		id: counter
-		limit: 3
-		defaultValue: 1 // display hint twice for existing users
-		key: "/apps/harbour-squarez/high_score_hint_count"
+	Settings {
+		id: firstUse
+		key: "firstUse"
+		defaultValue: "true"
+		property bool active
+		Component.onCompleted: active = value === "true"
 	}
 }

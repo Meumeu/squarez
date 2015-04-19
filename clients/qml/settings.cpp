@@ -22,26 +22,33 @@
 namespace squarez {
 namespace qt {
 
-Settings::Settings()
+SettingValue::SettingValue()
 {
 }
 
-void Settings::setValue(const QString &key, const QVariant &value)
+void SettingValue::setKey(const QString& key)
 {
-	_settings.setValue(key, value);
+	if (key != _key)
+	{
+		_key = key;
+		emit keyChanged(_key);
+		emit valueChanged(value());
+	}
 }
 
-QVariant Settings::value(const QString &key, const QVariant &defaultValue)
+void SettingValue::setValue(const QString& value)
 {
-	return _settings.value(key, defaultValue);
+	_settings.setValue(_key, value);
+	emit valueChanged(value);
 }
 
-QObject * Settings::provider(QQmlEngine*, QJSEngine*)
+void SettingValue::setDefaultValue(const QString& defaultValue)
 {
-	return new Settings;
+	_defaultValue = defaultValue;
+	emit defaultValueChanged(_defaultValue);
 }
 
-Settings::~Settings()
+SettingValue::~SettingValue()
 {
 }
 

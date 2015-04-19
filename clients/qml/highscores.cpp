@@ -31,7 +31,7 @@ HighScores::~HighScores()
 
 HighScores::HighScores(QObject *parent) : QAbstractListModel(parent), _loading(true), _updateAllowed(true), _scoresToBeUpdated(false)
 {
-	connect(&_reloadTimer, &QTimer::timeout, this, &HighScores::refresh);
+	connect(&_reloadTimer, &QTimer::timeout, this, &HighScores::doRefresh);
 	_reloadTimer.setSingleShot(true);
 	_reloadTimer.setInterval(100);
 }
@@ -70,7 +70,7 @@ QHash<int, QByteArray> HighScores::roleNames() const
 	return roles;
 }
 
-void HighScores::refresh()
+void HighScores::doRefresh()
 {
 	if (!_url.isEmpty())
 	{
@@ -101,6 +101,11 @@ void HighScores::refresh()
 	}
 }
 
+void HighScores::refresh()
+{
+	_reloadTimer.start();
+}
+
 void HighScores::setUrl(QString url)
 {
 	if (not url.endsWith('/'))
@@ -109,7 +114,7 @@ void HighScores::setUrl(QString url)
 
 	emit onUrlChanged(url);
 
-	_reloadTimer.start();
+	refresh();
 }
 
 void HighScores::setMinDate(QDateTime minDate)
@@ -117,7 +122,7 @@ void HighScores::setMinDate(QDateTime minDate)
 	_minDate = minDate;
 	emit onMinDateChanged(_minDate);
 
-	_reloadTimer.start();
+	refresh();
 }
 
 void HighScores::setMaxDate(QDateTime maxDate)
@@ -125,7 +130,7 @@ void HighScores::setMaxDate(QDateTime maxDate)
 	_maxDate = maxDate;
 	emit onMaxDateChanged(_maxDate);
 
-	_reloadTimer.start();
+	refresh();
 }
 
 void HighScores::updateIfAllowed()
@@ -152,18 +157,6 @@ void HighScores::setUpdateAllowed(bool updateAllowed)
 	emit onUpdateAllowedChanged(updateAllowed);
 
 	updateIfAllowed();
-}
-
-void HighScores::classBegin() {}
-
-
-void HighScores::componentComplete()
-{
-	beginResetModel();
-	_scores.clear();
-	endResetModel();
-
-	refresh();
 }
 
 }

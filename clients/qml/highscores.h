@@ -30,10 +30,9 @@
 namespace squarez {
 namespace qt {
 
-class HighScores : public QAbstractListModel, public QQmlParserStatus
+class HighScores : public QAbstractListModel
 {
 	Q_OBJECT
-	Q_INTERFACES(QQmlParserStatus)
 
 	typedef squarez::onlineSinglePlayer::GetScores::Score Score;
 	QString _url;
@@ -50,6 +49,7 @@ class HighScores : public QAbstractListModel, public QQmlParserStatus
 	QTimer _reloadTimer;
 
 	void updateIfAllowed();
+	void doRefresh();
 
 public:
 	Q_PROPERTY(QString url READ url WRITE setUrl NOTIFY onUrlChanged)
@@ -79,10 +79,6 @@ public:
 	void setUpdateAllowed(bool updateAllowed);
 
 	Q_INVOKABLE void refresh();
-
-	// Implementation of QQmlParserStatus
-	void classBegin();
-	void componentComplete();
 
 signals:
 	void onUrlChanged(QString url);

@@ -144,8 +144,8 @@ Item {
 		visible: gameOver
 		horizontalAlignment: Text.AlignHCenter
 		verticalAlignment: Text.AlignVCenter
-        font.pixelSize: Theme.fontSizeExtraLarge
-        color: Theme.primaryColor
+		font.pixelSize: Theme.fontSizeExtraLarge
+		color: Theme.primaryColor
 	}
 
 	SingleSquare
@@ -170,7 +170,7 @@ Item {
 		z: 100
 		id: particleSystem
 		anchors.fill: parent
-        running: applicationActive && status === PageStatus.Active
+		running: applicationActive && status === PageStatus.Active
 
 		ImageParticle
 		{

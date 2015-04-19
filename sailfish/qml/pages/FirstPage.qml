@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 
@@ -128,6 +129,9 @@ Page {
 						minDate: dateMin
 						maxDate: dateMax
 						updateAllowed: !view.moving
+
+						property int refreshHighScores: root.refreshHighScores
+						onRefreshHighScoresChanged: refresh()
 					}
 
 					width: parent.width
@@ -189,5 +193,6 @@ Page {
 		VerticalScrollDecorator {}
 	}
 
-	//onStatusChanged: if (status === PageStatus.Activating) scores.refresh()
+	property int refreshHighScores: 0
+	onStatusChanged: if (status === PageStatus.Activating) refreshHighScores++
 }

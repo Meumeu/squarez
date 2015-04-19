@@ -23,30 +23,37 @@
 #include <QObject>
 #include <QSettings>
 
-class QQmlEngine;
-class QJSEngine;
-
 namespace squarez {
 namespace qt {
 
-class Settings : public QObject
+class SettingValue : public QObject
 {
 	Q_OBJECT
 	QSettings _settings;
-
-	explicit Settings();
+	QString _key;
+	QString _defaultValue;
 
 public:
-	~Settings();
+	explicit SettingValue();
+	~SettingValue();
 
-	Q_INVOKABLE void setValue(const QString& key, const QVariant& value);
-	Q_INVOKABLE QVariant value(const QString& key, const QVariant& defaultValue = QVariant());
+	Q_PROPERTY(QString key READ key WRITE setKey NOTIFY keyChanged)
+	Q_PROPERTY(QString value READ value WRITE setValue NOTIFY valueChanged)
+	Q_PROPERTY(QString defaultValue READ defaultValue WRITE setDefaultValue NOTIFY defaultValueChanged)
 
-	static QObject * provider(QQmlEngine*, QJSEngine*);
+	void setValue(const QString& value);
+	QString value() const { return _settings.value(_key, _defaultValue).toString(); }
+
+	void setDefaultValue(const QString& defaultValue);
+	QString defaultValue() const { return _defaultValue; }
+
+	void setKey(const QString& key);
+	QString key() const { return _key; }
+
 signals:
-
-public slots:
-
+	void keyChanged(QString key);
+	void valueChanged(QString value);
+	void defaultValueChanged(QString defaultValue);
 };
 
 }
