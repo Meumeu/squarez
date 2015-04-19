@@ -33,7 +33,7 @@ HighScores::HighScores(QObject *parent) : QAbstractListModel(parent), _loading(t
 {
 	connect(&_reloadTimer, &QTimer::timeout, this, &HighScores::refresh);
 	_reloadTimer.setSingleShot(true);
-	_reloadTimer.setInterval(5000);
+	_reloadTimer.setInterval(100);
 }
 
 QVariant HighScores::data(const QModelIndex& index, int role) const
@@ -139,6 +139,7 @@ void HighScores::updateIfAllowed()
 
 		_loading = false;
 		emit onLoadingChanged(_loading);
+		emit onCountChanged(count());
 	}
 }
 
