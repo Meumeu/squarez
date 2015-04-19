@@ -22,7 +22,7 @@ Page
 
 	Rules {
 		id: rules
-		url: "http://squarez-beta.meumeu.org/"
+		url: "http://squarez.meumeu.org/"
 		paused: !applicationActive || status !== PageStatus.Active
 
 	}

@@ -29,7 +29,7 @@ Rectangle {
 	
 	HighScores {
 		id: scores
-		url: "http://squarez-beta.meumeu.org/"
+		url: "http://squarez.meumeu.org/"
 	}
 	
 	ListView {

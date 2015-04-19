@@ -124,7 +124,7 @@ Page {
 					id: scoreList
 					HighScores {
 						id: scores
-						url: "http://squarez-beta.meumeu.org/"
+						url: "http://squarez.meumeu.org/"
 						minDate: dateMin
 						maxDate: dateMax
 						updateAllowed: !view.moving
