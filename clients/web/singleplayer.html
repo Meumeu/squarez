@@ -54,12 +54,15 @@ var loadHandler = function () {
 			return false;
 		document.getElementById("gameArea").classList.add("loading");
 		nameForm.style.display = "none";
+		var name = Uint8Array(input.value.length * 6 + 1);
+		var size = window.Squarez.stringToUTF8Array(input.value, name, 0, name.length);
+		name = name.subarray(0, size);
 		var game = new window.Squarez.Squarez(
 			document.getElementById("gameArea"),
 			document.getElementById("score"),
 			document.getElementById("timerInner"),
 			document.getElementById("messageContainer"),
-			input.value,
+			name,
 			"");
 		document.getElementsByClassName("pauseButton")[0].onclick = function() { game.togglePause();};
 		document.getElementsByClassName("clearButton")[0].onclick = function() { game.resetSelection();};
