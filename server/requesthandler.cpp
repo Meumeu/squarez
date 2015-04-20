@@ -38,6 +38,17 @@
 
 namespace
 {
+	class LockedGame
+	{
+		std::unique_lock<std::mutex> _lock;
+		std::shared_ptr<squarez::ServerRules> _game;
+	public:
+		LockedGame(std::shared_ptr<squarez::ServerRules> game):
+			_lock(game->_mutex), _game(game) {}
+
+		squarez::ServerRules & game() { return *_game; }
+	};
+
 	class Games
 	{
 		std::mutex _mutex;
@@ -65,7 +76,7 @@ namespace
 			_games.erase(token);
 		}
 
-		std::shared_ptr<squarez::ServerRules> getGame(std::uint32_t token)
+		LockedGame getGame(std::uint32_t token)
 		{
 			std::unique_lock<std::mutex> lock(_mutex);
 			return _games.at(token);
@@ -90,10 +101,11 @@ namespace
 		void garbageCollect()
 		{
 			std::vector<std::uint32_t> endedGames;
-			for (const auto & game : _games)
+			for (const auto & pair : _games)
 			{
-				if (game.second->msLeft() < -60000 or std::chrono::steady_clock::now() - game.second->_epoch > std::chrono::hours(24))
-					endedGames.push_back(game.first);
+				LockedGame game(pair.second);
+				if (game.game().msLeft() < -60000 or std::chrono::steady_clock::now() - game.game()._epoch > std::chrono::hours(24))
+					endedGames.push_back(pair.first);
 			}
 			for (auto i : endedGames)
 				_games.erase(i);
@@ -143,7 +155,7 @@ bool squarez::RequestHandler::response()
 
 			// Read the selection from parameters
 			std::chrono::milliseconds msSinceEpoch{boost::lexical_cast<int>(environment().findGet("msSinceEpoch"))};
-			bool gameOver = game->playSelection(environment().findGet("selection"), msSinceEpoch);
+			bool gameOver = game.game().playSelection(environment().findGet("selection"), msSinceEpoch);
 
 			if (gameOver)
 			{
@@ -160,7 +172,7 @@ bool squarez::RequestHandler::response()
 			auto game = games.getGame(token);
 			bool pause = boost::lexical_cast<bool>(environment().findGet("pause"));
 			std::chrono::milliseconds msSinceEpoch{boost::lexical_cast<int>(environment().findGet("msSinceEpoch"))};
-			game->setPause(pause, msSinceEpoch);
+			game.game().setPause(pause, msSinceEpoch);
 
 			out << "Content-Type: text/plain; charset=utf-8\r\n\r\n";
 		}

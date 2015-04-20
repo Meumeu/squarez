@@ -24,6 +24,7 @@
 #include "highscores.h"
 
 #include <chrono>
+#include <mutex>
 #include <random>
 
 namespace squarez {
@@ -49,6 +50,7 @@ class ServerRules : public DummyProxy, public squarez::Rules
 
 public:
 	const std::chrono::steady_clock::time_point _epoch;
+	std::mutex _mutex;
 
 	ServerRules(std::string playerName,
 		std::mt19937::result_type seed,
