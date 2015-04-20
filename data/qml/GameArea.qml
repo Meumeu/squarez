@@ -22,8 +22,6 @@ import QtQuick 2.0
 import QtQuick.Particles 2.0
 import QtGraphicalEffects 1.0
 
-import Sailfish.Silica 1.0
-
 Item {
 	id: gameArea
 
@@ -33,6 +31,10 @@ Item {
 	property var colors: [Qt.rgba(255,0,0,1), Qt.rgba(255,255,0,1), Qt.rgba(0,0,255,1)]
 	property bool gameOver: rules.gameOver
 	property int blurRadius: 32
+	property alias font: textOverlay.font
+	property alias textColor: textOverlay.color
+
+
 	onWidthChanged: animate = false
 
 	Item
@@ -144,8 +146,6 @@ Item {
 		visible: gameOver
 		horizontalAlignment: Text.AlignHCenter
 		verticalAlignment: Text.AlignVCenter
-		font.pixelSize: Theme.fontSizeExtraLarge
-		color: Theme.primaryColor
 	}
 
 	SingleSquare
@@ -170,7 +170,7 @@ Item {
 		z: 100
 		id: particleSystem
 		anchors.fill: parent
-		running: applicationActive && status === PageStatus.Active
+		running: !rules.paused
 
 		ImageParticle
 		{

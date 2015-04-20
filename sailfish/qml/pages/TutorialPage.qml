@@ -67,6 +67,8 @@ Page
 			rules: tutorialRules
 			width: parent.width
 			height: width
+			font.pixelSize: Theme.fontSizeExtraLarge
+			textColor: Theme.primaryColor
 		}
 
 		TimerArea

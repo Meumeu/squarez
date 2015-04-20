@@ -61,6 +61,8 @@ Page
 			rules: rules
 			width: parent.width
 			height: width
+			font.pixelSize: Theme.fontSizeExtraLarge
+			textColor: Theme.primaryColor
 
 			BusyIndicator {
 				anchors.centerIn: parent
