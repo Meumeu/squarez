@@ -6,6 +6,7 @@ After=network.target
 User=squarez
 Type=simple
 ExecStart=${CMAKE_INSTALL_PREFIX}/bin/squarezd
+Restart=on-failure
 
 [Install]
 WantedBy=multi-user.target
