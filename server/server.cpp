@@ -189,9 +189,11 @@ int main(int argc, char ** argv)
 	// Start listening on the provided socket
 	try
 	{
+		std::cerr << "squarez daemon started" << std::endl;
 		manager = new Fastcgipp::Manager<squarez::RequestHandler>(socket_fd);
 		manager->handler();
 		delete manager;
+		std::cerr << "squarez daemon stopped normally" << std::endl;
 		return 0;
 	}
 	catch (std::exception & e)
