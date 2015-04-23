@@ -64,4 +64,5 @@ void squarez::web::CellProxy::setXY()
 		<< _owner.x() << "em,"
 		<< _owner.y() << "em)";
 	_element["style"].set("transform", transform.str());
+	_element["style"].set("-webkit-transform", transform.str());
 }

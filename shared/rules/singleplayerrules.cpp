@@ -41,7 +41,7 @@ squarez::SinglePlayerRules::SinglePlayerRules(
 	_url(url),
 	_token(token),
 	_selection(new VisibleSelection(selectionProxyFactory())),
-	_epoch(std::chrono::steady_clock::now())
+	_epoch(std::chrono::CLOCK_TYPE::now())
 {
 	// Silence warning about unused field with NO_HTTP_REQUEST
 	(void)_token;
@@ -71,7 +71,7 @@ void squarez::SinglePlayerRules::onClick(squarez::Cell& cell)
 	{
 #ifndef NO_HTTP_REQUEST
 		if (not _url.empty())
-			_requestHandle = http::request(_url + onlineSinglePlayer::PushSelection::encodeRequest(*_selection, _token, std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - _epoch)),
+			_requestHandle = http::request(_url + onlineSinglePlayer::PushSelection::encodeRequest(*_selection, _token, std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::CLOCK_TYPE::now() - _epoch)),
 				[this](std::string response) // onload
 				{
 					DeSerializer s(response);
@@ -111,7 +111,7 @@ void squarez::SinglePlayerRules::setPause(bool state)
 
 #ifndef NO_HTTP_REQUEST
 	if (not _url.empty())
-		_requestHandle = http::request(_url + onlineSinglePlayer::Pause::encodeRequest(_token, pause(), std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - _epoch)),
+		_requestHandle = http::request(_url + onlineSinglePlayer::Pause::encodeRequest(_token, pause(), std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::CLOCK_TYPE::now() - _epoch)),
 			[](std::string /*response*/) // onload
 			{
 			},

@@ -18,15 +18,19 @@
  * 
  */
 
-#if __GNUC__ == 4 && __GNUC_MINOR__ < 7 && __clang__ != 1
-// workaround for missing c++11 type in gcc 4.6
-#define steady_clock monotonic_clock
-#endif
+#ifndef TIMER_H
+#define TIMER_H
 
 #include <chrono>
 
-#ifndef TIMER_H
-#define TIMER_H
+#if __GNUC__ == 4 && __GNUC_MINOR__ < 7 && __clang__ != 1
+// workaround for missing c++11 type in gcc 4.6
+#	define CLOCK_TYPE monotonic_clock
+#elif defined(EMSCRIPTEN)
+#	define CLOCK_TYPE system_clock
+#else
+#	define CLOCK_TYPE steady_clock
+#endif
 
 namespace squarez
 {
@@ -45,26 +49,26 @@ public:
 	Timer(std::chrono::seconds duration, float percentLeft = 1);
 	
 	void refill(unsigned int percentage);
-	void refill(unsigned int percentage, std::chrono::steady_clock::time_point when);
+	void refill(unsigned int percentage, std::chrono::CLOCK_TYPE::time_point when);
 	
 	float percentageLeft() const;
-	float percentageLeft(std::chrono::steady_clock::time_point when) const;
+	float percentageLeft(std::chrono::CLOCK_TYPE::time_point when) const;
 	int msLeft() const;
-	int msLeft(std::chrono::steady_clock::time_point when) const;
+	int msLeft(std::chrono::CLOCK_TYPE::time_point when) const;
 	
 	void setPause(bool state);
-	void setPause(bool state, std::chrono::steady_clock::time_point when);
+	void setPause(bool state, std::chrono::CLOCK_TYPE::time_point when);
 	bool paused() const { return _paused; }
 private:
 	std::chrono::seconds _longTerm;
 	std::chrono::seconds _halfLife;
 	std::chrono::milliseconds _bonusDuration;
 	
-	std::chrono::steady_clock::time_point _begin;
-	std::chrono::steady_clock::time_point _end;
+	std::chrono::CLOCK_TYPE::time_point _begin;
+	std::chrono::CLOCK_TYPE::time_point _end;
 	
 	bool _paused;
-	std::chrono::steady_clock::time_point _pauseTime;
+	std::chrono::CLOCK_TYPE::time_point _pauseTime;
 };
 }
 #endif // TIMER_H

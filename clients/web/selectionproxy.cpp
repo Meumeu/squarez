@@ -112,7 +112,9 @@ void squarez::web::SelectionProxy::buildElement()
 	_element["style"].set("top", make_val(0.5 + center.second, "em"));
 	_element["style"].set("position", emscripten::val("absolute"));
 	_element["style"].set("transform", make_val("rotate(", rotation, "rad)"));
+	_element["style"].set("-webkit-transform", make_val("rotate(", rotation, "rad)"));
 	_element["style"].set("transformOrigin", emscripten::val("0 0"));
+	_element["style"].set("-webkit-transform-origin", emscripten::val("0 0"));
 	_element["classList"].call<void>("add", emscripten::val("transition-square-container"));
 
 	n1["style"].set("marginLeft", emscripten::val("-50%"));

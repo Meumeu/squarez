@@ -33,7 +33,7 @@ class SinglePlayerRules : public squarez::Rules
 	std::uint32_t _token;
 	std::unique_ptr<VisibleSelection> _selection;
 	std::unique_ptr<squarez::http::Handle> _requestHandle;
-	std::chrono::steady_clock::time_point _epoch;
+	std::chrono::CLOCK_TYPE::time_point _epoch;
 
 public:
 	virtual ~SinglePlayerRules();
