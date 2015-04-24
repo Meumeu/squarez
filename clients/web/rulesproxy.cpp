@@ -125,7 +125,8 @@ void squarez::web::RulesProxy::timerUpdated()
 	if (_rules->pause())
 	{
 		_rootElement["classList"].call<void>("add", emscripten::val("paused"));
-		setTimer(_rules->percentageLeft(), 0, "linear");
+		// little hack to make sure transition is fired when pause is removed (target value must be different)
+		setTimer(_rules->percentageLeft() - 0.001, 0, "linear");
 	}
 	else
 	{
