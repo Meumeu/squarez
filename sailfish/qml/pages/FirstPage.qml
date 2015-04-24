@@ -118,6 +118,7 @@ Page {
 			id: view
 			width: parent.width
 			model: scoreDates
+			clip: true
 			property bool moving: dragging || flicking
 
 			delegate: Component {

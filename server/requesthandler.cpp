@@ -34,6 +34,34 @@
 
 #ifdef HAVE_CXXABI_H
 #include <cxxabi.h>
+
+namespace
+{
+std::string demangle(const std::string& mangled)
+{
+	int status;
+	char * realname = abi::__cxa_demangle(mangled.c_str(), nullptr, nullptr, &status);
+
+	if (realname)
+	{
+		std::string ret(realname);
+		free(realname);
+		return ret;
+	}
+	else
+	{
+		return mangled;
+	}
+}
+}
+#else
+namespace
+{
+std::string demangle(const std::string& mangled)
+{
+	return mangled;
+}
+}
 #endif
 
 namespace
@@ -59,7 +87,7 @@ namespace
 		std::thread _gc;
 
 	public:
-		Games(): _last_token(0), _alive(true), _gc([this](){return gcThread();}) {}
+		Games(): _last_token(0), _alive(true), _gc([this](){ gcThread(); }) {}
 		~Games()
 		{
 			std::unique_lock<std::mutex> lock(_mutex);
@@ -94,7 +122,15 @@ namespace
 			std::unique_lock<std::mutex> lock(_mutex);
 			while(_alive)
 			{
-				garbageCollect();
+				try
+				{
+					garbageCollect();
+				}
+				catch(std::exception& e)
+				{
+					std::cerr << "Exception " << demangle(typeid(e).name()) << " in garbage collector thread" << std::endl;
+					std::cerr << e.what() << std::endl;
+				}
 				_gcWait.wait_for(lock, std::chrono::minutes(1));
 			}
 		}
@@ -208,21 +244,7 @@ bool squarez::RequestHandler::response()
 	}
 	catch(std::exception& e)
 	{
-#ifdef HAVE_CXXABI_H
-		int status;
-		char * realname = abi::__cxa_demangle(typeid(e).name(), nullptr, nullptr, &status);
-
-		if (realname)
-		{
-			std::cerr << "Exception " << realname << " while processing " << uri << ": " << std::endl;
-			free(realname);
-		}
-		else
-#endif
-		{
-			std::cerr << "Exception " << typeid(e).name() << " while processing " << uri << ": " << std::endl;
-		}
-
+		std::cerr << "Exception " << demangle(typeid(e).name()) << " while processing " << uri << ": " << std::endl;
 		std::cerr << e.what() << std::endl;
 
 		throw;

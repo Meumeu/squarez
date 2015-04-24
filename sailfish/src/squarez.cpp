@@ -31,7 +31,7 @@
 #include "rulesproxy.h"
 #include "cellproxy.h"
 #include "highscores.h"
-#include "settings.h"
+#include "settingvalue.h"
 
 int main(int argc, char *argv[])
 {

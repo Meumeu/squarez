@@ -3,5 +3,10 @@
 *.swp
 .kdev4
 .kdev_include_paths
+.directory
+*#
 
 /build*
+
+sailfish/harbour-squarez.pro.user
+sailfish/rpm/harbour-squarez.spec
