@@ -110,13 +110,13 @@ void squarez::web::HighScores::switchPage(int count)
 
 			auto tbody = emscripten::val::global("document").call<emscripten::val>("createElement", emscripten::val("tbody"));
 			_content.call<void>("appendChild", tbody);
-			const char * format = (_page == Page::lastDay) ? "toLocaleTimeString" : "toLocaleDateString";
-			emscripten::val formatOptions = emscripten::val::object();
-			if (_page == Page::lastDay)
-			{
-				formatOptions.set("hour", emscripten::val("numeric"));
-				formatOptions.set("minute", emscripten::val("numeric"));
-			}
+
+			emscripten::val timeFormatOptions = emscripten::val::object();
+			timeFormatOptions.set("hour", emscripten::val("numeric"));
+			timeFormatOptions.set("minute", emscripten::val("numeric"));
+
+			const std::string today = emscripten::val::global("Date").new_().call<std::string>("toLocaleDateString");
+
 			for (auto const & score : res._scores)
 			{
 				auto tr = emscripten::val::global("document").call<emscripten::val>("createElement", emscripten::val("tr"));
@@ -131,7 +131,10 @@ void squarez::web::HighScores::switchPage(int count)
 				emscripten::val date = emscripten::val::global("Date").new_(score._date);
 				tr.call<void>("appendChild", td);
 				td["classList"].call<void>("add", emscripten::val("date"));
-				td.set("textContent", date.call<std::string>(format, emscripten::val::undefined(), formatOptions));
+				std::string dateString = date.call<std::string>("toLocaleDateString");
+				if (dateString == today)
+					dateString = date.call<std::string>("toLocaleTimeString", emscripten::val::undefined(), timeFormatOptions);
+				td.set("textContent", dateString);
 
 				td = emscripten::val::global("document").call<emscripten::val>("createElement", emscripten::val("td"));
 				td["classList"].call<void>("add", emscripten::val("score"));
