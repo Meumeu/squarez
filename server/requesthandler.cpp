@@ -125,13 +125,17 @@ namespace
 				try
 				{
 					garbageCollect();
+					_gcWait.wait_for(lock, std::chrono::minutes(1));
 				}
 				catch(std::exception& e)
 				{
 					std::cerr << "Exception " << demangle(typeid(e).name()) << " in garbage collector thread" << std::endl;
 					std::cerr << e.what() << std::endl;
 				}
-				_gcWait.wait_for(lock, std::chrono::minutes(1));
+				catch(...)
+				{
+					std::cerr << "Unexpected exception in garbage collector thread" << std::endl;
+				}
 			}
 		}
 		void garbageCollect()
