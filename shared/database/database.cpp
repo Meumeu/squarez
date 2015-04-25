@@ -42,7 +42,7 @@ int database::check_sqlite_return_code(std::string msg, std::shared_ptr<sqlite3>
 {
 	if (return_code == SQLITE_OK || return_code == SQLITE_ROW || return_code == SQLITE_DONE)
 		return return_code;
-	
+
 	std::stringstream ss;
 
 	ss << msg;
@@ -57,11 +57,11 @@ database::database(const std::string& filename)
 	int rc;
 	sqlite3 * tmp = nullptr;
 
-	rc = sqlite3_open_v2(filename.c_str(), &tmp, SQLITE_OPEN_READWRITE, NULL);
+	rc = sqlite3_open_v2(filename.c_str(), &tmp, SQLITE_OPEN_READWRITE | SQLITE_OPEN_FULLMUTEX, NULL);
 
 	if (rc == SQLITE_CANTOPEN)
 	{
-		check_sqlite_return_code("Cannot create database", std::shared_ptr<sqlite3>(), sqlite3_open_v2(filename.c_str(), &tmp, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL));
+		check_sqlite_return_code("Cannot create database", std::shared_ptr<sqlite3>(), sqlite3_open_v2(filename.c_str(), &tmp, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE | SQLITE_OPEN_FULLMUTEX, NULL));
 	}
 	else if (rc != SQLITE_OK)
 	{
