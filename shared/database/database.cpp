@@ -17,6 +17,8 @@
  *
  */
 
+#include <config.h>
+
 #include "database.h"
 #include <stdexcept>
 #include <sstream>
@@ -25,12 +27,15 @@
 #include <thread>
 #include <boost/lexical_cast.hpp>
 
+#ifdef HAVE_EXECINFO_H
 #include <execinfo.h>
+#endif
 
 namespace squarez {
 
 database::exception::exception(const std::string& msg): _msg(msg)
 {
+#ifdef HAVE_EXECINFO_H
 	void * trace_elems[20];
 	int trace_elem_count = backtrace(trace_elems, 20);
 	char ** stack_syms = backtrace_symbols(trace_elems, trace_elem_count);
@@ -40,6 +45,7 @@ database::exception::exception(const std::string& msg): _msg(msg)
 		_msg += stack_syms[i];
 	}
 	free(stack_syms);
+#endif
 }
 
 const char* database::exception::what() const noexcept

@@ -27,6 +27,14 @@ pkg_check_modules(sqlite REQUIRED sqlite3)
 add_definitions(-std=c++11 -g -Wall -Wextra -Werror -DPACKAGE="squarez" -DPACKAGE_VERSION="${PROJECT_VERSION}")
 include_directories(${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/shared ${CMAKE_CURRENT_SOURCE_DIR}/clients)
 
+include(CheckIncludeFileCXX)
+
+check_include_file_cxx(cxxabi.h HAVE_CXXABI_H)
+check_include_file_cxx(execinfo.h HAVE_EXECINFO_H)
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/shared/config.h.in ${CMAKE_CURRENT_BINARY_DIR}/config.h)
+
+
 set(shared_sources
 	${CMAKE_CURRENT_SOURCE_DIR}/shared/database/database.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/shared/game/score.cpp
