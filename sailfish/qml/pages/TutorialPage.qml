@@ -47,7 +47,7 @@ Page
 		}
 	}
 
-	property string coverText: header.title
+	property string coverText: ""
 	Rules {
 		id: tutorialRules
 		type: "tutorial"
@@ -99,7 +99,7 @@ Page
 
 	Timer
 	{
-		interval: 500;
+		interval: 1000;
 		repeat: true
 		running: tutorialRules.message === "" && applicationActive && status === PageStatus.Active
 		onTriggered: tutorialRules.next()

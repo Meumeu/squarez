@@ -1,10 +1,10 @@
 Name: harbour-squarez
 Summary: Squarez
-Version: 2.99
-Release: 2
+Version: 3.0
+Release: 1
 Group: Qt/Qt
-URL: http://example.org/
-License: LICENSE
+URL: http://squarez.meumeu.org/
+License: GPLv3
 Sources:
 - '%{name}-%{version}.tar.bz2'
 Description: |
