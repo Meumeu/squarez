@@ -165,14 +165,6 @@ Item {
 		border.color: "#80000000"
 		border.width: gameArea.cellSize / 3
 		ratio: gameArea.cellSize
-		Behavior on width
-		{
-			SequentialAnimation
-			{
-				PropertyAction {value: 0}
-				NumberAnimation {duration: 800; from: 0; easing.type: Easing.OutElastic}
-			}
-		}
 	}
 
 	ParticleSystem

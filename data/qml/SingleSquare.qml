@@ -26,7 +26,7 @@ Rectangle
 	property real centerX: 0
 	property real centerY: 0
 	height: width
-	width: 0
+	//width: 0
 	x: (centerX + 0.5) * ratio - width / 2
 	y: (centerY + 0.5) * ratio - height / 2
 	visible: false
@@ -50,8 +50,17 @@ Rectangle
 				side = 2;
 		}
 		squareSize = Math.sqrt(squareSize)
-		width = ratio * squareSize + border.width
+		widthAnimation.to = ratio * squareSize + border.width
+		widthAnimation.restart()
 		rotation = Math.atan2(points[side].x - points[0].x, points[0].y - points[side].y) * 180 / Math.PI
 		visible = true
+	}
+
+	NumberAnimation on width {
+		id: widthAnimation
+		from: 0
+		to: 0
+		duration: 800
+		easing.type: Easing.OutElastic
 	}
 }
