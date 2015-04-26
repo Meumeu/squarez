@@ -104,7 +104,8 @@ Page {
 
 	Timer {
 		interval: 3600
-		repeat: Qt.application.state === Qt.ApplicationActive
+		running: Qt.application.state === Qt.ApplicationActive
+		repeat: true
 		onTriggered: updateDates()
 	}
 
