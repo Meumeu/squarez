@@ -21,6 +21,8 @@
 #define SQUAREZ_QT_RULESPROXY_H
 
 #include <QAbstractListModel>
+#include <QPoint>
+#include <QQmlListProperty>
 
 #include <memory>
 
@@ -40,14 +42,14 @@ class RulesProxy : public QAbstractListModel, public Rules::Proxy
 	// _cells has to be before _rules because the destructor of _rules calls removeCell() so _cells must be destroyed last
 	QList<CellProxy *> _cells;
 	std::unique_ptr<Rules> _rules;
-	
+
 	QString _type;
 	QString _playerName;
 	QString _url;
 	QString _message;
 
 	std::unique_ptr<squarez::http::Handle> _gameInitHandle;
-	
+
 	void tryStartGame();
 
 public:
@@ -101,6 +103,9 @@ public:
 
 	void removeCell(CellProxy * cell);
 
+	void selectionValidated(VisibleSelection& selection);
+	void selectionRemoved(VisibleSelection& selection);
+
 signals:
 	void onScoreChanged(unsigned int score);
 	void onGameOverChanged(bool gameOver);
@@ -112,6 +117,8 @@ signals:
 	void onReadyChanged(bool ready);
 	void onMessageChanged(const QString& message);
 	void onNetworkError();
+	void onSelectionValidated(const QVariantList& points);
+	void onSelectionRemoved(const QVariantList& points);
 
 public slots:
 	void resetSelection();

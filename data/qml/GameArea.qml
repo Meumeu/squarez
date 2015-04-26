@@ -34,6 +34,16 @@ Item {
 	property alias font: textOverlay.font
 	property alias textColor: textOverlay.color
 
+	function onSelectionRemoved(points)
+	{
+		selectedSquare.visible = false
+		selectionEmitter.my_burst(points)
+	}
+
+	Component.onCompleted: {
+		rules.onSelectionValidated.connect(selectedSquare.setPoints);
+		rules.onSelectionRemoved.connect(onSelectionRemoved)
+	}
 
 	onWidthChanged: animate = false
 

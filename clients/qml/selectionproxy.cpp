@@ -33,16 +33,18 @@ void SelectionProxy::stateChanged(Selection::State state)
 	switch(state)
 	{
 		case Selection::State::invalid:
+			break;
+
 		case Selection::State::validated:
+			_rules.selectionValidated(_owner);
 			break;
 	}
 }
 
 SelectionProxy::~SelectionProxy()
 {
-	
+	_rules.selectionRemoved(_owner);
 }
-
 
 }
 }

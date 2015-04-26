@@ -31,10 +31,10 @@ class RulesProxy;
 
 class SelectionProxy : public QObject, public squarez::VisibleSelection::Proxy
 {
-    Q_OBJECT
+	Q_OBJECT
 
 	RulesProxy& _rules;
-    
+
 public:
 	SelectionProxy(VisibleSelection& selection, RulesProxy& rules);
 	~SelectionProxy();

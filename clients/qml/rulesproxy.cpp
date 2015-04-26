@@ -78,7 +78,7 @@ void RulesProxy::removeCell(CellProxy* cell)
 {
 	int idx = _cells.indexOf(cell);
 	assert(idx != -1);
-	
+
 	beginRemoveRows(QModelIndex(), idx, idx);
 	_cells.removeAt(idx);
 	endRemoveRows();
@@ -194,7 +194,7 @@ void RulesProxy::setPaused(bool paused)
 {
 	if (!_rules)
 		return;
-	
+
 	auto rules = dynamic_cast<SinglePlayerRules*>(_rules.get());
 	if (rules) rules->setPause(paused);
 }
@@ -222,6 +222,29 @@ void RulesProxy::next()
 		_cells.front()->clicked();
 }
 
+void RulesProxy::selectionValidated(VisibleSelection &selection)
+{
+	QVariantList points;
+
+	for(const auto& i: selection)
+	{
+		points.append(QPoint(i->x(), i->y()));
+	}
+
+	emit onSelectionValidated(points);
+}
+
+void RulesProxy::selectionRemoved(VisibleSelection &selection)
+{
+	QVariantList points;
+
+	for(const auto& i: selection)
+	{
+		points.append(QPoint(i->x(), i->y()));
+	}
+
+	emit onSelectionRemoved(points);
+}
 
 }
 }
