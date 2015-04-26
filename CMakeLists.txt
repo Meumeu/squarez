@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0)
-project(squarez VERSION 2.99.0)
+project(squarez VERSION 3.0)
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL Emscripten)
 set(BUILD_TEST OFF CACHE BOOL "Build the test bot" FORCE)
