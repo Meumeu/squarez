@@ -191,7 +191,18 @@ int main(int argc, char ** argv)
 	{
 		std::cerr << "squarez daemon started" << std::endl;
 		manager = new Fastcgipp::Manager<squarez::RequestHandler>(socket_fd);
-		manager->handler();
+		while(true)
+		{
+			try
+			{
+				manager->handler();
+				break;
+			}
+			catch(Fastcgipp::Exceptions::Socket& e)
+			{
+				std::cerr << "fastcgi++ socket exception on fd " << e.fd << ": " << e.what();
+			}
+		}
 		delete manager;
 		std::cerr << "squarez daemon stopped normally" << std::endl;
 		return 0;
@@ -199,11 +210,13 @@ int main(int argc, char ** argv)
 	catch (std::exception & e)
 	{
 		std::cerr << "An exception occured: " << e.what() << std::endl;
+		std::cerr << "squarez daemon stopped" << std::endl;
 		return EXIT_FAILURE;
 	}
 	catch (...)
 	{
 		std::cerr << "An unknown exception occured." << std::endl;
+		std::cerr << "squarez daemon stopped" << std::endl;
 		return EXIT_FAILURE;
 	}
 }
