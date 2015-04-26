@@ -37,6 +37,8 @@ class HighScores : public QAbstractListModel
 	typedef squarez::onlineSinglePlayer::GetScores::Score Score;
 	QString _url;
 	bool _loading;
+	bool _networkError;
+	bool _nextNetworkError;
 	QDateTime _minDate;
 	QDateTime _maxDate;
 	bool _updateAllowed;
@@ -56,6 +58,7 @@ public:
 	Q_PROPERTY(QDateTime minDate READ minDate WRITE setMinDate NOTIFY onMinDateChanged)
 	Q_PROPERTY(QDateTime maxDate READ maxDate WRITE setMaxDate NOTIFY onMaxDateChanged)
 	Q_PROPERTY(bool loading READ loading NOTIFY onLoadingChanged)
+	Q_PROPERTY(bool networkError READ networkError NOTIFY onNetworkErrorChanged)
 	Q_PROPERTY(bool updateAllowed READ updateAllowed WRITE setUpdateAllowed NOTIFY onUpdateAllowedChanged)
 	Q_PROPERTY(int count READ count NOTIFY onCountChanged)
 
@@ -68,6 +71,7 @@ public:
 
 	const QString& url() const { return _url; }
 	bool loading() const { return _loading; }
+	bool networkError() const { return _networkError; }
 	QDateTime minDate() const { return _minDate; }
 	QDateTime maxDate() const { return _maxDate; }
 	bool updateAllowed() const { return _updateAllowed; }
@@ -82,8 +86,8 @@ public:
 
 signals:
 	void onUrlChanged(QString url);
-	void onNetworkError();
 	void onLoadingChanged(bool loading);
+	void onNetworkErrorChanged(bool networkError);
 	void onMinDateChanged(QDateTime minDate);
 	void onMaxDateChanged(QDateTime maxDate);
 	void onUpdateAllowedChanged(bool updateAllowed);

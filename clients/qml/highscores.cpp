@@ -29,7 +29,13 @@ HighScores::~HighScores()
 {
 }
 
-HighScores::HighScores(QObject *parent) : QAbstractListModel(parent), _loading(true), _updateAllowed(true), _scoresToBeUpdated(false)
+HighScores::HighScores(QObject *parent) :
+	QAbstractListModel(parent),
+	_loading(true),
+	_networkError(false),
+	_nextNetworkError(false),
+	_updateAllowed(true),
+	_scoresToBeUpdated(false)
 {
 	connect(&_reloadTimer, &QTimer::timeout, this, &HighScores::doRefresh);
 	_reloadTimer.setSingleShot(true);
@@ -77,6 +83,9 @@ void HighScores::doRefresh()
 		_loading = true;
 		emit onLoadingChanged(_loading);
 
+		_networkError = false;
+		emit onNetworkErrorChanged(_networkError);
+
 		_loadHandle = squarez::http::request(_url.toStdString() + onlineSinglePlayer::GetScores::encodeRequest(_minDate.toTime_t(), _maxDate.toTime_t(), 10),
 			[this](std::string response) // onload
 			{
@@ -85,15 +94,15 @@ void HighScores::doRefresh()
 
 				_newScores = scores._scores;
 				_scoresToBeUpdated = true;
+				_nextNetworkError = false;
 
 				updateIfAllowed();
 			},
 			[this]() // onerror
 			{
-				emit onNetworkError();
-
 				_newScores.clear();
 				_scoresToBeUpdated = true;
+				_nextNetworkError = true;
 
 				updateIfAllowed();
 			}
@@ -144,6 +153,10 @@ void HighScores::updateIfAllowed()
 
 		_loading = false;
 		emit onLoadingChanged(_loading);
+
+		_networkError = _nextNetworkError;
+		emit onNetworkErrorChanged(_networkError);
+
 		emit onCountChanged(count());
 	}
 }

@@ -105,10 +105,7 @@ Page {
 	Timer {
 		interval: 3600
 		repeat: Qt.application.state === Qt.ApplicationActive
-		onTriggered: {
-			updateDates()
-			//scores.refresh()
-		}
+		onTriggered: updateDates()
 	}
 
 	SilicaFlickable {
@@ -158,7 +155,7 @@ Page {
 
 					ViewPlaceholder {
 						enabled: scores.count === 0 && !scores.loading
-						text: qsTr("No high score")
+						text: scores.networkError ? qsTr("Network error") : qsTr("No high score")
 					}
 
 					BusyIndicator {
