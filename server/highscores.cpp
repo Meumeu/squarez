@@ -31,19 +31,15 @@ squarez::HighScores::HighScores(std::unique_ptr<sql::Connection>&& db): db(std::
 
 void squarez::HighScores::initDatabase()
 {
-	_getConfigStatement.reset(db->prepareStatement("SELECT value FROM config WHERE name=?"));
-	_setConfigStatement.reset(db->prepareStatement("INSERT INTO config (name, value) VALUES (?, ?) ON DUPLICATE KEY UPDATE value=?"));
-	_addScoreStatement.reset(db->prepareStatement("INSERT INTO scores(name, score, timestamp) VALUES(?,?,?)"));
-	_updateScoreStatement.reset(db->prepareStatement("UPDATE scores SET score = ? where id = ?"));
-	_getScoreStatement.reset(db->prepareStatement("SELECT name, score, timestamp FROM scores WHERE timestamp >= ?  AND timestamp < ? ORDER BY score DESC LIMIT ?"));
-	_lastInsertIdStatement.reset(db->prepareStatement("SELECT @@identity AS id"));
-
 	std::unique_ptr<sql::Statement> stmt(db->createStatement());
 
 	stmt->execute("CREATE TABLE IF NOT EXISTS config ("
 		"name VARCHAR(30) PRIMARY KEY,"
 		"value VARCHAR(255)"
 		")");
+
+	_getConfigStatement.reset(db->prepareStatement("SELECT value FROM config WHERE name=?"));
+	_setConfigStatement.reset(db->prepareStatement("INSERT INTO config (name, value) VALUES (?, ?) ON DUPLICATE KEY UPDATE value=?"));
 
 	switch(getConfig("version", 0))
 	{
@@ -65,6 +61,11 @@ void squarez::HighScores::initDatabase()
 		throw std::runtime_error("Database too new");
 		break;
 	}
+
+	_addScoreStatement.reset(db->prepareStatement("INSERT INTO scores(name, score, timestamp) VALUES(?,?,?)"));
+	_updateScoreStatement.reset(db->prepareStatement("UPDATE scores SET score = ? where id = ?"));
+	_getScoreStatement.reset(db->prepareStatement("SELECT name, score, timestamp FROM scores WHERE timestamp >= ?  AND timestamp < ? ORDER BY score DESC LIMIT ?"));
+	_lastInsertIdStatement.reset(db->prepareStatement("SELECT @@identity AS id"));
 }
 
 namespace {
