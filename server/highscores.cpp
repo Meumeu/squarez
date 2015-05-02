@@ -114,6 +114,7 @@ std::vector<squarez::onlineSinglePlayer::GetScores::Score> squarez::HighScores::
 		tmp._playerName = res->getString("name");
 		tmp._score = res->getInt("score");
 		tmp._date = res->getString("date");
+		ret.push_back(tmp);
 	}
 
 	return ret;
