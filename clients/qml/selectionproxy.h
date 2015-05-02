@@ -34,6 +34,7 @@ class SelectionProxy : public QObject, public squarez::VisibleSelection::Proxy
 	Q_OBJECT
 
 	RulesProxy& _rules;
+	squarez::Selection::State _state;
 
 public:
 	SelectionProxy(VisibleSelection& selection, RulesProxy& rules);
