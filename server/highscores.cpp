@@ -48,7 +48,7 @@ void squarez::HighScores::initDatabase()
 			"id INTEGER AUTO_INCREMENT PRIMARY KEY,"
 			"name VARCHAR(255),"
 			"score INTEGER,"
-			"timestamp VARCHAR(30)"
+			"date VARCHAR(30)"
 			")");
 
 		setConfig("version", 1);
@@ -62,9 +62,9 @@ void squarez::HighScores::initDatabase()
 		break;
 	}
 
-	_addScoreStatement.reset(db->prepareStatement("INSERT INTO scores(name, score, timestamp) VALUES(?,?,?)"));
+	_addScoreStatement.reset(db->prepareStatement("INSERT INTO scores(name, score, date) VALUES(?,?,?)"));
 	_updateScoreStatement.reset(db->prepareStatement("UPDATE scores SET score = ? where id = ?"));
-	_getScoreStatement.reset(db->prepareStatement("SELECT name, score, timestamp FROM scores WHERE timestamp >= ?  AND timestamp < ? ORDER BY score DESC LIMIT ?"));
+	_getScoreStatement.reset(db->prepareStatement("SELECT name, score, date FROM scores WHERE date >= ? AND date < ? ORDER BY score DESC LIMIT ?"));
 	_lastInsertIdStatement.reset(db->prepareStatement("SELECT @@identity AS id"));
 }
 
@@ -104,8 +104,8 @@ std::vector<squarez::onlineSinglePlayer::GetScores::Score> squarez::HighScores::
 	std::vector<squarez::onlineSinglePlayer::GetScores::Score> ret;
 
 	_getScoreStatement->setString(1, time_put(min_date));
-	_getScoreStatement->setString(1, time_put(max_date));
-	_getScoreStatement->setInt(1, count);
+	_getScoreStatement->setString(2, time_put(max_date));
+	_getScoreStatement->setInt(3, count);
 	std::unique_ptr<sql::ResultSet> res(_getScoreStatement->executeQuery());
 
 	while(res->next())
@@ -113,7 +113,7 @@ std::vector<squarez::onlineSinglePlayer::GetScores::Score> squarez::HighScores::
 		squarez::onlineSinglePlayer::GetScores::Score tmp;
 		tmp._playerName = res->getString("name");
 		tmp._score = res->getInt("score");
-		tmp._date = res->getString("timestamp");
+		tmp._date = res->getString("date");
 	}
 
 	return ret;
