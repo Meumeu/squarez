@@ -211,7 +211,7 @@ int main(int argc, char ** argv)
 			}
 			catch(Fastcgipp::Exceptions::Socket& e)
 			{
-				std::cerr << "fastcgi++ socket exception on fd " << e.fd << ": " << e.what();
+				std::cerr << "fastcgi++ socket exception on fd " << e.fd << ": " << e.what() << std::endl;
 			}
 		}
 		delete manager;
