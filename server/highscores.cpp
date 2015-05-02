@@ -49,7 +49,7 @@ void squarez::HighScores::initDatabase()
 	{
 	case 0: // new database
 		stmt->execute("CREATE TABLE scores ("
-			"id INTEGER PRIMARY KEY,"
+			"id INTEGER AUTO_INCREMENT PRIMARY KEY,"
 			"name VARCHAR(255),"
 			"score INTEGER,"
 			"timestamp VARCHAR(30)"
