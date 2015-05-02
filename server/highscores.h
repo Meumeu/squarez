@@ -20,36 +20,53 @@
 #ifndef SQUAREZ_HIGHSCORES_H
 #define SQUAREZ_HIGHSCORES_H
 
-#include "database/database.h"
+// #include "database.h"
 #include "network/methods.h"
 
 #include <string>
+#include <boost/lexical_cast.hpp>
+
+#include <mysql_driver.h>
+#include <cppconn/prepared_statement.h>
 
 namespace squarez {
 
 class HighScores
 {
-	database db;
+	std::unique_ptr<sql::Connection> db;
 	void initDatabase();
 
+	std::unique_ptr<sql::PreparedStatement> _getConfigStatement;
+	std::unique_ptr<sql::PreparedStatement> _setConfigStatement;
+	std::unique_ptr<sql::PreparedStatement> _addScoreStatement;
+	std::unique_ptr<sql::PreparedStatement> _updateScoreStatement;
+	std::unique_ptr<sql::PreparedStatement> _getScoreStatement;
+	std::unique_ptr<sql::PreparedStatement> _lastInsertIdStatement;
+
 public:
-	HighScores();
-	HighScores(std::string filename);
+	HighScores(std::unique_ptr<sql::Connection>&& db);
 
 	template<typename T> T getConfig(const std::string& key, const T& default_value)
 	{
-		auto res = db.execute("SELECT value FROM config WHERE key=?", key);
-		auto it = res.begin();
+		_getConfigStatement->setString(1, key);
+		std::unique_ptr<sql::ResultSet> res(_getConfigStatement->executeQuery());
 
-		if (it == res.end())
-			return default_value;
+		T ret;
+		if (res->next())
+			ret = boost::lexical_cast<T>(res->getString("value"));
 		else
-			return it->fetch<T>(0);
+			ret = default_value;
+
+		return ret;
 	}
 
 	template<typename T> void setConfig(const std::string& key, const T& value)
 	{
-		db.execute("INSERT OR REPLACE INTO config (key, value) VALUES (?, ?)", key, value);
+		std::string str(boost::lexical_cast<std::string>(value));
+		_setConfigStatement->setString(1, key);
+		_setConfigStatement->setString(2, str);
+		_setConfigStatement->setString(3, str);
+		_setConfigStatement->execute();
 	}
 
 	int64_t addScore(std::string playerName, int score);

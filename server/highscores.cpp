@@ -23,68 +23,42 @@
 #include <ctime>
 #include <string>
 
-namespace
-{
-std::string getenv(const char * variable, std::string const& defaultValue)
-{
-	const char * value = std::getenv(variable);
-	if (value and *value != '\0')
-		return value;
-	return defaultValue;
-}
-
-std::string xdg_data_home()
-{
-	// FIXME: create the directory if it does not exist
-	return getenv("XDG_DATA_HOME", getenv("HOME", "") + "/.local/share") + "/" PACKAGE;
-}
-}
-
-squarez::HighScores::HighScores(): db(xdg_data_home() + "/scores.db")
+squarez::HighScores::HighScores(std::unique_ptr<sql::Connection>&& db): db(std::move(db))
 {
 	initDatabase();
 }
 
-squarez::HighScores::HighScores(std::string filename) : db(filename)
-{
-	initDatabase();
-}
 
 void squarez::HighScores::initDatabase()
 {
-	db.execute("CREATE TABLE IF NOT EXISTS config ("
-		"key VARCHAR(50) UNIQUE,"
-		"value VARCHAR(50)"
-		")"
-	);
+	_getConfigStatement.reset(db->prepareStatement("SELECT value FROM config WHERE name=?"));
+	_setConfigStatement.reset(db->prepareStatement("INSERT INTO config (name, value) VALUES (?, ?) ON DUPLICATE KEY UPDATE value=?"));
+	_addScoreStatement.reset(db->prepareStatement("INSERT INTO scores(name, score, timestamp) VALUES(?,?,?)"));
+	_updateScoreStatement.reset(db->prepareStatement("UPDATE scores SET score = ? where id = ?"));
+	_getScoreStatement.reset(db->prepareStatement("SELECT name, score, timestamp FROM scores WHERE timestamp >= ?  AND timestamp < ? ORDER BY score DESC LIMIT ?"));
+	_lastInsertIdStatement.reset(db->prepareStatement("SELECT @@identity AS id"));
+
+	std::unique_ptr<sql::Statement> stmt(db->createStatement());
+
+	stmt->execute("CREATE TABLE IF NOT EXISTS config ("
+		"name VARCHAR(30) PRIMARY KEY,"
+		"value VARCHAR(255)"
+		")");
 
 	switch(getConfig("version", 0))
 	{
 	case 0: // new database
-		db.execute("CREATE TABLE scores ("
+		stmt->execute("CREATE TABLE scores ("
 			"id INTEGER PRIMARY KEY,"
-			"name VARCHAR(100),"
+			"name VARCHAR(255),"
 			"score INTEGER,"
 			"timestamp VARCHAR(30)"
-			")"
-		);
+			")");
 
-		setConfig("version", 2);
+		setConfig("version", 1);
 		break;
 
-	case 1: // convert timestamp format to ISO 8601 standard
-		for(auto& i: db.execute("SELECT id, timestamp FROM scores"))
-		{
-			std::string timestamp = i.fetch<std::string>(1);
-			timestamp[10] = 'T';
-			timestamp += 'Z';
-			db.execute("UPDATE scores SET timestamp=? WHERE id=?", timestamp, i.fetch<int>(0));
-		}
-
-		setConfig("version", 2);
-		break;
-
-	case 2: // current version
+	case 1: // current version
 		break;
 
 	default: // newer version
@@ -105,24 +79,41 @@ namespace {
 
 int64_t squarez::HighScores::addScore(std::string playerName, int score)
 {
-	return db.execute("INSERT INTO scores(name, score, timestamp) VALUES(?,?,?)", playerName, score, time_put()).insert_id();
+	_addScoreStatement->setString(1, playerName);
+	_addScoreStatement->setInt(2, score);
+	_addScoreStatement->setString(3, time_put());
+	_addScoreStatement->execute();
+
+	std::unique_ptr<sql::ResultSet> res(_lastInsertIdStatement->executeQuery());
+	if (res->next())
+		return res->getInt("id");
+	else
+		throw std::runtime_error("No insert id");
 }
 
 void squarez::HighScores::updateScore (int score, int64_t rowId)
 {
-	db.execute("UPDATE scores SET score = ? where id = ?", score, rowId);
+	_updateScoreStatement->setInt(1, score);
+	_updateScoreStatement->setInt(2, rowId);
+	_updateScoreStatement->execute();
 }
 
 std::vector<squarez::onlineSinglePlayer::GetScores::Score> squarez::HighScores::getScores(std::time_t min_date, std::time_t max_date, int count)
 {
 	std::vector<squarez::onlineSinglePlayer::GetScores::Score> ret;
-	for(auto& i: db.execute("SELECT name, score, timestamp FROM scores WHERE timestamp >= ?  AND timestamp < ? ORDER BY score DESC LIMIT ?", time_put(min_date), time_put(max_date), count))
+
+	_getScoreStatement->setString(1, time_put(min_date));
+	_getScoreStatement->setString(1, time_put(max_date));
+	_getScoreStatement->setInt(1, count);
+	std::unique_ptr<sql::ResultSet> res(_getScoreStatement->executeQuery());
+
+	while(res->next())
 	{
 		squarez::onlineSinglePlayer::GetScores::Score tmp;
-		tmp._playerName = i.fetch<std::string>(0);
-		tmp._score = i.fetch<int>(1);
-		tmp._date = i.fetch<std::string>(2);
-		ret.push_back(tmp);
+		tmp._playerName = res->getString("name");
+		tmp._score = res->getInt("score");
+		tmp._date = res->getString("timestamp");
 	}
+
 	return ret;
 }

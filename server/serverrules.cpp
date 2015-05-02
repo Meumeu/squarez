@@ -69,7 +69,7 @@ bool squarez::ServerRules::playSelection(const std::string & serializedSelection
 				else
 					_highScores->updateScore(score(), _scoreDbRow);
 			}
-			catch(squarez::database::exception& e)
+			catch(std::exception& e)
 			{
 				std::cerr << "Cannot save score: " << e.what() << std::endl;
 			}

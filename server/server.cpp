@@ -39,7 +39,6 @@
 #include <boost/program_options.hpp>
 
 #include "requesthandler.h"
-#include "database/database.h"
 
 Fastcgipp::Manager<squarez::RequestHandler> * manager = nullptr;
 
@@ -72,13 +71,19 @@ int main(int argc, char ** argv)
 
 	std::string port;
 	std::string listen_ip;
-	std::string db_filename;
+	std::string db_uri;
+	std::string db_username;
+	std::string db_password;
+	std::string db_name;
 	std::string cfg_filename;
 
 	config_file_options.add_options()
 		("port,p", boost::program_options::value<std::string>(&port), "Listen to the given port")
 		("listen,l", boost::program_options::value<std::string>(&listen_ip)->default_value("127.0.0.1"), "Listen on the given IP address")
-		("database", boost::program_options::value<std::string>(&db_filename)->default_value("/var/lib/squarezd/squarezd.db"), "Database file name");
+		("uri", boost::program_options::value<std::string>(&db_uri)->default_value("tcp://127.0.0.1:3306"), "Database URI")
+		("username", boost::program_options::value<std::string>(&db_username), "Database username")
+		("password", boost::program_options::value<std::string>(&db_password), "Database password")
+		("database", boost::program_options::value<std::string>(&db_name), "Database name");
 
 	command_line_options.add_options()
 		("help,h", "this help message")
@@ -171,9 +176,15 @@ int main(int argc, char ** argv)
 
 	try
 	{
-		squarez::RequestHandler::highScores = std::make_shared<squarez::HighScores>(db_filename);
+		sql::Driver * driver = sql::mysql::get_driver_instance();
+		std::unique_ptr<sql::Connection> db(driver->connect(db_uri, db_username, db_password));
+
+		std::unique_ptr<sql::Statement> stmt(db->createStatement());
+		stmt->execute("USE " + db_name);
+
+		squarez::RequestHandler::highScores = std::make_shared<squarez::HighScores>(std::move(db));
 	}
-	catch(squarez::database::exception& e)
+	catch(std::exception& e)
 	{
 		std::cerr << "Cannot open database: " << e.what() << std::endl;
 		return 5;
