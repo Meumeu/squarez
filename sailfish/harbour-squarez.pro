@@ -101,7 +101,7 @@ HEADERS += \
 PKGCONFIG += sailfishapp
 
 DEFINES += PACKAGE=\\\"harbour-squarez\\\"\
-	PACKAGE_VERSION=\\\"2.99.0\\\"\
+	PACKAGE_VERSION=\\\"3.0\\\"\
 	override=
 # override keyword is supported in gcc >= 4.7
 
