@@ -28,10 +28,10 @@
 
 static const std::string request_path = "squarez/";
 
-static const std::string sp_gameinit_method = "0";
-static const std::string sp_pushselection_method = "1";
-static const std::string sp_pause_method = "2";
-static const std::string get_scores = "3";
+static const std::string sp_gameinit_method = "init";
+static const std::string sp_pushselection_method = "selection";
+static const std::string sp_pause_method = "pause";
+static const std::string get_scores = "scores";
 
 const std::string& squarez::onlineSinglePlayer::GameInit::method()
 {
