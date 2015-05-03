@@ -22,6 +22,7 @@
 #include "serverrules.h"
 #include "game/constants.h"
 #include "network/methods.h"
+#include "network/urltools.h"
 #include "utils/serializer.h"
 
 #include <condition_variable>
@@ -31,6 +32,8 @@
 #include <thread>
 #include <unordered_map>
 #include <typeinfo>
+#include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string/classification.hpp>
 
 #ifdef HAVE_CXXABI_H
 #include <cxxabi.h>
@@ -64,6 +67,20 @@ std::string demangle(const std::string& mangled)
 }
 #endif
 
+const std::string error_400 =
+	"HTTP/1.1 400 Bad Request\r\n"
+	"Content-Type: text/plain; charset=utf-8\r\n"
+	"Content-Length: 13\r\n"
+	"\r\n"
+	"Bad request\r\n";
+
+const std::string error_500 =
+	"HTTP/1.1 500 Internal Server Error\r\n"
+	"Content-Type: text/plain; charset=utf-8\r\n"
+	"Content-Length: 23\r\n"
+	"\r\n"
+	"Internal Server Error\r\n";
+
 namespace
 {
 	class LockedGame
@@ -71,10 +88,32 @@ namespace
 		std::unique_lock<std::mutex> _lock;
 		std::shared_ptr<squarez::ServerRules> _game;
 	public:
+		LockedGame() {}
+
+		LockedGame(LockedGame&& rhs):
+			_lock(std::move(rhs._lock)), _game(std::move(rhs._game)) {}
+
+		LockedGame(const LockedGame&) = delete;
+
+		LockedGame& operator=(LockedGame&& rhs)
+		{
+			_lock = std::move(rhs._lock);
+			_game = std::move(rhs._game);
+			return *this;
+		}
+
+		LockedGame& operator=(const LockedGame& rhs) = delete;
+
 		LockedGame(std::shared_ptr<squarez::ServerRules> game):
 			_lock(game->_mutex), _game(game) {}
 
-		squarez::ServerRules & game() { return *_game; }
+		squarez::ServerRules & game()
+		{
+			if (_game)
+				return *_game;
+			else
+				throw std::runtime_error("null reference");
+		}
 	};
 
 	class Games
@@ -152,9 +191,12 @@ namespace
 		}
 	};
 
-	std::uint32_t getToken(Fastcgipp::Http::Environment<char> const& env)
+	std::uint32_t getToken(std::unordered_map<std::string, std::string>& env)
 	{
-		return boost::lexical_cast<std::uint32_t>(env.findGet("token"));
+		if (env.find("token") == env.end())
+			throw std::runtime_error("No token in arguments");
+
+		return boost::lexical_cast<std::uint32_t>(env["token"]);
 	}
 
 	std::mt19937::result_type getSeed()
@@ -165,93 +207,208 @@ namespace
 }
 
 static Games games;
-std::shared_ptr<squarez::HighScores> squarez::RequestHandler::highScores;
 
-bool squarez::RequestHandler::response()
+squarez::RequestHandler::RequestHandler(squarez::HighScores& highScores) : _highScores(highScores)
 {
-	auto const& uri = environment().requestUri;
-	std::string method = uri.substr(0, uri.find_first_of('?'));
-	method = method.substr(method.find_last_of('/'));
+}
 
+// TODO: move to urltools?
+std::unordered_map<std::string, std::string> squarez::RequestHandler::parseGet(const std::string& uri)
+{
+	std::unordered_map<std::string, std::string> ret;
+
+	size_t pos = uri.find_first_of('?');
+	if (pos != std::string::npos)
+	{
+		std::vector<std::string> params;
+		std::string tmp = uri.substr(pos + 1);
+		boost::split(params, tmp, boost::algorithm::is_any_of("&"), boost::token_compress_on);
+		for(auto& i: params)
+		{
+			pos = i.find_first_of('=');
+			if (pos != std::string::npos)
+			{
+				std::string key = i.substr(0, pos);
+				ret[key] = squarez::urlTools::urldecode(i.substr(pos + 1));
+			}
+		}
+	}
+
+	std::cout << "URI: " << uri << std::endl;
+	for(auto& i: ret)
+	{
+		std::cout << i.first << " : " << i.second << std::endl;
+	}
+
+	return ret;
+}
+
+void squarez::RequestHandler::gameInit(Response& response, std::shared_ptr<Request> request)
+{
+	std::stringstream out;
+	std::string name;
+	unsigned int size;
+	unsigned int symbols;
 	try
 	{
-		if (method == "/" + onlineSinglePlayer::GameInit::method())
-		{
-			std::string const& name = environment().findGet("name");
-			unsigned int size = boost::lexical_cast<unsigned int>(environment().findGet("size"));
-			unsigned int symbols = boost::lexical_cast<unsigned int>(environment().findGet("symbols"));
-			auto seed = getSeed();
-			auto token = games.storeGame(std::make_shared<ServerRules>(
-				name, seed, size, symbols, constants::default_timer(), highScores));
+		std::unordered_map<std::string, std::string> get = parseGet(request->path);
 
-			out << "Content-Type: text/plain; charset=utf-8\r\n\r\n";
-			Serializer ser(out);
-			onlineSinglePlayer::GameInit::serialize(ser, token, seed);
-		}
-		else if (method == "/" + onlineSinglePlayer::PushSelection::method())
-		{
-			auto token = getToken(environment());
-			auto game = games.getGame(token);
-
-			// Read the selection from parameters
-			std::chrono::milliseconds msSinceEpoch{boost::lexical_cast<int>(environment().findGet("msSinceEpoch"))};
-			bool gameOver = game.game().playSelection(environment().findGet("selection"), msSinceEpoch);
-
-			if (gameOver)
-			{
-				games.eraseGame(token);
-			}
-
-			out << "Content-Type: text/plain; charset=utf-8\r\n\r\n";
-			Serializer ser(out);
-			onlineSinglePlayer::PushSelection::serialize(ser, gameOver);
-		}
-		else if (method == "/" + onlineSinglePlayer::Pause::method())
-		{
-			auto token = getToken(environment());
-			auto game = games.getGame(token);
-			bool pause = boost::lexical_cast<bool>(environment().findGet("pause"));
-			std::chrono::milliseconds msSinceEpoch{boost::lexical_cast<int>(environment().findGet("msSinceEpoch"))};
-			game.game().setPause(pause, msSinceEpoch);
-
-			out << "Content-Type: text/plain; charset=utf-8\r\n\r\n";
-		}
-		else if (method == "/" + onlineSinglePlayer::GetScores::method())
-		{
-			out << "Content-Type: text/plain; charset=utf-8\r\n\r\n";
-
-			int count = environment().checkForGet("count") ? std::min(20, boost::lexical_cast<int>(environment().findGet("count"))) : 20;
-			std::time_t min_date = 0;
-			std::time_t max_date = std::time(nullptr);
-
-			if (environment().checkForGet("age"))
-			{
-				int age = boost::lexical_cast<int>(environment().findGet("age"));
-				if (age) min_date = max_date - age;
-			}
-
-			if (environment().checkForGet("min_date"))
-				min_date = boost::lexical_cast<std::time_t>(environment().findGet("min_date"));
-
-			if (environment().checkForGet("max_date"))
-				max_date = boost::lexical_cast<std::time_t>(environment().findGet("max_date"));
-
-			Serializer ser(out);
-			onlineSinglePlayer::GetScores::serialize(ser, highScores->getScores(min_date, max_date, count));
-		}
-		else
-		{
-			std::stringstream ss;
-			ss << "Unknown method [" << method << "]";
-			throw std::runtime_error(ss.str());
-		}
+		name = get["name"];
+		size = boost::lexical_cast<unsigned int>(get["size"]);
+		symbols = boost::lexical_cast<unsigned int>(get["symbols"]);
 	}
 	catch(std::exception& e)
 	{
-		std::cerr << "Exception " << demangle(typeid(e).name()) << " while processing " << uri << ": " << std::endl;
-		std::cerr << e.what() << std::endl;
-
-		throw;
+		response << error_400;
+		return;
 	}
-	return true;
+
+	try
+	{
+		auto seed = getSeed();
+		auto token = games.storeGame(std::make_shared<ServerRules>(
+			name, seed, size, symbols, constants::default_timer(), _highScores));
+
+		Serializer ser(out);
+		onlineSinglePlayer::GameInit::serialize(ser, token, seed);
+
+		response << "HTTP/1.1 200 OK\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Length: " << out.str().size() << "\r\n\r\n" << out.str();
+	}
+	catch(std::exception& e)
+	{
+		response << error_500;
+
+		std::cerr << "Exception " << demangle(typeid(e).name()) << " while processing " << request->path << ": " << std::endl;
+		std::cerr << e.what() << std::endl;
+	}
 }
+
+void squarez::RequestHandler::pushSelection(Response& response, std::shared_ptr<Request> request)
+{
+	std::stringstream out;
+	uint32_t token;
+	LockedGame game;
+	std::chrono::milliseconds msSinceEpoch;
+	std::string selection;
+
+	try
+	{
+		std::unordered_map<std::string, std::string> get = parseGet(request->path);
+
+		token = getToken(get);
+		game = games.getGame(token);
+		selection = get["selection"];
+		msSinceEpoch = std::chrono::milliseconds{boost::lexical_cast<int>(get["msSinceEpoch"])};
+	}
+	catch(std::exception& e)
+	{
+		response << error_400;
+		return;
+	}
+
+	try
+	{
+		bool gameOver = game.game().playSelection(selection, msSinceEpoch);
+
+		if (gameOver)
+		{
+			games.eraseGame(token);
+		}
+
+		Serializer ser(out);
+		onlineSinglePlayer::PushSelection::serialize(ser, gameOver);
+		response << "HTTP/1.1 200 OK\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Length: " << out.str().size() << "\r\n\r\n" << out.str();
+	}
+	catch(std::exception& e)
+	{
+		response << error_500;
+
+		std::cerr << "Exception " << demangle(typeid(e).name()) << " while processing " << request->path << ": " << std::endl;
+		std::cerr << e.what() << std::endl;
+	}
+}
+
+void squarez::RequestHandler::pause(Response& response, std::shared_ptr<Request> request)
+{
+	std::stringstream out;
+	uint32_t token;
+	LockedGame game;
+	std::chrono::milliseconds msSinceEpoch;
+	bool pause;
+	try
+	{
+		std::unordered_map<std::string, std::string> get = parseGet(request->path);
+
+		token = getToken(get);
+		game = games.getGame(token);
+		pause = boost::lexical_cast<bool>(get["pause"]);
+		msSinceEpoch = std::chrono::milliseconds{boost::lexical_cast<int>(get["msSinceEpoch"])};
+	}
+	catch(std::exception& e)
+	{
+		response << error_400;
+		return;
+	}
+
+	try
+	{
+		game.game().setPause(pause, msSinceEpoch);
+
+		Serializer ser(out);
+		response << "HTTP/1.1 200 OK\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Length: " << out.str().size() << "\r\n\r\n" << out.str();
+	}
+	catch(std::exception& e)
+	{
+		response << error_500;
+
+		std::cerr << "Exception " << demangle(typeid(e).name()) << " while processing " << request->path << ": " << std::endl;
+		std::cerr << e.what() << std::endl;
+	}
+}
+
+void squarez::RequestHandler::getScores(Response& response, std::shared_ptr<Request> request)
+{
+	std::stringstream out;
+	int count;
+	std::time_t min_date = 0;
+	std::time_t max_date = std::time(nullptr);
+	try
+	{
+		std::unordered_map<std::string, std::string> get = parseGet(request->path);
+
+		count = get.find("count") == get.end() ? 20 : std::min(20, boost::lexical_cast<int>(get["count"]));
+
+		if (get.find("age") != get.end())
+		{
+			int age = boost::lexical_cast<int>(get["age"]);
+			if (age) min_date = max_date - age;
+		}
+
+		if (get.find("min_date") != get.end())
+			min_date = boost::lexical_cast<std::time_t>(get["min_date"]);
+
+		if (get.find("max_date") != get.end())
+			max_date = boost::lexical_cast<std::time_t>(get["max_date"]);
+	}
+	catch(std::exception& e)
+	{
+		response << error_400;
+		return;
+	}
+
+	try
+	{
+		Serializer ser(out);
+		onlineSinglePlayer::GetScores::serialize(ser, _highScores.getScores(min_date, max_date, count));
+		response << "HTTP/1.1 200 OK\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Length: " << out.str().size() << "\r\n\r\n" << out.str();
+	}
+	catch(std::exception& e)
+	{
+		response << error_500;
+
+		std::cerr << "Exception " << demangle(typeid(e).name()) << " while processing " << request->path << ": " << std::endl;
+		std::cerr << e.what() << std::endl;
+	}
+
+}
+

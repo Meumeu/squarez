@@ -33,25 +33,37 @@
 #include <netdb.h>
 #include <signal.h>
 
-// FastCGI
-#include <fastcgi++/manager.hpp>
 
 #include <boost/program_options.hpp>
 
 #include "requesthandler.h"
 
-Fastcgipp::Manager<squarez::RequestHandler> * manager = nullptr;
+#include <Simple-Web-Server/server_http.hpp>
 
 
-namespace {
-void ctrl_c(int)
+using namespace std::placeholders;
+
+class HttpServer : public SimpleWeb::Server<SimpleWeb::HTTP>
 {
-	if (manager)
-		manager->terminate();
-}
+private:
+	boost::asio::signal_set signals;
 
+	void ctrl_c(const boost::system::error_code& error, int /*signal_number*/)
+	{
+		signals.async_wait(std::bind(&HttpServer::ctrl_c, this, _1, _2));
+		if (!error)
+		{
+			// A signal occurred.
+			stop();
+		}
+	}
 
-}
+public:
+	HttpServer(int port) : SimpleWeb::Server<SimpleWeb::HTTP>(port), signals(io_service, SIGINT, SIGTERM)
+	{
+		signals.async_wait(std::bind(&HttpServer::ctrl_c, this, _1, _2));
+	}
+};
 
 int main(int argc, char ** argv)
 {
@@ -69,7 +81,7 @@ int main(int argc, char ** argv)
 	boost::program_options::options_description config_file_options("Configuration");
 	boost::program_options::options_description visible_options("squarezd options", window_width);
 
-	std::string port;
+	int port;
 	std::string listen_ip;
 	std::string db_uri;
 	std::string db_username;
@@ -78,7 +90,7 @@ int main(int argc, char ** argv)
 	std::string cfg_filename;
 
 	config_file_options.add_options()
-		("port,p", boost::program_options::value<std::string>(&port), "Listen to the given port")
+		("port,p", boost::program_options::value<int>(&port), "Listen to the given port")
 		("listen,l", boost::program_options::value<std::string>(&listen_ip)->default_value("127.0.0.1"), "Listen on the given IP address")
 		("uri", boost::program_options::value<std::string>(&db_uri)->default_value("tcp://127.0.0.1:3306"), "Database URI")
 		("username", boost::program_options::value<std::string>(&db_username), "Database username")
@@ -115,6 +127,59 @@ int main(int argc, char ** argv)
 		return 6;
 	}
 
+	std::unique_ptr<sql::Connection> db;
+	try
+	{
+		sql::Driver * driver = sql::mysql::get_driver_instance();
+		db.reset(driver->connect(db_uri, db_username, db_password));
+
+		std::unique_ptr<sql::Statement> stmt(db->createStatement());
+		stmt->execute("USE " + db_name); // FIXME: SQL injection
+	}
+	catch(std::exception& e)
+	{
+		std::cerr << "Cannot open database: " << e.what() << std::endl;
+		return 5;
+	}
+
+	squarez::HighScores highScores(std::move(db));
+	squarez::RequestHandler handler(highScores);
+
+	HttpServer server(port);
+
+	server.resource["^/" + squarez::onlineSinglePlayer::GameInit::method() + "\\?.*"]["GET"] = std::bind(&squarez::RequestHandler::gameInit, &handler, _1, _2);
+	server.resource["^/" + squarez::onlineSinglePlayer::PushSelection::method() + "\\?.*"]["GET"] = std::bind(&squarez::RequestHandler::pushSelection, &handler, _1, _2);
+	server.resource["^/" + squarez::onlineSinglePlayer::Pause::method() + "\\?.*"]["GET"] = std::bind(&squarez::RequestHandler::pause, &handler, _1, _2);
+	server.resource["^/" + squarez::onlineSinglePlayer::GetScores::method() + "\\?.*"]["GET"] = std::bind(&squarez::RequestHandler::getScores, &handler, _1, _2);
+
+	server.default_resource["GET"] = [](HttpServer::Response& response, std::shared_ptr<HttpServer::Request> request)
+	{
+		std::stringstream out;
+		out << "URL not found" << std::endl;
+		response << "HTTP/1.1 404 Not Found\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Length: " << out.str().size() << "\r\n\r\n" << out.str();
+		std::cerr << "URL not found: " << request->path << std::endl;
+	};
+
+	try
+	{
+		std::cerr << "squarez daemon started" << std::endl;
+		server.start();
+		std::cerr << "squarez daemon stopped normally" << std::endl;
+		return EXIT_SUCCESS;
+	}
+	catch (std::exception & e)
+	{
+		std::cerr << "An exception occured: " << e.what() << std::endl;
+		std::cerr << "squarez daemon stopped" << std::endl;
+		return EXIT_FAILURE;
+	}
+	catch (...)
+	{
+		std::cerr << "An unknown exception occured." << std::endl;
+		std::cerr << "squarez daemon stopped" << std::endl;
+		return EXIT_FAILURE;
+	}
+/*
 	int socket_fd = -1;
 
 #ifndef DISABLE_SYSTEMD
@@ -130,104 +195,5 @@ int main(int argc, char ** argv)
 		socket_fd = SD_LISTEN_FDS_START;
 	}
 #endif
-
-	// If we don't have an open socket, create it
-	if (socket_fd < 0 and parameters.count("port"))
-	{
-		struct addrinfo hints;
-		memset(&hints, 0, sizeof(hints));
-		hints.ai_socktype = SOCK_STREAM;
-
-		struct addrinfo * ai = nullptr;
-		int rc = getaddrinfo(listen_ip.c_str(), port.c_str(), &hints, &ai);
-
-		if (rc)
-		{
-			std::cerr << listen_ip << ":" << port << ": " << gai_strerror(rc) << std::endl;
-			return EXIT_FAILURE;
-		}
-
-		for(struct addrinfo * i = ai; i; i = i->ai_next)
-		{
-			socket_fd = socket(i->ai_family, i->ai_socktype, i->ai_protocol);
-			if (socket_fd == -1)
-				continue;
-
-			if (bind(socket_fd, i->ai_addr, i->ai_addrlen) < 0
-				or listen(socket_fd, 128))
-			{
-				close(socket_fd);
-				socket_fd = -1;
-				continue;
-			}
-
-			break;
-		}
-
-		if (ai)
-			freeaddrinfo(ai);
-	}
-
-	if (socket_fd < 0)
-	{
-		std::cerr << "No socket available." << std::endl;
-		return EXIT_FAILURE;
-	}
-
-	try
-	{
-		sql::Driver * driver = sql::mysql::get_driver_instance();
-		std::unique_ptr<sql::Connection> db(driver->connect(db_uri, db_username, db_password));
-
-		std::unique_ptr<sql::Statement> stmt(db->createStatement());
-		stmt->execute("USE " + db_name);
-
-		squarez::RequestHandler::highScores = std::make_shared<squarez::HighScores>(std::move(db));
-	}
-	catch(std::exception& e)
-	{
-		std::cerr << "Cannot open database: " << e.what() << std::endl;
-		return 5;
-	}
-
-	struct sigaction sa;
-	memset(&sa, 0, sizeof(struct sigaction));
-	sa.sa_flags = SA_RESTART;
-	sigemptyset(&sa.sa_mask);
-	sa.sa_handler = &ctrl_c;
-	sigaction(SIGINT, &sa, nullptr);
-
-	// Start listening on the provided socket
-	try
-	{
-		std::cerr << "squarez daemon started" << std::endl;
-		manager = new Fastcgipp::Manager<squarez::RequestHandler>(socket_fd);
-		while(true)
-		{
-			try
-			{
-				manager->handler();
-				break;
-			}
-			catch(Fastcgipp::Exceptions::Socket& e)
-			{
-				std::cerr << "fastcgi++ socket exception on fd " << e.fd << ": " << e.what() << std::endl;
-			}
-		}
-		delete manager;
-		std::cerr << "squarez daemon stopped normally" << std::endl;
-		return 0;
-	}
-	catch (std::exception & e)
-	{
-		std::cerr << "An exception occured: " << e.what() << std::endl;
-		std::cerr << "squarez daemon stopped" << std::endl;
-		return EXIT_FAILURE;
-	}
-	catch (...)
-	{
-		std::cerr << "An unknown exception occured." << std::endl;
-		std::cerr << "squarez daemon stopped" << std::endl;
-		return EXIT_FAILURE;
-	}
+*/
 }

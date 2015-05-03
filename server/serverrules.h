@@ -45,7 +45,7 @@ public:
 
 class ServerRules : public DummyProxy, public squarez::Rules
 {
-	std::shared_ptr<HighScores> _highScores;
+	HighScores& _highScores;
 	int64_t _scoreDbRow;
 
 public:
@@ -57,7 +57,7 @@ public:
 		int board_size,
 		int nb_symbols,
 		Timer && timer,
-		std::shared_ptr<HighScores> highScores);
+		HighScores& highScores);
 	~ServerRules();
 
 	bool playSelection(const std::string & serializedSelection, std::chrono::milliseconds msSinceEpoch);

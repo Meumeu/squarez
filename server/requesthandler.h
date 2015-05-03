@@ -20,19 +20,27 @@
 #ifndef SQUAREZ_REQUESTHANDLER_H
 #define SQUAREZ_REQUESTHANDLER_H
 
-// FastCGI
-#include <fastcgi++/request.hpp>
 #include "highscores.h"
+#include <Simple-Web-Server/server_http.hpp>
 
 namespace squarez
 {
 
-class RequestHandler: public Fastcgipp::Request<char>
+class RequestHandler
 {
+	squarez::HighScores& _highScores;
+	std::unordered_map<std::string, std::string> parseGet(const std::string& uri);
+
 public:
-	static std::shared_ptr<HighScores> highScores;
-	// Process the request
-	bool response();
+	typedef SimpleWeb::Server<SimpleWeb::HTTP>::Response Response;
+	typedef SimpleWeb::Server<SimpleWeb::HTTP>::Request Request;
+
+	RequestHandler(squarez::HighScores& highScores);
+
+	void gameInit(Response& response, std::shared_ptr<Request> request);
+	void pushSelection(Response& response, std::shared_ptr<Request> request);
+	void pause(Response& response, std::shared_ptr<Request> request);
+	void getScores(Response& response, std::shared_ptr<Request> request);
 };
 
 }
