@@ -23,6 +23,8 @@
 #include <sstream>
 #include <iomanip>
 #include <cstdlib>
+#include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string/classification.hpp>
 
 std::string squarez::urlTools::urlencode(const std::string& in)
 {
@@ -69,4 +71,28 @@ std::string squarez::urlTools::urldecode(const std::string& in)
 	}
 
 	return out.str();
+}
+
+std::unordered_map<std::string, std::string> squarez::urlTools::parseGet(const std::string& uri)
+{
+	std::unordered_map<std::string, std::string> ret;
+
+	size_t pos = uri.find_first_of('?');
+	if (pos != std::string::npos)
+	{
+		std::vector<std::string> params;
+		std::string tmp = uri.substr(pos + 1);
+		boost::split(params, tmp, boost::algorithm::is_any_of("&"), boost::token_compress_on);
+		for(auto& i: params)
+		{
+			pos = i.find_first_of('=');
+			if (pos != std::string::npos)
+			{
+				std::string key = i.substr(0, pos);
+				ret[key] = squarez::urlTools::urldecode(i.substr(pos + 1));
+			}
+		}
+	}
+
+	return ret;
 }

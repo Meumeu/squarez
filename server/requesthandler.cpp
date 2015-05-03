@@ -32,8 +32,6 @@
 #include <thread>
 #include <unordered_map>
 #include <typeinfo>
-#include <boost/algorithm/string/split.hpp>
-#include <boost/algorithm/string/classification.hpp>
 
 #ifdef HAVE_CXXABI_H
 #include <cxxabi.h>
@@ -212,37 +210,6 @@ squarez::RequestHandler::RequestHandler(squarez::HighScores& highScores) : _high
 {
 }
 
-// TODO: move to urltools?
-std::unordered_map<std::string, std::string> squarez::RequestHandler::parseGet(const std::string& uri)
-{
-	std::unordered_map<std::string, std::string> ret;
-
-	size_t pos = uri.find_first_of('?');
-	if (pos != std::string::npos)
-	{
-		std::vector<std::string> params;
-		std::string tmp = uri.substr(pos + 1);
-		boost::split(params, tmp, boost::algorithm::is_any_of("&"), boost::token_compress_on);
-		for(auto& i: params)
-		{
-			pos = i.find_first_of('=');
-			if (pos != std::string::npos)
-			{
-				std::string key = i.substr(0, pos);
-				ret[key] = squarez::urlTools::urldecode(i.substr(pos + 1));
-			}
-		}
-	}
-
-	std::cout << "URI: " << uri << std::endl;
-	for(auto& i: ret)
-	{
-		std::cout << i.first << " : " << i.second << std::endl;
-	}
-
-	return ret;
-}
-
 void squarez::RequestHandler::gameInit(Response& response, std::shared_ptr<Request> request)
 {
 	std::stringstream out;
@@ -251,7 +218,7 @@ void squarez::RequestHandler::gameInit(Response& response, std::shared_ptr<Reque
 	unsigned int symbols;
 	try
 	{
-		std::unordered_map<std::string, std::string> get = parseGet(request->path);
+		std::unordered_map<std::string, std::string> get = squarez::urlTools::parseGet(request->path);
 
 		name = get["name"];
 		size = boost::lexical_cast<unsigned int>(get["size"]);
@@ -293,7 +260,7 @@ void squarez::RequestHandler::pushSelection(Response& response, std::shared_ptr<
 
 	try
 	{
-		std::unordered_map<std::string, std::string> get = parseGet(request->path);
+		std::unordered_map<std::string, std::string> get = squarez::urlTools::parseGet(request->path);
 
 		token = getToken(get);
 		game = games.getGame(token);
@@ -337,7 +304,7 @@ void squarez::RequestHandler::pause(Response& response, std::shared_ptr<Request>
 	bool pause;
 	try
 	{
-		std::unordered_map<std::string, std::string> get = parseGet(request->path);
+		std::unordered_map<std::string, std::string> get = squarez::urlTools::parseGet(request->path);
 
 		token = getToken(get);
 		game = games.getGame(token);
@@ -374,7 +341,7 @@ void squarez::RequestHandler::getScores(Response& response, std::shared_ptr<Requ
 	std::time_t max_date = std::time(nullptr);
 	try
 	{
-		std::unordered_map<std::string, std::string> get = parseGet(request->path);
+		std::unordered_map<std::string, std::string> get = squarez::urlTools::parseGet(request->path);
 
 		count = get.find("count") == get.end() ? 20 : std::min(20, boost::lexical_cast<int>(get["count"]));
 
