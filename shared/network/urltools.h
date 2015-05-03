@@ -22,7 +22,6 @@
 #define SQUAREZ_URLTOOLS_H
 
 #include <string>
-#include <unordered_map>
 
 namespace squarez {
 
@@ -30,7 +29,6 @@ namespace urlTools
 {
 	std::string urlencode(std::string const& in);
 	std::string urldecode(std::string const& in);
-	std::unordered_map<std::string, std::string> parseGet(const std::string& uri);
 }
 }
 
