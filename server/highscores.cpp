@@ -1,5 +1,5 @@
 /*
- * Squarez puzzle game
+ * Squarez puzzle game server binary
  * Copyright (C) 2015  Guillaume Meunier <guillaume.meunier@centraliens.net>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -22,24 +22,48 @@
 #include <cstdlib>
 #include <ctime>
 #include <string>
+#include <cppconn/exception.h>
 
-squarez::HighScores::HighScores(std::unique_ptr<sql::Connection>&& db): db(std::move(db))
+squarez::HighScores::HighScores(const std::string& db_uri, const std::string& db_username, const std::string& db_password, const std::string& db_name):
+db_uri(db_uri), db_username(db_username), db_password(db_password), db_name(db_name)
 {
+	createDatabase();
 	initDatabase();
 }
 
+std::shared_ptr<sql::PreparedStatement> squarez::HighScores::statement(const std::string& sql)
+{
+	auto it = statementCache.find(sql);
+	if (it == statementCache.end())
+	{
+		auto stmt = std::shared_ptr<sql::PreparedStatement>(db->prepareStatement(sql));
+		statementCache[sql] = stmt;
+
+		return stmt;
+	}
+	else
+	{
+		return it->second;
+	}
+}
+
+void squarez::HighScores::createDatabase()
+{
+
+}
 
 void squarez::HighScores::initDatabase()
 {
+	sql::Driver * driver = sql::mysql::get_driver_instance();
+	db.reset(driver->connect(db_uri, db_username, db_password));
+
 	std::unique_ptr<sql::Statement> stmt(db->createStatement());
+	stmt->execute("USE " + db_name); // FIXME: SQL injection
 
 	stmt->execute("CREATE TABLE IF NOT EXISTS config ("
 		"name VARCHAR(30) PRIMARY KEY,"
 		"value VARCHAR(255)"
 		")");
-
-	_getConfigStatement.reset(db->prepareStatement("SELECT value FROM config WHERE name=?"));
-	_setConfigStatement.reset(db->prepareStatement("INSERT INTO config (name, value) VALUES (?, ?) ON DUPLICATE KEY UPDATE value=?"));
 
 	switch(getConfig("version", 0))
 	{
@@ -61,11 +85,14 @@ void squarez::HighScores::initDatabase()
 		throw std::runtime_error("Database too new");
 		break;
 	}
+}
 
-	_addScoreStatement.reset(db->prepareStatement("INSERT INTO scores(name, score, date) VALUES(?,?,?)"));
-	_updateScoreStatement.reset(db->prepareStatement("UPDATE scores SET score = ? where id = ?"));
-	_getScoreStatement.reset(db->prepareStatement("SELECT name, score, date FROM scores WHERE date >= ? AND date < ? ORDER BY score DESC LIMIT ?"));
-	_lastInsertIdStatement.reset(db->prepareStatement("SELECT @@identity AS id"));
+void squarez::HighScores::reconnect()
+{
+	statementCache.clear();
+	initDatabase();
+
+	std::cerr << "Reconnected to database" << std::endl;
 }
 
 namespace {
@@ -80,33 +107,88 @@ namespace {
 
 int64_t squarez::HighScores::addScore(std::string playerName, int score)
 {
-	_addScoreStatement->setString(1, playerName);
-	_addScoreStatement->setInt(2, score);
-	_addScoreStatement->setString(3, time_put());
-	_addScoreStatement->execute();
+	std::unique_ptr<sql::ResultSet> res;
 
-	std::unique_ptr<sql::ResultSet> res(_lastInsertIdStatement->executeQuery());
-	if (res->next())
-		return res->getInt("id");
-	else
-		throw std::runtime_error("No insert id");
+	try
+	{
+		auto _addScoreStatement = statement("INSERT INTO scores(name, score, date) VALUES(?,?,?)");
+		_addScoreStatement->setString(1, playerName);
+		_addScoreStatement->setInt(2, score);
+		_addScoreStatement->setString(3, time_put());
+		_addScoreStatement->execute();
+
+		auto _lastInsertIdStatement = statement("SELECT @@identity AS id");
+		res.reset(_lastInsertIdStatement->executeQuery());
+		if (res->next())
+			return res->getInt("id");
+		else
+			throw std::runtime_error("No insert id");
+	}
+	catch(sql::SQLException& e)
+	{
+		std::cerr << "SQL exception (" << e.getErrorCode() << ", " << e.getSQLState() << "): " << e.what() << std::endl;
+		reconnect();
+
+		auto _addScoreStatement = statement("INSERT INTO scores(name, score, date) VALUES(?,?,?)");
+		_addScoreStatement->setString(1, playerName);
+		_addScoreStatement->setInt(2, score);
+		_addScoreStatement->setString(3, time_put());
+		_addScoreStatement->execute();
+
+		auto _lastInsertIdStatement = statement("SELECT @@identity AS id");
+		res.reset(_lastInsertIdStatement->executeQuery());
+		if (res->next())
+			return res->getInt("id");
+		else
+			throw std::runtime_error("No insert id");
+	}
 }
 
 void squarez::HighScores::updateScore (int score, int64_t rowId)
 {
-	_updateScoreStatement->setInt(1, score);
-	_updateScoreStatement->setInt(2, rowId);
-	_updateScoreStatement->execute();
+	try
+	{
+		auto _updateScoreStatement = statement("UPDATE scores SET score = ? where id = ?");
+		_updateScoreStatement->setInt(1, score);
+		_updateScoreStatement->setInt(2, rowId);
+		_updateScoreStatement->execute();
+	}
+	catch(sql::SQLException& e)
+	{
+		std::cerr << "SQL exception (" << e.getErrorCode() << ", " << e.getSQLState() << "): " << e.what() << std::endl;
+		reconnect();
+
+		auto _updateScoreStatement = statement("UPDATE scores SET score = ? where id = ?");
+		_updateScoreStatement->setInt(1, score);
+		_updateScoreStatement->setInt(2, rowId);
+		_updateScoreStatement->execute();
+	}
 }
 
 std::vector<squarez::onlineSinglePlayer::GetScores::Score> squarez::HighScores::getScores(std::time_t min_date, std::time_t max_date, int count)
 {
 	std::vector<squarez::onlineSinglePlayer::GetScores::Score> ret;
+	std::unique_ptr<sql::ResultSet> res;
 
-	_getScoreStatement->setString(1, time_put(min_date));
-	_getScoreStatement->setString(2, time_put(max_date));
-	_getScoreStatement->setInt(3, count);
-	std::unique_ptr<sql::ResultSet> res(_getScoreStatement->executeQuery());
+	try
+	{
+		auto _getScoreStatement = statement("SELECT name, score, date FROM scores WHERE date >= ? AND date < ? ORDER BY score DESC LIMIT ?");
+		_getScoreStatement->setString(1, time_put(min_date));
+		_getScoreStatement->setString(2, time_put(max_date));
+		_getScoreStatement->setInt(3, count);
+		res.reset(_getScoreStatement->executeQuery());
+	}
+	catch(sql::SQLException& e)
+	{
+		std::cerr << "SQL exception (" << e.getErrorCode() << ", " << e.getSQLState() << "): " << e.what() << std::endl;
+		reconnect();
+
+		auto _getScoreStatement = statement("SELECT name, score, date FROM scores WHERE date >= ? AND date < ? ORDER BY score DESC LIMIT ?");
+		_getScoreStatement->setString(1, time_put(min_date));
+		_getScoreStatement->setString(2, time_put(max_date));
+		_getScoreStatement->setInt(3, count);
+		res.reset(_getScoreStatement->executeQuery());
+	}
 
 	while(res->next())
 	{

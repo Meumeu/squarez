@@ -1,6 +1,7 @@
 /*
  * Squarez puzzle game server binary
  * Copyright (C) 2013-2015  Patrick Nicolas <patricknicolas@laposte.net>
+ * Copyright (C) 2015  Guillaume Meunier <guillaume.meunier@centraliens.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,14 +29,14 @@ namespace squarez
 
 class RequestHandler
 {
-	squarez::HighScores& _highScores;
+	std::unique_ptr<squarez::HighScores> _highScores;
 	std::unordered_map<std::string, std::string> parseGet(const std::string& uri);
 
 public:
 	typedef SimpleWeb::Server<SimpleWeb::HTTP>::Response Response;
 	typedef SimpleWeb::Server<SimpleWeb::HTTP>::Request Request;
 
-	RequestHandler(squarez::HighScores& highScores);
+	RequestHandler(std::unique_ptr<squarez::HighScores>&& highScores);
 
 	void gameInit(Response& response, std::shared_ptr<Request> request);
 	void pushSelection(Response& response, std::shared_ptr<Request> request);

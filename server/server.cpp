@@ -1,21 +1,22 @@
 /*
-* Squarez puzzle game server binary
-* Copyright (C) 2013-2015  Patrick Nicolas <patricknicolas@laposte.net>
-*
-* This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*
-*/
+ * Squarez puzzle game server binary
+ * Copyright (C) 2013-2015  Patrick Nicolas <patricknicolas@laposte.net>
+ * Copyright (C) 2015  Guillaume Meunier <guillaume.meunier@centraliens.net>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 #include <iostream>
 #include <fstream>
 #include <memory>
@@ -127,14 +128,10 @@ int main(int argc, char ** argv)
 		return 6;
 	}
 
-	std::unique_ptr<sql::Connection> db;
+	std::unique_ptr<squarez::HighScores> highScores;
 	try
 	{
-		sql::Driver * driver = sql::mysql::get_driver_instance();
-		db.reset(driver->connect(db_uri, db_username, db_password));
-
-		std::unique_ptr<sql::Statement> stmt(db->createStatement());
-		stmt->execute("USE " + db_name); // FIXME: SQL injection
+		highScores.reset(new squarez::HighScores(db_uri, db_username, db_password, db_name));
 	}
 	catch(std::exception& e)
 	{
@@ -142,17 +139,37 @@ int main(int argc, char ** argv)
 		return 5;
 	}
 
-	squarez::HighScores highScores(std::move(db));
-	squarez::RequestHandler handler(highScores);
+	squarez::RequestHandler handler(std::move(highScores));
 
-	HttpServer server(port);
+	std::unique_ptr<HttpServer> server;
 
-	server.resource["^/" + squarez::onlineSinglePlayer::GameInit::method() + "\\?.*"]["GET"] = std::bind(&squarez::RequestHandler::gameInit, &handler, _1, _2);
-	server.resource["^/" + squarez::onlineSinglePlayer::PushSelection::method() + "\\?.*"]["GET"] = std::bind(&squarez::RequestHandler::pushSelection, &handler, _1, _2);
-	server.resource["^/" + squarez::onlineSinglePlayer::Pause::method() + "\\?.*"]["GET"] = std::bind(&squarez::RequestHandler::pause, &handler, _1, _2);
-	server.resource["^/" + squarez::onlineSinglePlayer::GetScores::method() + "\\?.*"]["GET"] = std::bind(&squarez::RequestHandler::getScores, &handler, _1, _2);
+#ifndef DISABLE_SYSTEMD
+// 	// Check systemd socket activation
+// 	int systemd_fds = sd_listen_fds(1);
+// 	if (systemd_fds > 1)
+// 	{
+// 		std::cerr << "Expected 1 open socket, got " << systemd_fds << std::endl;
+// 		return 3;
+// 	}
+// 	if (systemd_fds == 1)
+// 	{
+// 		int socket_fd = SD_LISTEN_FDS_START;
+// 		boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4, 0);
+// 		boost::asio::ip::tcp::acceptor acceptor;
+//
+// 	}
+// 	else
+#endif
+	{
+		server = std::unique_ptr<HttpServer>(new HttpServer(port));
+	}
 
-	server.default_resource["GET"] = [](HttpServer::Response& response, std::shared_ptr<HttpServer::Request> request)
+	server->resource["^/" + squarez::onlineSinglePlayer::GameInit::method() + "\\?.*"]["GET"] = std::bind(&squarez::RequestHandler::gameInit, &handler, _1, _2);
+	server->resource["^/" + squarez::onlineSinglePlayer::PushSelection::method() + "\\?.*"]["GET"] = std::bind(&squarez::RequestHandler::pushSelection, &handler, _1, _2);
+	server->resource["^/" + squarez::onlineSinglePlayer::Pause::method() + "\\?.*"]["GET"] = std::bind(&squarez::RequestHandler::pause, &handler, _1, _2);
+	server->resource["^/" + squarez::onlineSinglePlayer::GetScores::method() + "\\?.*"]["GET"] = std::bind(&squarez::RequestHandler::getScores, &handler, _1, _2);
+
+	server->default_resource["GET"] = [](HttpServer::Response& response, std::shared_ptr<HttpServer::Request> request)
 	{
 		std::stringstream out;
 		out << "URL not found" << std::endl;
@@ -163,7 +180,7 @@ int main(int argc, char ** argv)
 	try
 	{
 		std::cerr << "squarez daemon started" << std::endl;
-		server.start();
+		server->start();
 		std::cerr << "squarez daemon stopped normally" << std::endl;
 		return EXIT_SUCCESS;
 	}
@@ -182,18 +199,6 @@ int main(int argc, char ** argv)
 /*
 	int socket_fd = -1;
 
-#ifndef DISABLE_SYSTEMD
-	// Check systemd socket activation
-	int systemd_fds = sd_listen_fds(1);
-	if (systemd_fds > 1)
-	{
-		std::cerr << "Expected 1 open socket, got " << systemd_fds << std::endl;
-		return 3;
-	}
-	if (systemd_fds == 1)
-	{
-		socket_fd = SD_LISTEN_FDS_START;
-	}
-#endif
+
 */
 }

@@ -1,5 +1,5 @@
 /*
- * Squarez puzzle game
+ * Squarez puzzle game server binary
  * Copyright (C) 2015  Guillaume Meunier <guillaume.meunier@centraliens.net>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -20,10 +20,10 @@
 #ifndef SQUAREZ_HIGHSCORES_H
 #define SQUAREZ_HIGHSCORES_H
 
-// #include "database.h"
 #include "network/methods.h"
 
 #include <string>
+#include <unordered_map>
 #include <boost/lexical_cast.hpp>
 
 #include <mysql_driver.h>
@@ -34,20 +34,22 @@ namespace squarez {
 class HighScores
 {
 	std::unique_ptr<sql::Connection> db;
-	void initDatabase();
+	const std::string db_uri, db_username, db_password, db_name;
 
-	std::unique_ptr<sql::PreparedStatement> _getConfigStatement;
-	std::unique_ptr<sql::PreparedStatement> _setConfigStatement;
-	std::unique_ptr<sql::PreparedStatement> _addScoreStatement;
-	std::unique_ptr<sql::PreparedStatement> _updateScoreStatement;
-	std::unique_ptr<sql::PreparedStatement> _getScoreStatement;
-	std::unique_ptr<sql::PreparedStatement> _lastInsertIdStatement;
+	void initDatabase();
+	void createDatabase();
+	void reconnect();
+
+	std::unordered_map<std::string, std::shared_ptr<sql::PreparedStatement>> statementCache;
+
+	std::shared_ptr<sql::PreparedStatement> statement(const std::string& sql);
 
 public:
-	HighScores(std::unique_ptr<sql::Connection>&& db);
+	HighScores(const std::string& db_uri, const std::string& db_username, const std::string& db_password, const std::string& db_name);
 
 	template<typename T> T getConfig(const std::string& key, const T& default_value)
 	{
+		auto _getConfigStatement = statement("SELECT value FROM config WHERE name=?");
 		_getConfigStatement->setString(1, key);
 		std::unique_ptr<sql::ResultSet> res(_getConfigStatement->executeQuery());
 
@@ -62,6 +64,7 @@ public:
 
 	template<typename T> void setConfig(const std::string& key, const T& value)
 	{
+		auto _setConfigStatement = statement("INSERT INTO config (name, value) VALUES (?, ?) ON DUPLICATE KEY UPDATE value=?");
 		std::string str(boost::lexical_cast<std::string>(value));
 		_setConfigStatement->setString(1, key);
 		_setConfigStatement->setString(2, str);

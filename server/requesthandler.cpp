@@ -1,6 +1,7 @@
 /*
  * Squarez puzzle game server binary
  * Copyright (C) 2013-2015  Patrick Nicolas <patricknicolas@laposte.net>
+ * Copyright (C) 2015  Guillaume Meunier <guillaume.meunier@centraliens.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -208,7 +209,7 @@ namespace
 
 static Games games;
 
-squarez::RequestHandler::RequestHandler(squarez::HighScores& highScores) : _highScores(highScores)
+squarez::RequestHandler::RequestHandler(std::unique_ptr<squarez::HighScores>&& highScores) : _highScores(std::move(highScores))
 {
 }
 
@@ -267,7 +268,7 @@ void squarez::RequestHandler::gameInit(Response& response, std::shared_ptr<Reque
 	{
 		auto seed = getSeed();
 		auto token = games.storeGame(std::make_shared<ServerRules>(
-			name, seed, size, symbols, constants::default_timer(), _highScores));
+			name, seed, size, symbols, constants::default_timer(), *_highScores));
 
 		Serializer ser(out);
 		onlineSinglePlayer::GameInit::serialize(ser, token, seed);
@@ -399,7 +400,7 @@ void squarez::RequestHandler::getScores(Response& response, std::shared_ptr<Requ
 	try
 	{
 		Serializer ser(out);
-		onlineSinglePlayer::GetScores::serialize(ser, _highScores.getScores(min_date, max_date, count));
+		onlineSinglePlayer::GetScores::serialize(ser, _highScores->getScores(min_date, max_date, count));
 		response << "HTTP/1.1 200 OK\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Length: " << out.str().size() << "\r\n\r\n" << out.str();
 	}
 	catch(std::exception& e)
