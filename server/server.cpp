@@ -50,7 +50,9 @@ private:
 	boost::asio::signal_set signals;
 	squarez::RequestHandler& handler;
 
+#ifndef NDEBUG
 	std::map<std::string, std::string> files;
+#endif
 
 	void ctrlC(const boost::system::error_code& error, int /*signal_number*/)
 	{
@@ -119,6 +121,7 @@ public:
 
 		default_resource["GET"] = std::bind(&HttpServer::serveFile, this, _1, _2);
 
+#ifndef NDEBUG
 		if (server_root != "")
 		{
 			size_t nb_files = 0;
@@ -185,6 +188,9 @@ public:
 
 			std::cerr << "Loaded " << nb_files << " files (" << size_files << " bytes)" << std::endl;
 		}
+#else
+		(void)server_root;
+#endif
 	}
 };
 
