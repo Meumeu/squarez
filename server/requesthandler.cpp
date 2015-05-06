@@ -235,12 +235,6 @@ std::unordered_map<std::string, std::string> squarez::RequestHandler::parseGet(c
 		}
 	}
 
-	std::cout << "URI: " << uri << std::endl;
-	for(auto& i: ret)
-	{
-		std::cout << i.first << " : " << i.second << std::endl;
-	}
-
 	return ret;
 }
 
