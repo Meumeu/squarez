@@ -142,7 +142,7 @@ public:
 				else
 					url = "/" + url;
 
-				if (url == "/manifest.appcache" || url == "/manifest.webapp")
+				if (url == "/manifest.appcache")
 					continue;
 
 				if (boost::filesystem::is_directory(path))
