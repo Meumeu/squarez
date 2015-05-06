@@ -12,6 +12,8 @@ endif()
 add_definitions(-DNO_HTTP_REQUEST)
 
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -DNDEBUG")
+set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -DNDEBUG")
+set(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL} -DNDEBUG")
 
 include_directories(SYSTEM ${Boost_INCLUDE_DIRS} ${MYSQLCONNECTORCPP_INCLUDE_DIRS})
 add_executable(squarezd server.cpp requesthandler.cpp serverrules.cpp highscores.cpp ${shared_sources})
