@@ -34,8 +34,8 @@
 #include <netdb.h>
 #include <signal.h>
 
-
 #include <boost/program_options.hpp>
+#include <boost/filesystem.hpp>
 
 #include "requesthandler.h"
 
@@ -48,10 +48,15 @@ class HttpServer : public SimpleWeb::Server<SimpleWeb::HTTP>
 {
 private:
 	boost::asio::signal_set signals;
+	squarez::RequestHandler& handler;
 
-	void ctrl_c(const boost::system::error_code& error, int /*signal_number*/)
+#ifndef NDEBUG
+	std::map<std::string, std::string> files;
+#endif
+
+	void ctrlC(const boost::system::error_code& error, int /*signal_number*/)
 	{
-		signals.async_wait(std::bind(&HttpServer::ctrl_c, this, _1, _2));
+		signals.async_wait(std::bind(&HttpServer::ctrlC, this, _1, _2));
 		if (!error)
 		{
 			// A signal occurred.
@@ -59,10 +64,133 @@ private:
 		}
 	}
 
-public:
-	HttpServer(int port) : SimpleWeb::Server<SimpleWeb::HTTP>(port), signals(io_service, SIGINT, SIGTERM)
+	void serveFile(Response& response, std::shared_ptr<Request> request)
 	{
-		signals.async_wait(std::bind(&HttpServer::ctrl_c, this, _1, _2));
+#ifndef NDEBUG
+		std::cerr << "Request: " << request->path << std::endl;
+
+		auto it = files.find(request->path);
+
+		if (it != files.end())
+		{
+			response << it->second;
+		}
+		else
+#endif
+		{
+			std::stringstream out;
+			out << "URL not found" << std::endl;
+			response << "HTTP/1.1 404 Not Found\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Length: " << out.str().size() << "\r\n\r\n" << out.str();
+			std::cerr << "URL not found: " << request->path << std::endl;
+		}
+	}
+
+	std::string contentType(const std::string& url)
+	{
+		size_t pos = url.find_last_of('.');
+		if (pos != std::string::npos)
+		{
+			std::string ext = url.substr(pos);
+
+			if (ext == ".html")
+				return "text/html";
+			else if (ext == ".css")
+				return "text/css";
+			else if (ext == ".js")
+				return "application/javascript";
+			else if (ext == ".svg")
+				return "image/svg+xml";
+			else if (ext == ".png")
+				return "image/png";
+			else if (ext == ".mem")
+				return "application/octet-stream";
+		}
+
+		return "text/plain";
+	}
+
+public:
+	HttpServer(int port, squarez::RequestHandler& handler, const std::string& server_root) : SimpleWeb::Server<SimpleWeb::HTTP>(port, 4), signals(io_service, SIGINT, SIGTERM), handler(handler)
+	{
+		signals.async_wait(std::bind(&HttpServer::ctrlC, this, _1, _2));
+
+		resource["^/squarez/" + squarez::onlineSinglePlayer::GameInit::method() + "\\?.*"]["GET"] = std::bind(&squarez::RequestHandler::gameInit, &handler, _1, _2);
+		resource["^/squarez/" + squarez::onlineSinglePlayer::PushSelection::method() + "\\?.*"]["GET"] = std::bind(&squarez::RequestHandler::pushSelection, &handler, _1, _2);
+		resource["^/squarez/" + squarez::onlineSinglePlayer::Pause::method() + "\\?.*"]["GET"] = std::bind(&squarez::RequestHandler::pause, &handler, _1, _2);
+		resource["^/squarez/" + squarez::onlineSinglePlayer::GetScores::method() + "\\?.*"]["GET"] = std::bind(&squarez::RequestHandler::getScores, &handler, _1, _2);
+
+		default_resource["GET"] = std::bind(&HttpServer::serveFile, this, _1, _2);
+
+#ifndef NDEBUG
+		if (server_root != "")
+		{
+			size_t nb_files = 0;
+			size_t size_files = 0;
+			boost::filesystem::path root(server_root);
+
+			for(auto& i: boost::filesystem::recursive_directory_iterator(root))
+			{
+				boost::filesystem::path path = i.path();
+				std::string url = path.string();
+
+				if (url.substr(0, server_root.size()) == server_root)
+					url = url.substr(server_root.size());
+
+				size_t pos = url.find_first_not_of('/');
+				if (pos > 0)
+					url = url.substr(pos - 1);
+				else
+					url = "/" + url;
+
+				if (url == "/manifest.appcache")
+					continue;
+
+				if (boost::filesystem::is_directory(path))
+					path /= "index.html";
+
+				std::ifstream ifs(path.string(), std::ifstream::in);
+
+				if (ifs)
+				{
+					std::stringstream response;
+					ifs.seekg(0, std::ios::end);
+					size_t length = ifs.tellg();
+					ifs.seekg(0, std::ios::beg);
+
+					response << "HTTP/1.1 200 OK\r\n"
+					<< "Content-Length: " << length << "\r\n"
+					<< "Content-Type: " << contentType(path.string()) << "\r\n\r\n";
+
+					size_t buffer_size = 131072;
+					if (length>buffer_size)
+					{
+						std::vector<char> buffer(buffer_size);
+						size_t read_length;
+						while((read_length = ifs.read(&buffer[0], buffer_size).gcount()) > 0)
+						{
+							response.write(&buffer[0], read_length);
+						}
+					}
+					else
+						response << ifs.rdbuf();
+
+					ifs.close();
+
+					files[url] = response.str();
+
+					nb_files++;
+					size_files += length;
+				}
+			}
+
+			if (files.find("/index.html") != files.end())
+				files["/"] = files["/index.html"];
+
+			std::cerr << "Loaded " << nb_files << " files (" << size_files << " bytes)" << std::endl;
+		}
+#else
+		(void)server_root;
+#endif
 	}
 };
 
@@ -89,6 +217,7 @@ int main(int argc, char ** argv)
 	std::string db_password;
 	std::string db_name;
 	std::string cfg_filename;
+	std::string server_root;
 
 	config_file_options.add_options()
 		("port,p", boost::program_options::value<int>(&port), "Listen to the given port")
@@ -96,7 +225,11 @@ int main(int argc, char ** argv)
 		("uri", boost::program_options::value<std::string>(&db_uri)->default_value("tcp://127.0.0.1:3306"), "Database URI")
 		("username", boost::program_options::value<std::string>(&db_username), "Database username")
 		("password", boost::program_options::value<std::string>(&db_password), "Database password")
-		("database", boost::program_options::value<std::string>(&db_name), "Database name");
+		("database", boost::program_options::value<std::string>(&db_name), "Database name")
+#ifndef NDEBUG
+		("root", boost::program_options::value<std::string>(&server_root)->default_value("."), "Debug server root")
+#endif
+		;
 
 	command_line_options.add_options()
 		("help,h", "this help message")
@@ -161,25 +294,19 @@ int main(int argc, char ** argv)
 // 	else
 #endif
 	{
-		server = std::unique_ptr<HttpServer>(new HttpServer(port));
+		server = std::unique_ptr<HttpServer>(new HttpServer(port, handler, server_root));
 	}
-
-	server->resource["^/" + squarez::onlineSinglePlayer::GameInit::method() + "\\?.*"]["GET"] = std::bind(&squarez::RequestHandler::gameInit, &handler, _1, _2);
-	server->resource["^/" + squarez::onlineSinglePlayer::PushSelection::method() + "\\?.*"]["GET"] = std::bind(&squarez::RequestHandler::pushSelection, &handler, _1, _2);
-	server->resource["^/" + squarez::onlineSinglePlayer::Pause::method() + "\\?.*"]["GET"] = std::bind(&squarez::RequestHandler::pause, &handler, _1, _2);
-	server->resource["^/" + squarez::onlineSinglePlayer::GetScores::method() + "\\?.*"]["GET"] = std::bind(&squarez::RequestHandler::getScores, &handler, _1, _2);
-
-	server->default_resource["GET"] = [](HttpServer::Response& response, std::shared_ptr<HttpServer::Request> request)
-	{
-		std::stringstream out;
-		out << "URL not found" << std::endl;
-		response << "HTTP/1.1 404 Not Found\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Length: " << out.str().size() << "\r\n\r\n" << out.str();
-		std::cerr << "URL not found: " << request->path << std::endl;
-	};
 
 	try
 	{
 		std::cerr << "squarez daemon started" << std::endl;
+#ifndef NDEBUG
+		std::cerr << "Debug version on ";
+		if (port == 80)
+			std::cerr << "http://localhost/" << std::endl;
+		else
+			std::cerr << "http://localhost:" << port << "/" << std::endl;
+#endif
 		server->start();
 		std::cerr << "squarez daemon stopped normally" << std::endl;
 		return EXIT_SUCCESS;
