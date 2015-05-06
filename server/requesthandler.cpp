@@ -108,10 +108,10 @@ namespace
 		LockedGame(std::shared_ptr<squarez::ServerRules> game):
 			_lock(game->_mutex), _game(game) {}
 
-		squarez::ServerRules & game()
+		squarez::ServerRules * operator->()
 		{
 			if (_game)
-				return *_game;
+				return _game.get();
 			else
 				throw std::runtime_error("null reference");
 		}
@@ -184,7 +184,7 @@ namespace
 			for (const auto & pair : _games)
 			{
 				LockedGame game(pair.second);
-				if (game.game().msLeft() < -60000 or std::chrono::steady_clock::now() - game.game()._epoch > std::chrono::hours(24))
+				if (game->msLeft() < -60000 or std::chrono::steady_clock::now() - game->_epoch > std::chrono::hours(24))
 					endedGames.push_back(pair.first);
 			}
 			for (auto i : endedGames)
@@ -213,7 +213,6 @@ squarez::RequestHandler::RequestHandler(std::unique_ptr<squarez::HighScores>&& h
 {
 }
 
-// TODO: move to urltools?
 std::unordered_map<std::string, std::string> squarez::RequestHandler::parseGet(const std::string& uri)
 {
 	std::unordered_map<std::string, std::string> ret;
@@ -303,7 +302,7 @@ void squarez::RequestHandler::pushSelection(Response& response, std::shared_ptr<
 
 	try
 	{
-		bool gameOver = game.game().playSelection(selection, msSinceEpoch);
+		bool gameOver = game->playSelection(selection, msSinceEpoch);
 
 		if (gameOver)
 		{
@@ -347,7 +346,7 @@ void squarez::RequestHandler::pause(Response& response, std::shared_ptr<Request>
 
 	try
 	{
-		game.game().setPause(pause, msSinceEpoch);
+		game->setPause(pause, msSinceEpoch);
 
 		Serializer ser(out);
 		response << "HTTP/1.1 200 OK\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Length: " << out.str().size() << "\r\n\r\n" << out.str();
