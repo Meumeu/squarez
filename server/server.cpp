@@ -301,7 +301,11 @@ int main(int argc, char ** argv)
 	{
 		std::cerr << "squarez daemon started" << std::endl;
 #ifndef NDEBUG
-		std::cerr << "Debug version" << std::endl;
+		std::cerr << "Debug version on ";
+		if (port == 80)
+			std::cerr << "http://localhost/" << std::endl;
+		else
+			std::cerr << "http://localhost:" << port << "/" << std::endl;
 #endif
 		server->start();
 		std::cerr << "squarez daemon stopped normally" << std::endl;
