@@ -25,6 +25,7 @@
 #include <string>
 #include <unordered_map>
 #include <boost/lexical_cast.hpp>
+#include <mutex>
 
 #include <mysql_driver.h>
 #include <cppconn/prepared_statement.h>
@@ -33,6 +34,7 @@ namespace squarez {
 
 class HighScores
 {
+	std::mutex lock;
 	std::unique_ptr<sql::Connection> db;
 	const std::string db_uri, db_username, db_password, db_name;
 
@@ -136,6 +138,8 @@ public:
 
 	template<typename T> T getConfig(const std::string& key, const T& default_value)
 	{
+		std::unique_lock<std::mutex> _(lock);
+
 		std::unique_ptr<sql::ResultSet> res(executeQueryNoRetry("SELECT value FROM config WHERE name=?", key));
 		T ret;
 		if (res->next())
@@ -148,6 +152,8 @@ public:
 
 	template<typename T> void setConfig(const std::string& key, const T& value)
 	{
+		std::unique_lock<std::mutex> _(lock);
+
 		std::string str = boost::lexical_cast<std::string>(value);
 		executeNoRetry("INSERT INTO config (name, value) VALUES (?, ?) ON DUPLICATE KEY UPDATE value=?", key, str, str);
 	}
