@@ -107,89 +107,25 @@ namespace {
 
 int64_t squarez::HighScores::addScore(std::string playerName, int score)
 {
-	std::unique_ptr<sql::ResultSet> res;
+	execute("INSERT INTO scores(name, score, date) VALUES(?,?,?)", playerName, score, time_put());
 
-	try
-	{
-		auto _addScoreStatement = statement("INSERT INTO scores(name, score, date) VALUES(?,?,?)");
-		_addScoreStatement->setString(1, playerName);
-		_addScoreStatement->setInt(2, score);
-		_addScoreStatement->setString(3, time_put());
-		_addScoreStatement->execute();
-
-		auto _lastInsertIdStatement = statement("SELECT @@identity AS id");
-		res.reset(_lastInsertIdStatement->executeQuery());
-		if (res->next())
+	auto res(executeQuery("SELECT @@identity AS id"));
+	if (res->next())
 			return res->getInt("id");
 		else
 			throw std::runtime_error("No insert id");
-	}
-	catch(sql::SQLException& e)
-	{
-		std::cerr << "SQL exception (" << e.getErrorCode() << ", " << e.getSQLState() << "): " << e.what() << std::endl;
-		reconnect();
-
-		auto _addScoreStatement = statement("INSERT INTO scores(name, score, date) VALUES(?,?,?)");
-		_addScoreStatement->setString(1, playerName);
-		_addScoreStatement->setInt(2, score);
-		_addScoreStatement->setString(3, time_put());
-		_addScoreStatement->execute();
-
-		auto _lastInsertIdStatement = statement("SELECT @@identity AS id");
-		res.reset(_lastInsertIdStatement->executeQuery());
-		if (res->next())
-			return res->getInt("id");
-		else
-			throw std::runtime_error("No insert id");
-	}
 }
 
 void squarez::HighScores::updateScore (int score, int64_t rowId)
 {
-	try
-	{
-		auto _updateScoreStatement = statement("UPDATE scores SET score = ? where id = ?");
-		_updateScoreStatement->setInt(1, score);
-		_updateScoreStatement->setInt(2, rowId);
-		_updateScoreStatement->execute();
-	}
-	catch(sql::SQLException& e)
-	{
-		std::cerr << "SQL exception (" << e.getErrorCode() << ", " << e.getSQLState() << "): " << e.what() << std::endl;
-		reconnect();
-
-		auto _updateScoreStatement = statement("UPDATE scores SET score = ? where id = ?");
-		_updateScoreStatement->setInt(1, score);
-		_updateScoreStatement->setInt(2, rowId);
-		_updateScoreStatement->execute();
-	}
+	execute("UPDATE scores SET score = ? where id = ?", score, rowId);
 }
 
 std::vector<squarez::onlineSinglePlayer::GetScores::Score> squarez::HighScores::getScores(std::time_t min_date, std::time_t max_date, int count)
 {
+	auto res(executeQuery("SELECT name, score, date FROM scores WHERE date >= ? AND date < ? ORDER BY score DESC LIMIT ?", time_put(min_date), time_put(max_date), count));
+
 	std::vector<squarez::onlineSinglePlayer::GetScores::Score> ret;
-	std::unique_ptr<sql::ResultSet> res;
-
-	try
-	{
-		auto _getScoreStatement = statement("SELECT name, score, date FROM scores WHERE date >= ? AND date < ? ORDER BY score DESC LIMIT ?");
-		_getScoreStatement->setString(1, time_put(min_date));
-		_getScoreStatement->setString(2, time_put(max_date));
-		_getScoreStatement->setInt(3, count);
-		res.reset(_getScoreStatement->executeQuery());
-	}
-	catch(sql::SQLException& e)
-	{
-		std::cerr << "SQL exception (" << e.getErrorCode() << ", " << e.getSQLState() << "): " << e.what() << std::endl;
-		reconnect();
-
-		auto _getScoreStatement = statement("SELECT name, score, date FROM scores WHERE date >= ? AND date < ? ORDER BY score DESC LIMIT ?");
-		_getScoreStatement->setString(1, time_put(min_date));
-		_getScoreStatement->setString(2, time_put(max_date));
-		_getScoreStatement->setInt(3, count);
-		res.reset(_getScoreStatement->executeQuery());
-	}
-
 	while(res->next())
 	{
 		squarez::onlineSinglePlayer::GetScores::Score tmp;
