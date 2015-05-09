@@ -110,7 +110,19 @@ private:
 	}
 
 public:
-	HttpServer(int port, squarez::RequestHandler& handler, const std::string& server_root) : SimpleWeb::Server<SimpleWeb::HTTP>(port, 4), signals(io_service, SIGINT, SIGTERM), handler(handler)
+	HttpServer(boost::asio::io_service& io_service, int port, squarez::RequestHandler& handler, const std::string& server_root) :
+	SimpleWeb::Server<SimpleWeb::HTTP>(io_service, port, 4), signals(io_service, SIGINT, SIGTERM), handler(handler)
+	{
+		init(server_root);
+	}
+
+	HttpServer(boost::asio::io_service& io_service, boost::asio::ip::tcp::acceptor&& acceptor, squarez::RequestHandler& handler, const std::string& server_root) :
+	SimpleWeb::Server<SimpleWeb::HTTP>(io_service, std::move(acceptor), 4), signals(io_service, SIGINT, SIGTERM), handler(handler)
+	{
+		init(server_root);
+	}
+
+	void init(const std::string& server_root)
 	{
 		signals.async_wait(std::bind(&HttpServer::ctrlC, this, _1, _2));
 
@@ -274,27 +286,32 @@ int main(int argc, char ** argv)
 
 	squarez::RequestHandler handler(std::move(highScores));
 
+	boost::asio::io_service io_service;
 	std::unique_ptr<HttpServer> server;
 
 #ifndef DISABLE_SYSTEMD
-// 	// Check systemd socket activation
-// 	int systemd_fds = sd_listen_fds(1);
-// 	if (systemd_fds > 1)
-// 	{
-// 		std::cerr << "Expected 1 open socket, got " << systemd_fds << std::endl;
-// 		return 3;
-// 	}
-// 	if (systemd_fds == 1)
-// 	{
-// 		int socket_fd = SD_LISTEN_FDS_START;
-// 		boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4, 0);
-// 		boost::asio::ip::tcp::acceptor acceptor;
-//
-// 	}
-// 	else
+	// Check systemd socket activation
+	int systemd_fds = sd_listen_fds(1);
+	if (systemd_fds > 1)
+	{
+		std::cerr << "Expected 1 open socket, got " << systemd_fds << std::endl;
+		return 3;
+	}
+	if (systemd_fds == 1)
+	{
+		int socket_fd = SD_LISTEN_FDS_START;
+		boost::asio::ip::tcp tcp(sd_is_socket_inet(socket_fd, AF_INET, SOCK_STREAM, 1, 0) ? boost::asio::ip::tcp::v4() :
+			sd_is_socket_inet(socket_fd, AF_INET6, SOCK_STREAM, 1, 0) ? boost::asio::ip::tcp::v6() : throw std::runtime_error("Unknown socket type"));
+
+		boost::asio::ip::tcp::endpoint endpoint(tcp, 0);
+		boost::asio::ip::tcp::acceptor acceptor(io_service);
+		acceptor.assign(tcp, socket_fd);
+		server = std::unique_ptr<HttpServer>(new HttpServer(io_service, std::move(acceptor), handler, server_root));
+	}
+	else
 #endif
 	{
-		server = std::unique_ptr<HttpServer>(new HttpServer(port, handler, server_root));
+		server = std::unique_ptr<HttpServer>(new HttpServer(io_service, port, handler, server_root));
 	}
 
 	try
@@ -323,9 +340,4 @@ int main(int argc, char ** argv)
 		std::cerr << "squarez daemon stopped" << std::endl;
 		return EXIT_FAILURE;
 	}
-/*
-	int socket_fd = -1;
-
-
-*/
 }
