@@ -22,7 +22,7 @@
 #define SQUAREZ_REQUESTHANDLER_H
 
 #include "highscores.h"
-#include <Simple-Web-Server/server_http.hpp>
+#include "server_http.h"
 
 namespace squarez
 {

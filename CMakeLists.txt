@@ -26,7 +26,7 @@ endif()
 find_package(PkgConfig REQUIRED)
 
 add_definitions(-std=c++11 -g -Wall -Wextra -Werror -DPACKAGE="squarez" -DPACKAGE_VERSION="${PROJECT_VERSION}")
-include_directories(${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/shared ${CMAKE_CURRENT_SOURCE_DIR}/clients ${CMAKE_CURRENT_SOURCE_DIR}/external)
+include_directories(${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/shared ${CMAKE_CURRENT_SOURCE_DIR}/clients)
 
 include(CheckIncludeFileCXX)
 
