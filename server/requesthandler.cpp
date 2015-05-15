@@ -90,19 +90,9 @@ namespace
 		std::shared_ptr<squarez::ServerRules> _game;
 	public:
 		LockedGame() {}
-
-		LockedGame(LockedGame&& rhs):
-			_lock(std::move(rhs._lock)), _game(std::move(rhs._game)) {}
-
+		LockedGame(LockedGame&& rhs) = default;
 		LockedGame(const LockedGame&) = delete;
-
-		LockedGame& operator=(LockedGame&& rhs)
-		{
-			_lock = std::move(rhs._lock);
-			_game = std::move(rhs._game);
-			return *this;
-		}
-
+		LockedGame& operator=(LockedGame&& rhs) = default;
 		LockedGame& operator=(const LockedGame& rhs) = delete;
 
 		LockedGame(std::shared_ptr<squarez::ServerRules> game):
