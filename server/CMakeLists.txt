@@ -1,4 +1,4 @@
-find_package(Boost REQUIRED COMPONENTS program_options coroutine system context filesystem)
+find_package(Boost REQUIRED COMPONENTS program_options coroutine system context filesystem thread)
 find_package(Threads)
 find_package(MySQLConnectorCPP)
 
