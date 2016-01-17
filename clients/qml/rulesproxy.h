@@ -47,6 +47,7 @@ class RulesProxy : public QAbstractListModel, public Rules::Proxy
 	QString _playerName;
 	QString _url;
 	QString _message;
+	bool _paused;
 
 	std::unique_ptr<squarez::http::Handle> _gameInitHandle;
 

@@ -31,7 +31,8 @@ namespace squarez {
 namespace qt {
 
 RulesProxy::RulesProxy(QObject *parent) :
-	QAbstractListModel(parent)
+	QAbstractListModel(parent),
+	_paused(false)
 {
 }
 
@@ -196,7 +197,15 @@ void RulesProxy::setPaused(bool paused)
 		return;
 
 	auto rules = dynamic_cast<SinglePlayerRules*>(_rules.get());
-	if (rules) rules->setPause(paused);
+	if (rules)
+	{
+		rules->setPause(paused);
+	}
+	else if (_paused != paused)
+	{
+		_paused = paused;
+		emit onPausedChanged(paused);
+	}
 }
 
 QVariant RulesProxy::data(const QModelIndex& index, int /*role*/) const
