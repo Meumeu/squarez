@@ -51,6 +51,7 @@ Page
 	Rules {
 		id: tutorialRules
 		type: "tutorial"
+		paused: !applicationActive || status !== PageStatus.Active
 	}
 
 	Column {
