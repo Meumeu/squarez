@@ -1,5 +1,5 @@
 /*
- * Squarez puzzle game
+ * Squarez puzzle game server binary
  * Copyright (C) 2015  Guillaume Meunier <guillaume.meunier@centraliens.net>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -22,75 +22,77 @@
 #include <cstdlib>
 #include <ctime>
 #include <string>
+#include <cppconn/exception.h>
 
-namespace
-{
-std::string getenv(const char * variable, std::string const& defaultValue)
-{
-	const char * value = std::getenv(variable);
-	if (value and *value != '\0')
-		return value;
-	return defaultValue;
-}
-
-std::string xdg_data_home()
-{
-	// FIXME: create the directory if it does not exist
-	return getenv("XDG_DATA_HOME", getenv("HOME", "") + "/.local/share") + "/" PACKAGE;
-}
-}
-
-squarez::HighScores::HighScores(): db(xdg_data_home() + "/scores.db")
+squarez::HighScores::HighScores(const std::string& db_uri, const std::string& db_username, const std::string& db_password, const std::string& db_name):
+db_uri(db_uri), db_username(db_username), db_password(db_password), db_name(db_name)
 {
 	initDatabase();
+	createDatabase();
 }
 
-squarez::HighScores::HighScores(std::string filename) : db(filename)
+std::shared_ptr<sql::PreparedStatement> squarez::HighScores::statement(const std::string& sql)
 {
-	initDatabase();
+	auto it = statementCache.find(sql);
+	if (it == statementCache.end())
+	{
+		auto stmt = std::shared_ptr<sql::PreparedStatement>(db->prepareStatement(sql));
+		statementCache[sql] = stmt;
+
+		return stmt;
+	}
+	else
+	{
+		return it->second;
+	}
 }
 
-void squarez::HighScores::initDatabase()
+void squarez::HighScores::createDatabase()
 {
-	db.execute("CREATE TABLE IF NOT EXISTS config ("
-		"key VARCHAR(50) UNIQUE,"
-		"value VARCHAR(50)"
-		")"
-	);
+	std::unique_ptr<sql::Statement> stmt(db->createStatement());
+
+	stmt->execute("CREATE TABLE IF NOT EXISTS config ("
+		"name VARCHAR(30) PRIMARY KEY,"
+		"value VARCHAR(255)"
+		")");
 
 	switch(getConfig("version", 0))
 	{
 	case 0: // new database
-		db.execute("CREATE TABLE scores ("
-			"id INTEGER PRIMARY KEY,"
-			"name VARCHAR(100),"
+		stmt->execute("CREATE TABLE scores ("
+			"id INTEGER AUTO_INCREMENT PRIMARY KEY,"
+			"name VARCHAR(255),"
 			"score INTEGER,"
-			"timestamp VARCHAR(30)"
-			")"
-		);
+			"date VARCHAR(30)"
+			")");
 
-		setConfig("version", 2);
+		setConfig("version", 1);
 		break;
 
-	case 1: // convert timestamp format to ISO 8601 standard
-		for(auto& i: db.execute("SELECT id, timestamp FROM scores"))
-		{
-			std::string timestamp = i.fetch<std::string>(1);
-			timestamp[10] = 'T';
-			timestamp += 'Z';
-			db.execute("UPDATE scores SET timestamp=? WHERE id=?", timestamp, i.fetch<int>(0));
-		}
-
-		setConfig("version", 2);
-		break;
-
-	case 2: // current version
+	case 1: // current version
 		break;
 
 	default: // newer version
 		throw std::runtime_error("Database too new");
 		break;
 	}
+}
+
+void squarez::HighScores::initDatabase()
+{
+	sql::Driver * driver = sql::mysql::get_driver_instance();
+	db.reset(driver->connect(db_uri, db_username, db_password));
+
+	std::unique_ptr<sql::Statement> stmt(db->createStatement());
+	stmt->execute("USE " + db_name); // FIXME: SQL injection
+}
+
+void squarez::HighScores::reconnect()
+{
+	statementCache.clear();
+	initDatabase();
+
+	std::cerr << "Reconnected to database" << std::endl;
 }
 
 namespace {
@@ -105,24 +107,39 @@ namespace {
 
 int64_t squarez::HighScores::addScore(std::string playerName, int score)
 {
-	return db.execute("INSERT INTO scores(name, score, timestamp) VALUES(?,?,?)", playerName, score, time_put()).insert_id();
+	std::unique_lock<std::mutex> _(lock);
+
+	execute("INSERT INTO scores(name, score, date) VALUES(?,?,?)", playerName, score, time_put());
+
+	auto res(executeQuery("SELECT @@identity AS id"));
+	if (res->next())
+			return res->getInt("id");
+		else
+			throw std::runtime_error("No insert id");
 }
 
 void squarez::HighScores::updateScore (int score, int64_t rowId)
 {
-	db.execute("UPDATE scores SET score = ? where id = ?", score, rowId);
+	std::unique_lock<std::mutex> _(lock);
+
+	execute("UPDATE scores SET score = ? where id = ?", score, rowId);
 }
 
 std::vector<squarez::onlineSinglePlayer::GetScores::Score> squarez::HighScores::getScores(std::time_t min_date, std::time_t max_date, int count)
 {
+	std::unique_lock<std::mutex> _(lock);
+
+	auto res(executeQuery("SELECT name, score, date FROM scores WHERE date >= ? AND date < ? ORDER BY score DESC LIMIT ?", time_put(min_date), time_put(max_date), count));
+
 	std::vector<squarez::onlineSinglePlayer::GetScores::Score> ret;
-	for(auto& i: db.execute("SELECT name, score, timestamp FROM scores WHERE timestamp >= ?  AND timestamp < ? ORDER BY score DESC LIMIT ?", time_put(min_date), time_put(max_date), count))
+	while(res->next())
 	{
 		squarez::onlineSinglePlayer::GetScores::Score tmp;
-		tmp._playerName = i.fetch<std::string>(0);
-		tmp._score = i.fetch<int>(1);
-		tmp._date = i.fetch<std::string>(2);
+		tmp._playerName = res->getString("name");
+		tmp._score = res->getInt("score");
+		tmp._date = res->getString("date");
 		ret.push_back(tmp);
 	}
+
 	return ret;
 }

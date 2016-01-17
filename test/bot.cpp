@@ -23,7 +23,6 @@
 
 #include "game/constants.h"
 #include "rules/singleplayerrules.h"
-#include "database/database.h"
 #include <iostream>
 
 namespace
@@ -80,32 +79,8 @@ namespace
 	}
 }
 
-void test_db()
-{
-	squarez::database db("/tmp/test_squarez.db");
-	try
-	{
-		db.execute("CREATE TABLE test ("
-			"  key VARCHAR(50) UNIQUE PRIMARY KEY,"
-			"  value VARCHAR(50)"
-			");");
-
-		db.execute("INSERT INTO test VALUES (?, ?)", "toto", 1);
-		db.execute("INSERT INTO test VALUES (?, ?)", "titi", "tata");
-
-		for(auto& i: db.execute("SELECT key, value FROM test"))
-		{
-			std::cout << "key=" << i.fetch<std::string>(0) << ", value=" << i.fetch<std::string>(1) << std::endl;
-		}
-	}
-	catch(...)
-	{}
-}
-
 int main()
 {
-	test_db();
-
 	DummyProxy proxy;
 	squarez::SinglePlayerRules rules(proxy, squarez::constants::default_timer(), "bot");
 	int score = 0;
@@ -113,7 +88,7 @@ int main()
 	auto & board = *rules._board;
 
 	std::mt19937 generator;
-	
+
 	while (true)
 	{
 		squarez::Transition best_t;
@@ -123,7 +98,7 @@ int main()
 		{
 			if (transition._score > best_t._score)
 			best_t = transition;
-			
+
 			if (transition._score)
 				nbCarres++;
 		}

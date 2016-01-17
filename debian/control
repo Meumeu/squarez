@@ -1,0 +1,23 @@
+Source: squarez
+Section: games
+Priority: optional
+Maintainer: Guillaume Meunier <guillaume.meunier@centraliens.net>
+Build-Depends: debhelper (>= 9), cmake
+Standards-Version: 3.9.5
+Homepage: http://git.meumeu.org/?p=squarez.git;a=summary
+#Vcs-Git: git://anonscm.debian.org/collab-maint/squarez.git
+#Vcs-Browser: http://anonscm.debian.org/?p=collab-maint/squarez.git;a=summary
+
+Package: squarez-server
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Squarez puzzle game server
+ This is a remake of the Squarez game by Eric Burgess
+ .
+ You are presented a 8x8 grid of 3 different symbols and a timer, 
+ Selecting 4 identical elements forming the edges of the square
+ remove the edges, refill the timer and give you points. The bigger
+ the square is, the more time and points you will get. Squares that
+ are not horizontal or 45° have bonus point and time.
+ .
+ This package contains the server binary.

@@ -20,7 +20,7 @@
 
 import QtQuick 2.0
 import QtQuick.Particles 2.0
-import QtGraphicalEffects 1.0
+// import QtGraphicalEffects 1.0
 
 Item {
 	id: gameArea
@@ -122,32 +122,32 @@ Item {
 		}
 	}
 
-	FastBlur {
-		id: cells2
-		source: cells
-		anchors.fill: cells
-		visible: false
-		radius: gameOver ? blurRadius : 0
-		transparentBorder: true
-		Behavior on radius { NumberAnimation { duration: 500 }}
-	}
+//	FastBlur {
+//		id: cells2
+//		source: cells
+//		anchors.fill: cells
+//		visible: false
+//		radius: gameOver ? blurRadius : 0
+//		transparentBorder: true
+//		Behavior on radius { NumberAnimation { duration: 500 }}
+//	}
 
-	Desaturate {
-		id: cells3
-		source: cells2
-		anchors.fill: cells
-		visible: false
-		desaturation: gameOver ? 0.8 : 0
-		Behavior on desaturation { NumberAnimation { duration: 500 }}
-	}
+//	Desaturate {
+//		id: cells3
+//		source: cells2
+//		anchors.fill: cells
+//		visible: false
+//		desaturation: gameOver ? 0.8 : 0
+//		Behavior on desaturation { NumberAnimation { duration: 500 }}
+//	}
 
-	BrightnessContrast {
-		source: cells3
-		anchors.fill: cells
-		brightness: visible ? -0.5 : 0
-		visible: gameOver
-		Behavior on brightness { NumberAnimation { duration: 500 }}
-	}
+//	BrightnessContrast {
+//		source: cells3
+//		anchors.fill: cells
+//		brightness: visible ? -0.5 : 0
+//		visible: gameOver
+//		Behavior on brightness { NumberAnimation { duration: 500 }}
+//	}
 
 	Text {
 		id: textOverlay

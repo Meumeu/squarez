@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.0)
 project(squarez VERSION 3.0)
 
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
+
 if(${CMAKE_SYSTEM_NAME} STREQUAL Emscripten)
 set(BUILD_TEST OFF CACHE BOOL "Build the test bot" FORCE)
 set(BUILD_QML_CLIENT OFF CACHE BOOL "Build the QML client" FORCE)
@@ -22,7 +24,6 @@ set(ENABLE_SYSTEMD OFF CACHE BOOL "Enable systemd socket activation" FORCE)
 endif()
 
 find_package(PkgConfig REQUIRED)
-pkg_check_modules(sqlite REQUIRED sqlite3)
 
 add_definitions(-std=c++11 -g -Wall -Wextra -Werror -DPACKAGE="squarez" -DPACKAGE_VERSION="${PROJECT_VERSION}")
 include_directories(${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/shared ${CMAKE_CURRENT_SOURCE_DIR}/clients)
@@ -36,7 +37,6 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/shared/config.h.in ${CMAKE_CURRENT_BI
 
 
 set(shared_sources
-	${CMAKE_CURRENT_SOURCE_DIR}/shared/database/database.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/shared/game/score.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/shared/game/cell.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/shared/game/constants.cpp

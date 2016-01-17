@@ -30,6 +30,7 @@ SelectionProxy::SelectionProxy(VisibleSelection& selection, RulesProxy& rules): 
 
 void SelectionProxy::stateChanged(Selection::State state)
 {
+	_state = state;
 	switch(state)
 	{
 		case Selection::State::invalid:
@@ -43,7 +44,8 @@ void SelectionProxy::stateChanged(Selection::State state)
 
 SelectionProxy::~SelectionProxy()
 {
-	_rules.selectionRemoved(_owner);
+	if (_state == Selection::State::validated)
+		_rules.selectionRemoved(_owner);
 }
 
 }

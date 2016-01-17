@@ -1,21 +1,22 @@
 /*
-* Squarez puzzle game server binary
-* Copyright (C) 2013-2015  Patrick Nicolas <patricknicolas@laposte.net>
-*
-* This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*
-*/
+ * Squarez puzzle game server binary
+ * Copyright (C) 2013-2015  Patrick Nicolas <patricknicolas@laposte.net>
+ * Copyright (C) 2015  Guillaume Meunier <guillaume.meunier@centraliens.net>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 #include <iostream>
 #include <fstream>
 #include <memory>
@@ -33,26 +34,177 @@
 #include <netdb.h>
 #include <signal.h>
 
-// FastCGI
-#include <fastcgi++/manager.hpp>
-
 #include <boost/program_options.hpp>
+#include <boost/filesystem.hpp>
 
 #include "requesthandler.h"
-#include "database/database.h"
 
-Fastcgipp::Manager<squarez::RequestHandler> * manager = nullptr;
+#include "server_http.h"
 
 
-namespace {
-void ctrl_c(int)
+using namespace std::placeholders;
+
+class HttpServer : public SimpleWeb::Server<SimpleWeb::HTTP>
 {
-	if (manager)
-		manager->terminate();
-}
+private:
+	boost::asio::signal_set signals;
+	squarez::RequestHandler& handler;
 
+#ifndef NDEBUG
+	std::map<std::string, std::string> files;
+#endif
 
-}
+	void ctrlC(const boost::system::error_code& error, int /*signal_number*/)
+	{
+		signals.async_wait(std::bind(&HttpServer::ctrlC, this, _1, _2));
+		if (!error)
+		{
+			// A signal occurred.
+			stop();
+		}
+	}
+
+	void serveFile(Response& response, std::shared_ptr<Request> request)
+	{
+#ifndef NDEBUG
+		std::cerr << "Request: " << request->path << std::endl;
+
+		auto it = files.find(request->path);
+
+		if (it != files.end())
+		{
+			response << it->second;
+		}
+		else
+#endif
+		{
+			std::stringstream out;
+			out << "URL not found" << std::endl;
+			response << "HTTP/1.1 404 Not Found\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Length: " << out.str().size() << "\r\n\r\n" << out.str();
+			std::cerr << "URL not found: " << request->path << std::endl;
+		}
+	}
+
+	std::string contentType(const std::string& url)
+	{
+		size_t pos = url.find_last_of('.');
+		if (pos != std::string::npos)
+		{
+			std::string ext = url.substr(pos);
+
+			if (ext == ".html")
+				return "text/html";
+			else if (ext == ".css")
+				return "text/css";
+			else if (ext == ".js")
+				return "application/javascript";
+			else if (ext == ".svg")
+				return "image/svg+xml";
+			else if (ext == ".png")
+				return "image/png";
+			else if (ext == ".mem")
+				return "application/octet-stream";
+		}
+
+		return "text/plain";
+	}
+
+public:
+	HttpServer(boost::asio::io_service& io_service, int port, squarez::RequestHandler& handler, const std::string& server_root) :
+	SimpleWeb::Server<SimpleWeb::HTTP>(io_service, port, 4), signals(io_service, SIGINT, SIGTERM), handler(handler)
+	{
+		init(server_root);
+	}
+
+	HttpServer(boost::asio::io_service& io_service, boost::asio::ip::tcp::acceptor&& acceptor, squarez::RequestHandler& handler, const std::string& server_root) :
+	SimpleWeb::Server<SimpleWeb::HTTP>(io_service, std::move(acceptor), 4), signals(io_service, SIGINT, SIGTERM), handler(handler)
+	{
+		init(server_root);
+	}
+
+	void init(const std::string& server_root)
+	{
+		signals.async_wait(std::bind(&HttpServer::ctrlC, this, _1, _2));
+
+		resource["^/squarez/" + squarez::onlineSinglePlayer::GameInit::method() + "\\?.*"]["GET"] = std::bind(&squarez::RequestHandler::gameInit, &handler, _1, _2);
+		resource["^/squarez/" + squarez::onlineSinglePlayer::PushSelection::method() + "\\?.*"]["GET"] = std::bind(&squarez::RequestHandler::pushSelection, &handler, _1, _2);
+		resource["^/squarez/" + squarez::onlineSinglePlayer::Pause::method() + "\\?.*"]["GET"] = std::bind(&squarez::RequestHandler::pause, &handler, _1, _2);
+		resource["^/squarez/" + squarez::onlineSinglePlayer::GetScores::method() + "\\?.*"]["GET"] = std::bind(&squarez::RequestHandler::getScores, &handler, _1, _2);
+
+		default_resource["GET"] = std::bind(&HttpServer::serveFile, this, _1, _2);
+
+#ifndef NDEBUG
+		if (server_root != "")
+		{
+			size_t nb_files = 0;
+			size_t size_files = 0;
+			boost::filesystem::path root(server_root);
+
+			for(auto& i: boost::filesystem::recursive_directory_iterator(root))
+			{
+				boost::filesystem::path path = i.path();
+				std::string url = path.string();
+
+				if (url.substr(0, server_root.size()) == server_root)
+					url = url.substr(server_root.size());
+
+				size_t pos = url.find_first_not_of('/');
+				if (pos > 0)
+					url = url.substr(pos - 1);
+				else
+					url = "/" + url;
+
+				if (url == "/manifest.appcache")
+					continue;
+
+				if (boost::filesystem::is_directory(path))
+					path /= "index.html";
+
+				std::ifstream ifs(path.string(), std::ifstream::in);
+
+				if (ifs)
+				{
+					std::stringstream response;
+					ifs.seekg(0, std::ios::end);
+					size_t length = ifs.tellg();
+					ifs.seekg(0, std::ios::beg);
+
+					response << "HTTP/1.1 200 OK\r\n"
+					<< "Content-Length: " << length << "\r\n"
+					<< "Content-Type: " << contentType(path.string()) << "\r\n\r\n";
+
+					size_t buffer_size = 131072;
+					if (length>buffer_size)
+					{
+						std::vector<char> buffer(buffer_size);
+						size_t read_length;
+						while((read_length = ifs.read(&buffer[0], buffer_size).gcount()) > 0)
+						{
+							response.write(&buffer[0], read_length);
+						}
+					}
+					else
+						response << ifs.rdbuf();
+
+					ifs.close();
+
+					files[url] = response.str();
+
+					nb_files++;
+					size_files += length;
+				}
+			}
+
+			if (files.find("/index.html") != files.end())
+				files["/"] = files["/index.html"];
+
+			std::cerr << "Loaded " << nb_files << " files (" << size_files << " bytes)" << std::endl;
+		}
+#else
+		(void)server_root;
+#endif
+	}
+};
 
 int main(int argc, char ** argv)
 {
@@ -70,15 +222,26 @@ int main(int argc, char ** argv)
 	boost::program_options::options_description config_file_options("Configuration");
 	boost::program_options::options_description visible_options("squarezd options", window_width);
 
-	std::string port;
+	int port;
 	std::string listen_ip;
-	std::string db_filename;
+	std::string db_uri;
+	std::string db_username;
+	std::string db_password;
+	std::string db_name;
 	std::string cfg_filename;
+	std::string server_root;
 
 	config_file_options.add_options()
-		("port,p", boost::program_options::value<std::string>(&port), "Listen to the given port")
+		("port,p", boost::program_options::value<int>(&port), "Listen to the given port")
 		("listen,l", boost::program_options::value<std::string>(&listen_ip)->default_value("127.0.0.1"), "Listen on the given IP address")
-		("database", boost::program_options::value<std::string>(&db_filename)->default_value("/var/lib/squarezd/squarezd.db"), "Database file name");
+		("uri", boost::program_options::value<std::string>(&db_uri)->default_value("tcp://127.0.0.1:3306"), "Database URI")
+		("username", boost::program_options::value<std::string>(&db_username), "Database username")
+		("password", boost::program_options::value<std::string>(&db_password), "Database password")
+		("database", boost::program_options::value<std::string>(&db_name), "Database name")
+#ifndef NDEBUG
+		("root", boost::program_options::value<std::string>(&server_root)->default_value("."), "Debug server root")
+#endif
+		;
 
 	command_line_options.add_options()
 		("help,h", "this help message")
@@ -110,7 +273,21 @@ int main(int argc, char ** argv)
 		return 6;
 	}
 
-	int socket_fd = -1;
+	std::unique_ptr<squarez::HighScores> highScores;
+	try
+	{
+		highScores.reset(new squarez::HighScores(db_uri, db_username, db_password, db_name));
+	}
+	catch(std::exception& e)
+	{
+		std::cerr << "Cannot open database: " << e.what() << std::endl;
+		return 5;
+	}
+
+	squarez::RequestHandler handler(std::move(highScores));
+
+	boost::asio::io_service io_service;
+	std::unique_ptr<HttpServer> server;
 
 #ifndef DISABLE_SYSTEMD
 	// Check systemd socket activation
@@ -122,90 +299,34 @@ int main(int argc, char ** argv)
 	}
 	if (systemd_fds == 1)
 	{
-		socket_fd = SD_LISTEN_FDS_START;
+		int socket_fd = SD_LISTEN_FDS_START;
+		boost::asio::ip::tcp tcp(sd_is_socket_inet(socket_fd, AF_INET, SOCK_STREAM, 1, 0) ? boost::asio::ip::tcp::v4() :
+			sd_is_socket_inet(socket_fd, AF_INET6, SOCK_STREAM, 1, 0) ? boost::asio::ip::tcp::v6() : throw std::runtime_error("Unknown socket type"));
+
+		boost::asio::ip::tcp::endpoint endpoint(tcp, 0);
+		boost::asio::ip::tcp::acceptor acceptor(io_service);
+		acceptor.assign(tcp, socket_fd);
+		server = std::unique_ptr<HttpServer>(new HttpServer(io_service, std::move(acceptor), handler, server_root));
 	}
+	else
 #endif
-
-	// If we don't have an open socket, create it
-	if (socket_fd < 0 and parameters.count("port"))
 	{
-		struct addrinfo hints;
-		memset(&hints, 0, sizeof(hints));
-		hints.ai_socktype = SOCK_STREAM;
-
-		struct addrinfo * ai = nullptr;
-		int rc = getaddrinfo(listen_ip.c_str(), port.c_str(), &hints, &ai);
-
-		if (rc)
-		{
-			std::cerr << listen_ip << ":" << port << ": " << gai_strerror(rc) << std::endl;
-			return EXIT_FAILURE;
-		}
-
-		for(struct addrinfo * i = ai; i; i = i->ai_next)
-		{
-			socket_fd = socket(i->ai_family, i->ai_socktype, i->ai_protocol);
-			if (socket_fd == -1)
-				continue;
-
-			if (bind(socket_fd, i->ai_addr, i->ai_addrlen) < 0
-				or listen(socket_fd, 128))
-			{
-				close(socket_fd);
-				socket_fd = -1;
-				continue;
-			}
-
-			break;
-		}
-
-		if (ai)
-			freeaddrinfo(ai);
+		server = std::unique_ptr<HttpServer>(new HttpServer(io_service, port, handler, server_root));
 	}
 
-	if (socket_fd < 0)
-	{
-		std::cerr << "No socket available." << std::endl;
-		return EXIT_FAILURE;
-	}
-
-	try
-	{
-		squarez::RequestHandler::highScores = std::make_shared<squarez::HighScores>(db_filename);
-	}
-	catch(squarez::database::exception& e)
-	{
-		std::cerr << "Cannot open database: " << e.what() << std::endl;
-		return 5;
-	}
-
-	struct sigaction sa;
-	memset(&sa, 0, sizeof(struct sigaction));
-	sa.sa_flags = SA_RESTART;
-	sigemptyset(&sa.sa_mask);
-	sa.sa_handler = &ctrl_c;
-	sigaction(SIGINT, &sa, nullptr);
-
-	// Start listening on the provided socket
 	try
 	{
 		std::cerr << "squarez daemon started" << std::endl;
-		manager = new Fastcgipp::Manager<squarez::RequestHandler>(socket_fd);
-		while(true)
-		{
-			try
-			{
-				manager->handler();
-				break;
-			}
-			catch(Fastcgipp::Exceptions::Socket& e)
-			{
-				std::cerr << "fastcgi++ socket exception on fd " << e.fd << ": " << e.what();
-			}
-		}
-		delete manager;
+#ifndef NDEBUG
+		std::cerr << "Debug version on ";
+		if (port == 80)
+			std::cerr << "http://localhost/" << std::endl;
+		else
+			std::cerr << "http://localhost:" << port << "/" << std::endl;
+#endif
+		server->start();
 		std::cerr << "squarez daemon stopped normally" << std::endl;
-		return 0;
+		return EXIT_SUCCESS;
 	}
 	catch (std::exception & e)
 	{
