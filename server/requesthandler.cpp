@@ -40,12 +40,11 @@ namespace
 std::string demangle(const std::string& mangled)
 {
 	int status;
-	char * realname = abi::__cxa_demangle(mangled.c_str(), nullptr, nullptr, &status);
+	std::unique_ptr<char[], decltype(&free)> realname(abi::__cxa_demangle(mangled.c_str(), nullptr, nullptr, &status), &free);
 
 	if (realname)
 	{
-		std::string ret(realname);
-		free(realname);
+		std::string ret(realname.get());
 		return ret;
 	}
 	else
