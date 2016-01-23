@@ -26,6 +26,8 @@
 #include "highscores.h"
 #include "settingvalue.h"
 
+#include <stdlib.h>
+
 int main(int argc, char ** argv)
 {
 	qmlRegisterType<squarez::qt::RulesProxy>("harbour.squarez", 1,0, "Rules");
@@ -33,7 +35,14 @@ int main(int argc, char ** argv)
 	qmlRegisterType<squarez::qt::HighScores>("harbour.squarez", 1,0, "HighScores");
 	qmlRegisterType<squarez::qt::SettingValue>("harbour.squarez", 1, 0, "SettingValue");
 
-	QApplication app(argc, argv);
+	QGuiApplication app(argc, argv);
+
+#ifdef ANDROID
+	const char * path = getenv("QT_PLUGIN_PATH");
+	if (path)
+	  app.addLibraryPath(path);
+#endif
+
 	QQmlApplicationEngine engine(QUrl("qrc:/qml/main.qml"));
 	return app.exec();
 }

@@ -17,3 +17,8 @@
 
 sailfish/harbour-squarez.pro.user
 sailfish/rpm/harbour-squarez.spec
+
+data/img/shape*.svg
+
+/android/appkey.keystore
+/android/res/*/icon.png

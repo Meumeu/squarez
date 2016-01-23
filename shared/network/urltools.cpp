@@ -45,6 +45,7 @@ std::string squarez::urlTools::urlencode(const std::string& in)
 	return out.str();
 }
 
+#ifndef ANDROID
 std::string squarez::urlTools::urldecode(const std::string& in)
 {
 	std::stringstream out;
@@ -70,3 +71,4 @@ std::string squarez::urlTools::urldecode(const std::string& in)
 
 	return out.str();
 }
+#endif

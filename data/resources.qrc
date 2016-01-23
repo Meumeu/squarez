@@ -8,5 +8,11 @@
 		<file>qml/HighScores.qml</file>
 		
 		<file>img/particle.png</file>
+		<file>img/shape0.svg</file>
+		<file>img/shape1.svg</file>
+		<file>img/shape2.svg</file>
+		<file>img/shape0-selected.svg</file>
+		<file>img/shape1-selected.svg</file>
+		<file>img/shape2-selected.svg</file>
 	</qresource>
 </RCC>
